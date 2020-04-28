@@ -1,9 +1,10 @@
-from pathlib import Path
+import youtube_dl, os
 
 # assuming french for now
 def main(sentence, videos):
   # dl video sound and subtitles
-  Path("downloads/").mkdir(exist_ok=True)
+
+  dl_videos(videos)
 
   # transcribe sentence to pseudo-phonetic string
 
@@ -20,6 +21,28 @@ def main(sentence, videos):
   # repeat to find optimum
 
   # return timestamps ranges for the parent function to mix them all
+
+def dl_videos(urls):
+  paths = []
+  for url in urls:
+    ydl_opts = {
+      'writesubtitles': True,
+      'subtitleslangs': [
+        'fr',
+      ],
+      'outtmpl': 'downloads/%(title)s.%(ext)s',
+      'format': 'bestaudio/best',
+      'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'wav',
+        'preferredquality': '192',
+      }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+      filename = ydl.prepare_filename(ydl.extract_info(url))
+      ydl.download([url])
+      paths.append(os.path.splitext(filename)[0])# TODO handle subs + audio
+  return paths
 
 from sys import argv
 if __name__ == "__main__":
