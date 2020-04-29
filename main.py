@@ -39,6 +39,8 @@ def phonemes_from_subs(paths):
   return phonems
 
 def parse_align_result(path, start_time):
+  if not os.path.exists(path):
+    return []
   t = textgrid.TextGrid.fromFile(path)
   phones = t[1]
   return map(lambda x:(x.mark, tuple(map(lambda a:a+start_time,x.bounds()))), phones)
