@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json
+import config
 
 def get_phonems(text, sentence_splitter=False):
     """
@@ -24,17 +24,11 @@ def get_phonems(text, sentence_splitter=False):
         ['p', 'R', 'o', 's', 't', 'E', 'R', 'n', 'e', 'v', 'u']
     ]
     """
-
-    try:
-        with open('config.json') as f:
-            json_data = json.load(f)
-    except EnvironmentError:
-        print("No configuration file found. Please create a file 'config.json' and add property 'dict_path' containing the path to the proper dictionary.")
-        exit(1)
+    dict_path = config.get_property("dict_path")
 
     try:
         # Opens the dictionary file and puts it in a dict
-        with open(json_data["dict_path"]) as f:
+        with open(dict_path) as f:
             phonem_dict = dict(x.rstrip().split(None, 1) for x in f)
 
             # If sentence_splitter mode is on, splits on dots
