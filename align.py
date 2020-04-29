@@ -1,10 +1,18 @@
 import os, tempfile, config
 from pathlib import Path
 from scipy.io import wavfile
+import webvtt
+import datetime
 
 def _read_subs(path):
-  # TODO
-  return [((0, 0.5), 'This is a subtitle example')]
+  """Parses subtitles into an array of tuples ((x, y), z) where x = start, y = end, z = text"""
+
+  def _get_sec(time_str):
+    h, m, s = time_str.split(':')
+    return float(h)*3600+float(m)*60+float(s)
+
+  return [((_get_sec(caption.start), _get_sec(caption.end)), caption.text)
+          for caption in webvtt.read(path)]
 
 def _split_audio_in_files(subs, audio_path):
   """Saves each sub in a separate audio file and text file"""
