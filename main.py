@@ -1,5 +1,6 @@
 import youtube_dl, os, textgrid
 from phonem_finding import get_best_phonem_combos
+from sentence_to_phonems import get_phonems
 
 # assuming french for now
 def main(sentence, videos):
@@ -8,7 +9,7 @@ def main(sentence, videos):
   video_paths = dl_videos(videos)
 
   # transcribe sentence to pseudo-phonetic string
-  transcribed_sentence = transcribe(sentence)
+  transcribed_sentence = get_phonems(sentence)[0]# Handle multiple sentences
 
   # transcribe all subtitles to phonetic
 
@@ -26,10 +27,6 @@ def main(sentence, videos):
   # repeat to find optimum
 
   # return timestamps ranges for the parent function to mix them all
-
-def transcribe(text):
-  # TODO
-  return ["s", "a", "l", "y"]
 
 def detect_phonemes(path_subs):
   # TODO
