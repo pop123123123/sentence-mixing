@@ -41,15 +41,15 @@ def _split_audio_in_files(subs, audio_path):
 
 def _concat_wav(segments, audio_path):
   rate, data = wavfile.read(audio_path)
-
-  new_clip = []
+  import numpy as np
+  new_clip = data[0:1]
   for segment in segments:
     start_frame = int(segment[0]*rate)
     end_frame = int(segment[1]*rate)
 
-    new_clip += data[start_frame:end_frame]
+    new_clip = np.concatenate((new_clip, data[start_frame:end_frame]))
 
-  wavfile.write("out.wav")
+  wavfile.write("out.wav", rate, new_clip)
 
 def align_phonems(audio_path, subs_path):
   subs = _read_subs(subs_path)

@@ -1,7 +1,7 @@
 import youtube_dl, os, textgrid
 from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
-from align import align_phonems
+from align import align_phonems, _concat_wav
 
 # assuming french for now
 def main(sentence, videos):
@@ -28,7 +28,10 @@ def main(sentence, videos):
   # repeat to find optimum
 
   # return timestamps ranges for the parent function to mix them all
-  print([(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos])
+  available_combos = [combos[:1] for combos in available_combos]
+  timestamps = [(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos]
+  print(timestamps)
+  _concat_wav(timestamps, video_paths[0][0])
 
 def phonemes_from_subs(paths):
   subs, folder = align_phonems(*paths)
