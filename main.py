@@ -34,7 +34,7 @@ def phonemes_from_subs(paths):
   subs, folder = align_phonems(*paths)
   phonems = []
   for i, sub in enumerate(subs):
-    start_time = sub[0]
+    start_time = sub[0][0]
     phonems.extend(parse_align_result(f'{folder}/{i}.TextGrid', start_time))
   return phonems
 
