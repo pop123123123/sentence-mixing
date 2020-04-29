@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-def get_bests_phonem_combos(target, subtitles):
+def get_best_phonem_combos(target, subtitles):
     """
     Returns the best phonem sequences in subtitles and returns its indexes
 
@@ -37,8 +37,8 @@ def get_bests_phonem_combos(target, subtitles):
         raise Exception("Error, phonems", target, "not found in given subtitles")
 
     # Recursively launches the function on remaining left and right phonems
-    left_tab = get_bests_phonem_combos(target[:index_found], subtitles)
-    right_tab = get_bests_phonem_combos(target[index_found+len(found):], subtitles)
+    left_tab = get_best_phonem_combos(target[:index_found], subtitles)
+    right_tab = get_best_phonem_combos(target[index_found+len(found):], subtitles)
 
     # Concatenates all the results in the proper order
     return_tab = []
