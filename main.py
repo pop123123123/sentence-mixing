@@ -23,6 +23,15 @@ def main(sentence, videos):
   # return timestamps ranges for the parent function to mix them all
 
 def dl_videos(urls):
+  """
+  Downloads audio and subs for videos at the given urls
+
+  Arguments:
+  - urls: iterable of youtube urls of the wanted videos
+
+  Returns:
+  A list of tuples (wave_file, subs_file) matching the given urls
+  """
   paths = []
   for url in urls:
     ydl_opts = {
@@ -41,7 +50,8 @@ def dl_videos(urls):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
       filename = ydl.prepare_filename(ydl.extract_info(url))
       ydl.download([url])
-      paths.append(os.path.splitext(filename)[0])# TODO handle subs + audio
+      base_path = os.path.splitext(filename)[0]
+      paths.append((base_path + '.wav', base_path + '.fr.vtt'))# TODO handle dynamic extensions
   return paths
 
 from sys import argv
