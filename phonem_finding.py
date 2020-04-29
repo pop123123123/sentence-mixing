@@ -43,12 +43,12 @@ def get_best_phonem_combos(target, subtitles):
     # Concatenates all the results in the proper order
     return_tab = []
     if left_tab:
-        return_tab.append(left_tab)
+        return_tab.extend(left_tab)
 
     return_tab.append(_matchings(subtitles, found))
 
     if right_tab:
-        return_tab.append(right_tab)
+        return_tab.extend(right_tab)
 
     return return_tab
 
