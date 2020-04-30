@@ -64,6 +64,7 @@ if __name__ == "__main__":
       total_timestamps.extend(timestamps)
       total_text += '\n' + sentence
 
+      save(total_timestamps, total_text, name='video.json')
       sentence = get_sentence(total_text)
 
     print('\n'*80)
