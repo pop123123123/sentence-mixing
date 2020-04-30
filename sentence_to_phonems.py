@@ -43,19 +43,18 @@ def get_phonems(text, sentence_splitter=False):
             # -turning to uppercase
             # -splitting on spaces
             def _format_string(sentence):
-                sentence =  sentence.replace(".", "").replace("!", "").replace(",", "").replace("?", "").replace(";", "")
+                sentence =  sentence.replace(".", " SP ").replace("!", "").replace(",", "").replace("?", "").replace(";", "")
                 sentence = sentence.replace("'", "' ")
                 sentence = sentence.strip()
                 sentence = sentence.upper()
-                return sentence.split(" ")
+                return sentence.split()
 
             sentences = list(map(_format_string, sentences))
 
             # Second transformation: replaces all the ords by arrays of its phonems
             def _to_phonem(sentence):
                 def _word_to_phonem(word):
-                    return phonem_dict[word].split(' ')
-
+                    return phonem_dict[word].split()
                 return list(map(_word_to_phonem, sentence))
 
             sentences = list(map(_to_phonem, sentences))
@@ -66,9 +65,6 @@ def get_phonems(text, sentence_splitter=False):
                 return final_array
 
             sentences = list(map(_big_flatten, sentences))
-    except KeyError:
-        print("Please add property 'dict_path' containing the path to the proper dictionary path to the JSON file.")
-        exit(1)
     except EnvironmentError:
         print("File specified in property 'dict_path' of JSON config file was not found.")
         exit(1)
