@@ -23,18 +23,16 @@ if __name__ == "__main__":
     argv = argv[1:]
 
     valid = False
+    skip = argv[1] == 'skip'
+    if skip:
+      argv = argv[1:]
     while not valid:
-      if argv[1] == 'skip':
-        timestamps = main(argv[2], argv[3:], skip=True)
-      else:
-        timestamps = main(argv[1], argv[2:])
+      timestamps = main(argv[1], argv[2:], skip=skip)
       os.system(command)
       line = input("Enter 'y' to validate, otherwise just press enter: ")
       valid = line == 'y'
+      skip = True
       os.system('cls' if os.name == 'nt' else 'clear')
-
-    if argv[1] == 'skip':
-      argv = argv[1:]
 
     print('\n'*80)
     paths = dl_videos(argv[2:])
