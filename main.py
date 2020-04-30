@@ -69,6 +69,7 @@ def dl_videos(urls):
   for url in urls:
     ydl_opts = {
       'writesubtitles': True,
+      'writeautomaticsub': True,
       'subtitleslangs': [
         'fr',
       ],

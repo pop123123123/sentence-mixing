@@ -14,7 +14,7 @@ def _read_subs(path):
 
   return [((_get_sec(caption.start),
             _get_sec(caption.end)),
-           replace_numbers_string(caption.text.replace('\n', ' ')))
+           replace_numbers_string(caption.text.split('\n')[-1]))
           for caption in webvtt.read(path)]
 
 def _split_audio_in_files(subs, audio_path):
