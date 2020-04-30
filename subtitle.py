@@ -8,6 +8,7 @@ class Subtitle(AudioSegment):
 
     def __init__(self, start_timestamp, end_timestamp, subtitle):
         AudioSegment.__init__(self, start_timestamp, end_timestamp, subtitle, None)
+        self._mini_audio = None
 
     def get_subtitle(self):
         return self._text
@@ -15,13 +16,15 @@ class Subtitle(AudioSegment):
     def create_audio(self, save_path, full_audio_path):
         """Saves sub's related audio in a separate audio file"""
 
-        if self._audio_path:
-            raise Exception("Corresponding audio file has already been saved in", self._audio_path)
+        self._audio_path = full_audio_path
+
+        if self._mini_audio:
+            raise Exception("Corresponding audio file has already been saved in", self._mini_audio)
 
         if not save_path.endswith(".wav"):
             raise Exception("Subtitles file must have .wav extension (Received", save_path, ")")
 
-        self._audio_path = save_path
+        self._mini_audio = save_path
 
         rate, data = wavfile.read(full_audio_path)
 
@@ -43,3 +46,6 @@ class Subtitle(AudioSegment):
         # Writes the subtitle in a .lab file
         with open(save_path, "w") as subfile:
             subfile.write(self._text)
+
+    def get_basename_audio(self):
+        return os.path.basename(self._mini_audio)[:-4]

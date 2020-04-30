@@ -3,6 +3,7 @@ from pathlib import Path
 from scipy.io import wavfile
 import webvtt
 import datetime
+import base64
 from utils import replace_numbers_string
 from subtitle import Subtitle
 
@@ -22,12 +23,15 @@ def _split_audio_in_files(subs, audio_path, video_name):
   """Saves each sub in a separate audio file and text file"""
 
   # Arbitrary name
-  folder_name = os.path.join('subs', video_name)
+  folder_name = 'subs'
   Path(folder_name).mkdir(parents=True, exist_ok=True)
 
+  video_hashed_name = base64.b64encode(video_name.encode("utf-8"))
+  video_hashed_name = str(video_hashed_name, "utf-8")
+
   for i, sub in enumerate(subs):
-      sub.create_audio(os.path.join(folder_name, str(i)+".wav"), audio_path)
-      sub.save_sub(os.path.join(folder_name, str(i)+".lab"))
+      sub.create_audio(os.path.join(folder_name, video_hashed_name + "." + str(i)+".wav"), audio_path)
+      sub.save_sub(os.path.join(folder_name, video_hashed_name + '.' + str(i)+".lab"))
 
   return folder_name
 
@@ -43,12 +47,16 @@ def _concat_wav(segments, audio_path):
 
   wavfile.write("out.wav")
 
-def align_phonems(audio_path, subs_path):
-  print(audio_path, subs_path)
+def extract_subs(audio_path, subs_path):
   video_name = os.path.basename(audio_path)
 
   subs = _read_subs(subs_path)
-  folder = _split_audio_in_files(subs, audio_path, video_name)
+  _split_audio_in_files(subs, audio_path, video_name)
+  return subs
+
+
+def align_phonems():
+  folder = 'subs'
   speakers = 1
 
   align_exe = config.get_property('align_exe')
@@ -62,4 +70,4 @@ def align_phonems(audio_path, subs_path):
   ret = os.system(command)
   # TODO: check ret
 
-  return subs, out_dir
+  return out_dir

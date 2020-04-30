@@ -20,5 +20,8 @@ class AudioSegment():
     def get_end_timestamp(self):
         return self._end
 
+    def get_audio_path(self):
+        return self._audio_path
+
     def __str__(self):
         return "(" + str(self._start) + ", " + str(self._end) + ", " + str(self._text) + ", " + str(self._audio_path) + ")"

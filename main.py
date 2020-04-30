@@ -1,7 +1,7 @@
 import youtube_dl, os, textgrid
 from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
-from align import align_phonems
+from align import extract_subs, align_phonems
 from phonem import Phonem
 
 # assuming french for now
@@ -18,11 +18,16 @@ def main(sentence, videos):
   # find all useful phonetics in subtitles, and match them to a range specific video location
   # save progress
 
+  subs = []
+  for audio_path, subs_path in video_paths:
+    subs.extend(extract_subs(audio_path, subs_path))
+
+  tmp_folder = align_phonems()
+
+  phonems = phonemes_from_subs(subs, tmp_folder)
+
   # find the refined time location for each of the phonemes in the sound file
   # save progress
-  phonems = []
-  for audio_path, subs_path in video_paths:
-    phonems.extend(phonemes_from_subs(audio_path, subs_path))
 
   available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x.get_phonem(), phonems)))
 
@@ -33,12 +38,15 @@ def main(sentence, videos):
   # return timestamps ranges for the parent function to mix them all
   #print([(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos])
 
-def phonemes_from_subs(audio_path, subs_path):
-  subs, folder = align_phonems(audio_path, subs_path)
+
+def phonemes_from_subs(subs, tmp_folder):
   phonems = []
-  for i, sub in enumerate(subs):
+  for sub in subs:
     start_time = sub.get_start_timestamp()
-    phonems.extend(parse_align_result(f'{folder}/{i}.TextGrid', start_time, audio_path))
+
+    textgrid_path = os.path.join(tmp_folder, sub.get_basename_audio() + ".TextGrid")
+    phonems.extend(parse_align_result(textgrid_path, start_time, sub.get_audio_path()))
+
   return phonems
 
 def parse_align_result(path, start_time, full_audio_path):
