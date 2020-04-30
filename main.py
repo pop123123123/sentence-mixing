@@ -7,6 +7,7 @@ from serialize import save, load
 # assuming french for now
 def main(sentence, videos, skip=False):
   if skip:
+    print('\n'*80)
     video_paths, phonems = load()
   # dl video sound and subtitles
 
@@ -37,8 +38,8 @@ def main(sentence, videos, skip=False):
   import random
   available_combos = [[random.choice(combos)] for combos in available_combos]
   timestamps = [(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos]
-  print(timestamps)
   _concat_wav(timestamps, video_paths[0][0])
+  return timestamps
 
 def phonemes_from_subs(paths):
   subs, folder = align_phonems(*paths)
@@ -93,6 +94,6 @@ if __name__ == "__main__":
   # format: exe sentence url1 url2 ...
   if len(argv) >= 3:
     if argv[1] == 'skip':
-      main(argv[2], argv[3:], skip=True)
+      print(main(argv[2], argv[3:], skip=True))
     else:
-      main(argv[1], argv[2:])
+      print(main(argv[1], argv[2:]))
