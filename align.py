@@ -23,7 +23,7 @@ def _split_audio_in_files(subs, audio_path, video_name):
   """Saves each sub in a separate audio file and text file"""
 
   # Arbitrary name
-  folder_name = 'subs'
+  folder_name = config.get_property('folder')
   Path(folder_name).mkdir(parents=True, exist_ok=True)
 
   video_hashed_name = base64.b64encode(video_name.encode("utf-8"))
@@ -56,7 +56,7 @@ def extract_subs(audio_path, subs_path):
 
 
 def align_phonems():
-  folder = 'subs'
+  folder = config.get_property('folder')
   speakers = 1
 
   align_exe = config.get_property('align_exe')

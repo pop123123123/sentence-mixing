@@ -1,4 +1,4 @@
-import youtube_dl, os, textgrid
+import youtube_dl, os, textgrid, config
 from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
 from align import extract_subs, align_phonems
@@ -91,6 +91,8 @@ def dl_videos(urls):
 
 from sys import argv
 if __name__ == "__main__":
+  os.rmdir(config.get_property("folder"))
+
   # format: exe sentence url1 url2 ...
   if len(argv) >= 3:
     main(argv[1], argv[2:])
