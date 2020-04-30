@@ -3,7 +3,9 @@ from pathlib import Path
 from scipy.io import wavfile
 import webvtt
 import datetime
+import base64
 from utils import replace_numbers_string
+from subtitle import Subtitle
 
 def _read_subs(path):
   """Parses subtitles into an array of tuples ((x, y), z) where x = start, y = end, z = text"""
@@ -12,33 +14,24 @@ def _read_subs(path):
     h, m, s = time_str.split(':')
     return float(h)*3600+float(m)*60+float(s)
 
-  return [((_get_sec(caption.start),
-            _get_sec(caption.end)),
+  return [Subtitle(_get_sec(caption.start),
+            _get_sec(caption.end),
            replace_numbers_string(caption.text.split('\n')[-1]))
           for caption in webvtt.read(path)]
 
-def _split_audio_in_files(subs, audio_path):
+def _split_audio_in_files(subs, audio_path, video_name):
   """Saves each sub in a separate audio file and text file"""
 
   # Arbitrary name
-  folder_name = 'subs'
+  folder_name = config.get_property('folder')
   Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-  rate, data = wavfile.read(audio_path)
+  video_hashed_name = base64.b64encode(video_name.encode("utf-8"))
+  video_hashed_name = str(video_hashed_name, "utf-8")
 
   for i, sub in enumerate(subs):
-    # Audio processing
-    # Cuts the audio file at the proper frames
-    # Saves the new audio to an individual file
-    start_frame = int(sub[0][0]*rate)
-    end_frame = int(sub[0][1]*rate)
-
-    sub_audio_data = data[start_frame:end_frame]
-    wavfile.write(os.path.join(folder_name, str(i)+".wav"), rate, sub_audio_data)
-
-    # Writes the subtitle in a .lab file
-    with open(os.path.join(folder_name, str(i)+".lab"), "w") as subfile:
-      subfile.write(sub[1])
+      sub.create_audio(os.path.join(folder_name, video_hashed_name + "." + str(i)+".wav"), audio_path)
+      sub.save_sub(os.path.join(folder_name, video_hashed_name + '.' + str(i)+".lab"))
 
   return folder_name
 
@@ -54,9 +47,20 @@ def _concat_wav(segments, audio_path):
 
   wavfile.write("out.wav", rate, new_clip)
 
-def align_phonems(audio_path, subs_path):
+def extract_subs(audio_path, subs_path):
+  """Extracts little subs from vtt file and saves it into multiple files"""
+
+  video_name = os.path.basename(audio_path)
+
   subs = _read_subs(subs_path)
-  folder = _split_audio_in_files(subs, audio_path)
+  _split_audio_in_files(subs, audio_path, video_name)
+  return subs
+
+
+def align_phonems():
+  """Launches the aligner"""
+
+  folder = config.get_property('folder')
   speakers = 1
 
   align_exe = config.get_property('align_exe')
@@ -70,4 +74,4 @@ def align_phonems(audio_path, subs_path):
   ret = os.system(command)
   # TODO: check ret
 
-  return subs, out_dir
+  return out_dir

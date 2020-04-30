@@ -1,7 +1,8 @@
-import youtube_dl, os, textgrid
+import youtube_dl, os, textgrid, config
 from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
-from align import align_phonems, _concat_wav
+from align import extract_subs, align_phonems
+from phonem import Phonem
 from serialize import save, load
 
 # assuming french for now
@@ -17,18 +18,22 @@ def main(sentence, videos, skip=False):
   # transcribe sentence to pseudo-phonetic string
   transcribed_sentence = get_phonems(sentence)[0]# Handle multiple sentences
 
-  # transcribe all subtitles to phonetic
+  # saves all the subs chunks to the folder
+  subs = []
+  for audio_path, subs_path in video_paths:
+    subs.extend(extract_subs(audio_path, subs_path))
 
-  # find all useful phonetics in subtitles, and match them to a range specific video location
-  # save progress
+  # launches the program
+  tmp_folder = align_phonems()
 
-  # find the refined time location for each of the phonemes in the sound file
-  # save progress
   if not skip:
-    phonems = phonemes_from_subs(video_paths[0])# TODO handle multiple videos
+    # looks into the tmp_folder for text grids and phonems
+    phonems = phonemes_from_subs(subs, tmp_folder)
+    # save progress
     save(video_paths, phonems)
 
-  available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x[0], phonems)))
+  # find the refined time location for each of the phonemes in the sound file
+  available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x.get_phonem(), phonems)))
 
   # try sound mixing
   # evaluate
@@ -41,20 +46,24 @@ def main(sentence, videos, skip=False):
   _concat_wav(timestamps, video_paths[0][0])
   return timestamps
 
-def phonemes_from_subs(paths):
-  subs, folder = align_phonems(*paths)
+
+def phonemes_from_subs(subs, tmp_folder):
   phonems = []
-  for i, sub in enumerate(subs):
-    start_time = sub[0][0]
-    phonems.extend(parse_align_result(f'{folder}/{i}.TextGrid', start_time))
+  for sub in subs:
+    start_time = sub.get_start_timestamp()
+
+    textgrid_path = os.path.join(tmp_folder, sub.get_basename_audio() + ".TextGrid")
+    phonems.extend(parse_align_result(textgrid_path, start_time, sub.get_audio_path()))
+
   return phonems
 
-def parse_align_result(path, start_time):
+def parse_align_result(path, start_time, full_audio_path):
   if not os.path.exists(path):
     return []
   t = textgrid.TextGrid.fromFile(path)
   phones = t[1]
-  return map(lambda x:(x.mark, tuple(map(lambda a:a+start_time,x.bounds()))), phones)
+
+  return map(lambda x: Phonem(x.bounds()[0]+start_time, x.bounds()[1]+start_time, x.mark, full_audio_path), phones)
 
 def dl_videos(urls):
   """
@@ -91,6 +100,8 @@ def dl_videos(urls):
 
 from sys import argv
 if __name__ == "__main__":
+  os.rmdir(config.get_property("folder"))
+
   # format: exe sentence url1 url2 ...
   if len(argv) >= 3:
     if argv[1] == 'skip':
