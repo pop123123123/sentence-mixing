@@ -29,8 +29,10 @@ def _split_audio_in_files(subs, audio_path, video_name):
   video_hashed_name = base64.b64encode(video_name.encode("utf-8"))
   video_hashed_name = str(video_hashed_name, "utf-8")
 
+  wavefile = wavfile.read(audio_path)
+
   for i, sub in enumerate(subs):
-      sub.create_audio(os.path.join(folder_name, video_hashed_name + "." + str(i)+".wav"), audio_path)
+      sub.create_audio(os.path.join(folder_name, video_hashed_name + "." + str(i)+".wav"), audio_path, wavefile)
       sub.save_sub(os.path.join(folder_name, video_hashed_name + '.' + str(i)+".lab"))
 
   return folder_name

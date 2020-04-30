@@ -13,7 +13,7 @@ class Subtitle(AudioSegment):
     def get_subtitle(self):
         return self._text
 
-    def create_audio(self, save_path, full_audio_path):
+    def create_audio(self, save_path, full_audio_path, wave_file=None):
         """Saves sub's related audio in a separate audio file"""
 
         self._audio_path = full_audio_path
@@ -26,7 +26,10 @@ class Subtitle(AudioSegment):
 
         self._mini_audio = save_path
 
-        rate, data = wavfile.read(full_audio_path)
+        if wave_file is None:
+            rate, data = wavfile.read(full_audio_path)
+        else:
+            rate, data = wave_file
 
         # Audio processing
         # Cuts the audio file at the proper frames

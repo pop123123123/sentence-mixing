@@ -4,6 +4,7 @@ from sentence_to_phonems import get_phonems
 from align import extract_subs, align_phonems
 from phonem import Phonem
 from serialize import save, load
+from align import _concat_wav
 
 # assuming french for now
 def main(sentence, videos, skip=False):
@@ -23,10 +24,10 @@ def main(sentence, videos, skip=False):
   for audio_path, subs_path in video_paths:
     subs.extend(extract_subs(audio_path, subs_path))
 
-  # launches the program
-  tmp_folder = align_phonems()
-
   if not skip:
+    # launches the program
+    tmp_folder = align_phonems()
+
     # looks into the tmp_folder for text grids and phonems
     phonems = phonemes_from_subs(subs, tmp_folder)
     # save progress
@@ -42,7 +43,7 @@ def main(sentence, videos, skip=False):
   # return timestamps ranges for the parent function to mix them all
   import random
   available_combos = [[random.choice(combos)] for combos in available_combos]
-  timestamps = [(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos]
+  timestamps = [(phonems[start].get_start_timestamp(), phonems[start + length - 1].get_end_timestamp()) for combos in available_combos for start, length in combos]
   _concat_wav(timestamps, video_paths[0][0])
   return timestamps
 
