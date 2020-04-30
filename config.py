@@ -4,7 +4,8 @@ config_errmsg = {
   'align_exe': 'the path to the Montreal align executable',
   'dict_path': 'the path to the phonem dictionary',
   'trained_model': 'the path to the trained model',
-  'lang': 'the lang of the subtitles (used to convert numbers into plain text)'
+  'lang': 'the lang of the subtitles (used to convert numbers into plain text)',
+  'folder': 'the folder where the sub chunks will be stored'
 }
 
 config = None
