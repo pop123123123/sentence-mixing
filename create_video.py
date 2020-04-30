@@ -17,14 +17,26 @@ def dl_videos(urls):
 
 from sys import argv
 if __name__ == "__main__":
-  # format: exe (skip) sentence url1 url2 ...
-  if len(argv) >= 3:
-    if argv[1] == 'skip':
-      timestamps = main(argv[2], argv[3:], skip=True)
-      argv = argv[1:]
-    else:
-      timestamps = main(argv[1], argv[2:])
+  # format: exe command (skip) sentence url1 url2 ...
+  if len(argv) >= 4:
+    command = argv[1]
+    argv = argv[1:]
 
+    valid = False
+    while not valid:
+      if argv[1] == 'skip':
+        timestamps = main(argv[2], argv[3:], skip=True)
+      else:
+        timestamps = main(argv[1], argv[2:])
+      os.system(command)
+      line = input("Enter 'y' to validate, otherwise just press enter: ")
+      valid = line == 'y'
+      os.system('cls' if os.name == 'nt' else 'clear')
+
+    if argv[1] == 'skip':
+      argv = argv[1:]
+
+    print('\n'*80)
     paths = dl_videos(argv[2:])
     clip = VideoFileClip(paths[0])
     clips = [clip.subclip(*seg) for seg in timestamps]
