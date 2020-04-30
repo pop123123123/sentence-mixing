@@ -1,9 +1,9 @@
-import json
+import pickle
 
-def save(*args, name='save.json'):
-  with open(name, 'w') as f:
-    json.dump(args, f)
+def save(*args, name='save.pckl'):
+  with open(name, 'wb') as f:
+    pickle.dump(args, f)
 
-def load(name='save.json'):
-  with open(name, 'r') as f:
-    return tuple(json.load(f))
+def load(name='save.pckl'):
+  with open(name, 'rb') as f:
+    return tuple(pickle.load(f))
