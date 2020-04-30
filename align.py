@@ -48,6 +48,8 @@ def _concat_wav(segments, audio_path):
   wavfile.write("out.wav")
 
 def extract_subs(audio_path, subs_path):
+  """Extracts little subs from vtt file and saves it into multiple files"""
+
   video_name = os.path.basename(audio_path)
 
   subs = _read_subs(subs_path)
@@ -56,6 +58,8 @@ def extract_subs(audio_path, subs_path):
 
 
 def align_phonems():
+  """Launches the aligner"""
+
   folder = config.get_property('folder')
   speakers = 1
 

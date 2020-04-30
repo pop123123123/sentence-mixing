@@ -13,22 +13,18 @@ def main(sentence, videos):
   # transcribe sentence to pseudo-phonetic string
   transcribed_sentence = get_phonems(sentence)[0]# Handle multiple sentences
 
-  # transcribe all subtitles to phonetic
-
-  # find all useful phonetics in subtitles, and match them to a range specific video location
-  # save progress
-
+  # saves all the subs chunks to the folder
   subs = []
   for audio_path, subs_path in video_paths:
     subs.extend(extract_subs(audio_path, subs_path))
 
+  # launches the program
   tmp_folder = align_phonems()
 
+  # looks into the tmp_folder for text grids and phonems
   phonems = phonemes_from_subs(subs, tmp_folder)
 
   # find the refined time location for each of the phonemes in the sound file
-  # save progress
-
   available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x.get_phonem(), phonems)))
 
   # try sound mixing
