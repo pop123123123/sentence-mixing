@@ -3,6 +3,7 @@ from pathlib import Path
 from scipy.io import wavfile
 import webvtt
 import datetime
+from utils import replace_numbers_string
 
 def _read_subs(path):
   """Parses subtitles into an array of tuples ((x, y), z) where x = start, y = end, z = text"""
@@ -11,7 +12,9 @@ def _read_subs(path):
     h, m, s = time_str.split(':')
     return float(h)*3600+float(m)*60+float(s)
 
-  return [((_get_sec(caption.start), _get_sec(caption.end)), caption.text.split('\n')[-1])
+  return [((_get_sec(caption.start),
+            _get_sec(caption.end)),
+           replace_numbers_string(caption.text.split('\n')[-1]))
           for caption in webvtt.read(path)]
 
 def _split_audio_in_files(subs, audio_path):
