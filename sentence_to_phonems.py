@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import config
+from utils import replace_numbers
 
 def get_phonems(text, sentence_splitter=False):
     """
@@ -46,12 +47,21 @@ def get_phonems(text, sentence_splitter=False):
                 sentence =  sentence.replace(".", " SP ").replace("!", "").replace(",", "").replace("?", "").replace(";", "")
                 sentence = sentence.replace("'", "' ")
                 sentence = sentence.strip()
-                sentence = sentence.upper()
                 return sentence.split()
 
             sentences = list(map(_format_string, sentences))
 
-            # Second transformation: replaces all the ords by arrays of its phonems
+            sentences = list(map(replace_numbers, sentences))
+
+            # Second transformation: puts everything in upper case
+            def _format_string_upper(sentence):
+                def _upper(word):
+                    return word.upper()
+                return list(map(_upper, sentence))
+
+            sentences = list(map(_format_string_upper, sentences))
+
+            # Third transformation: replaces all the ords by arrays of its phonems
             def _to_phonem(sentence):
                 def _word_to_phonem(word):
                     if word == 'SP':
@@ -61,7 +71,7 @@ def get_phonems(text, sentence_splitter=False):
 
             sentences = list(map(_to_phonem, sentences))
 
-            # Third transformation: flattens all the array of phonems to a single one
+            # Fourth transformation: flattens all the array of phonems to a single one
             def _big_flatten(sentence):
                 final_array = [phonem for phonem_array in sentence for phonem in phonem_array]
                 return final_array
