@@ -2,12 +2,16 @@ import youtube_dl, os, textgrid
 from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
 from align import align_phonems, _concat_wav
+from serialize import save, load
 
 # assuming french for now
-def main(sentence, videos):
+def main(sentence, videos, skip=False):
+  if skip:
+    video_paths, phonems = load()
   # dl video sound and subtitles
 
-  video_paths = dl_videos(videos)
+  if not skip:
+    video_paths = dl_videos(videos)
 
   # transcribe sentence to pseudo-phonetic string
   transcribed_sentence = get_phonems(sentence)[0]# Handle multiple sentences
@@ -19,7 +23,9 @@ def main(sentence, videos):
 
   # find the refined time location for each of the phonemes in the sound file
   # save progress
-  phonems = phonemes_from_subs(video_paths[0])# TODO handle multiple videos
+  if not skip:
+    phonems = phonemes_from_subs(video_paths[0])# TODO handle multiple videos
+    save(video_paths, phonems)
 
   available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x[0], phonems)))
 
@@ -28,7 +34,8 @@ def main(sentence, videos):
   # repeat to find optimum
 
   # return timestamps ranges for the parent function to mix them all
-  available_combos = [combos[:1] for combos in available_combos]
+  import random
+  available_combos = [[random.choice(combos)] for combos in available_combos]
   timestamps = [(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos]
   print(timestamps)
   _concat_wav(timestamps, video_paths[0][0])
@@ -84,4 +91,7 @@ from sys import argv
 if __name__ == "__main__":
   # format: exe sentence url1 url2 ...
   if len(argv) >= 3:
-    main(argv[1], argv[2:])
+    if argv[1] == 'skip':
+      main(argv[2], argv[3:], skip=True)
+    else:
+      main(argv[1], argv[2:])

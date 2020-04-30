@@ -54,6 +54,8 @@ def get_phonems(text, sentence_splitter=False):
             # Second transformation: replaces all the ords by arrays of its phonems
             def _to_phonem(sentence):
                 def _word_to_phonem(word):
+                    if word == 'SP':
+                        return ['sp']
                     return phonem_dict[word].split()
                 return list(map(_word_to_phonem, sentence))
 
