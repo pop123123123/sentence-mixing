@@ -4,6 +4,7 @@ from scipy.io import wavfile
 import webvtt
 import datetime
 from utils import replace_numbers_string
+from subtitle import Subtitle
 
 def _read_subs(path):
   """Parses subtitles into an array of tuples ((x, y), z) where x = start, y = end, z = text"""
@@ -12,33 +13,21 @@ def _read_subs(path):
     h, m, s = time_str.split(':')
     return float(h)*3600+float(m)*60+float(s)
 
-  return [((_get_sec(caption.start),
-            _get_sec(caption.end)),
+  return [Subtitle(_get_sec(caption.start),
+            _get_sec(caption.end),
            replace_numbers_string(caption.text.replace('\n', ' ')))
           for caption in webvtt.read(path)]
 
-def _split_audio_in_files(subs, audio_path):
+def _split_audio_in_files(subs, audio_path, video_name):
   """Saves each sub in a separate audio file and text file"""
 
   # Arbitrary name
-  folder_name = 'subs'
+  folder_name = os.path.join('subs', video_name)
   Path(folder_name).mkdir(parents=True, exist_ok=True)
 
-  rate, data = wavfile.read(audio_path)
-
   for i, sub in enumerate(subs):
-    # Audio processing
-    # Cuts the audio file at the proper frames
-    # Saves the new audio to an individual file
-    start_frame = int(sub[0][0]*rate)
-    end_frame = int(sub[0][1]*rate)
-
-    sub_audio_data = data[start_frame:end_frame]
-    wavfile.write(os.path.join(folder_name, str(i)+".wav"), rate, sub_audio_data)
-
-    # Writes the subtitle in a .lab file
-    with open(os.path.join(folder_name, str(i)+".lab"), "w") as subfile:
-      subfile.write(sub[1])
+      sub.create_audio(os.path.join(folder_name, str(i)+".wav"), audio_path)
+      sub.save_sub(os.path.join(folder_name, str(i)+".lab"))
 
   return folder_name
 
@@ -55,8 +44,11 @@ def _concat_wav(segments, audio_path):
   wavfile.write("out.wav")
 
 def align_phonems(audio_path, subs_path):
+  print(audio_path, subs_path)
+  video_name = os.path.basename(audio_path)
+
   subs = _read_subs(subs_path)
-  folder = _split_audio_in_files(subs, audio_path)
+  folder = _split_audio_in_files(subs, audio_path, video_name)
   speakers = 1
 
   align_exe = config.get_property('align_exe')
