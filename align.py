@@ -37,18 +37,6 @@ def _split_audio_in_files(subs, audio_path, video_name):
 
   return folder_name
 
-def _concat_wav(segments, audio_path):
-  rate, data = wavfile.read(audio_path)
-  import numpy as np
-  new_clip = data[0:1]
-  for segment in segments:
-    start_frame = int(segment[0]*rate)
-    end_frame = int(segment[1]*rate)
-
-    new_clip = np.concatenate((new_clip, data[start_frame:end_frame]))
-
-  wavfile.write("out.wav", rate, new_clip)
-
 def extract_subs(audio_path, subs_path):
   """Extracts little subs from vtt file and saves it into multiple files"""
 

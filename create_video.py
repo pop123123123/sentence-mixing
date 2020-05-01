@@ -2,6 +2,28 @@ from main import main
 import youtube_dl, os
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from serialize import load, save
+from scipy.io import wavfile
+
+def _concat_wav(segments):
+  print(segments)
+  audio_files_dict = {}
+  for phonem in segments:
+    if not phonem.get_audio_path() in audio_files_dict:
+      rate, data = wavfile.read(phonem.get_audio_path())
+      audio_files_dict[phonem.get_audio_path()] = (rate, data)
+
+  import numpy as np
+  new_clip = data[0:1]
+  for segment in segments:
+    rate, data = audio_files_dict[segment.get_audio_path()]
+
+    start_frame = int(segment.get_start_timestamp()*rate)
+    end_frame = int(segment.get_end_timestamp()*rate)
+
+    new_clip = np.concatenate((new_clip, data[start_frame:end_frame]))
+
+  wavfile.write("out.wav", rate, new_clip)
+
 
 def dl_videos(urls):
   paths = []
