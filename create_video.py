@@ -5,14 +5,19 @@ from serialize import load, save
 from scipy.io import wavfile
 
 def _concat_wav(segments):
-  print(segments)
+  import numpy as np
+
   audio_files_dict = {}
   for phonem in segments:
     if not phonem.get_audio_path() in audio_files_dict:
       rate, data = wavfile.read(phonem.get_audio_path())
+
+      if len(np.shape(data)) == 1 or data.shape[1] == 1:
+        data = np.stack((data, data), axis=1)
+
       audio_files_dict[phonem.get_audio_path()] = (rate, data)
 
-  import numpy as np
+
   new_clip = data[0:1]
   for segment in segments:
     rate, data = audio_files_dict[segment.get_audio_path()]
@@ -91,7 +96,22 @@ if __name__ == "__main__":
 
     print('\n'*80)
     paths = dl_videos(links)
-    clip = VideoFileClip(paths[0])
-    clips = [clip.subclip(*seg) for seg in total_timestamps]
+
+    #TODO: enlever cette atrocité
+    videos = {}
+    for phonem in total_timestamps:
+      if not phonem.get_audio_path() in videos:
+        vid_path = next(p for p in paths 
+             if os.path.basename(phonem.get_audio_path()).split('.')[0] == os.path.basename(p).split('.')[0])
+
+        clip = VideoFileClip(vid_path)
+
+        videos[phonem.get_audio_path()] = clip
+
+    clips = []
+    for seg in total_timestamps:
+        clip = videos[seg.get_audio_path()]
+        clips.append(clip.subclip(seg.get_start_timestamp(), seg.get_end_timestamp()))
     concatenate_videoclips(clips).write_videofile("out.mp4")
     print(total_text)
+
