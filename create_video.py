@@ -18,7 +18,7 @@ def _concat_wav(segments):
       audio_files_dict[phonem.get_audio_path()] = (rate, data)
 
 
-  new_clip = data[0:1]
+  new_clip = list(audio_files_dict.values())[0][1][:1]
   for segment in segments:
     rate, data = audio_files_dict[segment.get_audio_path()]
 
