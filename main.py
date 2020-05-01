@@ -3,6 +3,7 @@ from phonem_finding import get_best_phonem_combos
 from sentence_to_phonems import get_phonems
 from align import extract_subs, align_phonems
 from phonem import Phonem
+from phonem_group import PhonemGroup
 
 # assuming french for now
 def main(sentence, videos):
@@ -27,9 +28,15 @@ def main(sentence, videos):
   # find the refined time location for each of the phonemes in the sound file
   available_combos = get_best_phonem_combos(transcribed_sentence, list(map(lambda x:x.get_phonem(), phonems)))
 
-  # try sound mixing
-  # evaluate
-  # repeat to find optimum
+
+  all_segments = []
+  for combos in available_combos:
+    phonem_groups = []
+    for start_index, length in combos:
+      phonem_groups.append(PhonemGroup(phonems[start_index:start_index+length], original_word=""))
+    all_segments.append(phonem_groups)
+
+  return all_segments
 
   # return timestamps ranges for the parent function to mix them all
   #print([(phonems[start][1][0], phonems[start + length - 1][1][1]) for combos in available_combos for start, length in combos])
