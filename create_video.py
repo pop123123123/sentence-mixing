@@ -65,6 +65,8 @@ if __name__ == "__main__":
     links = argv[1:]
 
     timestamps_buffer = []
+    timestamps_buffer_sentence = []
+
     while sentence != '':
       timestamps = []
 
@@ -79,6 +81,7 @@ if __name__ == "__main__":
         # Stores previous audio in buffer
         if store:
           timestamps_buffer.append(timestamps)
+          timestamps_buffer_sentence.append(sentence)
           store = False
 
         if load_audio_index is not None:
@@ -97,6 +100,12 @@ if __name__ == "__main__":
         _concat_wav(timestamps)
 
         os.system(command)
+
+        if timestamps_buffer_sentence:
+            print("Stashed audios:")
+            for i, stashed_sentence in enumerate(timestamps_buffer_sentence):
+              print(i, ".", stashed_sentence)
+            print("")
 
         line = input("Enter 'y' to validate, 'e' to edit the sentence, 's' to store this audio in the buffer, 'l' + index for loading previously stored audio, otherwise just press enter: ")
         valid = line == 'y'
