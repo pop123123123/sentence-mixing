@@ -6,6 +6,9 @@ import os
 
 AUDIO_FILE_PATH = 'out.wav'
 
+def clear_screen():
+  os.system('cls' if os.name == 'nt' else 'clear')
+
 def get_sentence(text):
   if text is not None:
     print('Previous sentences:\n', text)
@@ -74,12 +77,12 @@ def loop_interface(audio_command, skip_first, links):
               print(load_audio_index)
 
       skip = True
-      os.system('cls' if os.name == 'nt' else 'clear')
+      clear_screen()
 
     total_timestamps.extend(timestamps)
     total_text += '\n' + sentence
 
     save(total_timestamps, total_text, name='video.json')
     sentence = get_sentence(total_text)
-  print('\n'*80)
+  clear_screen()
   return total_timestamps, total_text
