@@ -2,17 +2,22 @@
 
 from video_creator.video import create_video_file
 from video_creator.interface import loop_interface
-from video_creator.download import dl_videos
+from video_creator.download import dl_video
 
 import argparse
+import concurrent.futures
 
 def main(audio_command, skip_first, urls):
-  total_timestamps, total_text = loop_interface(audio_command, skip_first, urls)
+  with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = executor.map(dl_video, urls)
 
-  paths = dl_videos(urls)
+    total_timestamps, total_text = loop_interface(audio_command, skip_first, urls)
+
+    paths = list(futures)
+
   create_video_file(total_timestamps, paths)
 
-  print(total_text)
+  return total_text
 
 DEFAULT_AUDIO_COMMAND = 'tycat "{}"'
 
@@ -34,4 +39,4 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
 
-  main(args.audio_command, args.skip_first_analysis, args.video_urls)
+  print(main(args.audio_command, args.skip_first_analysis, args.video_urls))
