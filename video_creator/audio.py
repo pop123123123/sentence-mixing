@@ -1,7 +1,7 @@
 from scipy.io import wavfile
 import numpy as np
 
-def concat_wav(segments):
+def concat_wav(path, segments):
   audio_files_dict = {}
   for phonem in segments:
     if not phonem.get_audio_path() in audio_files_dict:
@@ -22,4 +22,4 @@ def concat_wav(segments):
 
     new_clip = np.concatenate((new_clip, data[start_frame:end_frame]))
 
-  wavfile.write("out.wav", rate, new_clip)
+  wavfile.write(path, rate, new_clip)

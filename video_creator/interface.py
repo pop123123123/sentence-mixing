@@ -4,6 +4,8 @@ from video_creator.audio import concat_wav
 
 import os
 
+AUDIO_FILE_PATH = 'out.wav'
+
 def get_sentence(text):
   if text is not None:
     print('Previous sentences:\n', text)
@@ -48,9 +50,9 @@ def loop_interface(audio_command, skip_first, links):
             print(e, 'not recognized')
             sentence = get_sentence(total_text)
 
-      concat_wav(timestamps)
+      concat_wav(AUDIO_FILE_PATH, timestamps)
 
-      os.system(audio_command)
+      os.system(audio_command.format(AUDIO_FILE_PATH))
 
       if timestamps_buffer_sentence:
           print("Stashed audios:")
