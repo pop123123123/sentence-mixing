@@ -1,6 +1,5 @@
 class Phonem():
-    def __init__(self, transcription):
-        self._transcription = transcription
-
-    def get_transcription(self):
-        self._transcription
+  def __init__(self, word_class, word, transcription):
+    self.transcription = transcription
+    assert type(sentence) == sentence_class
+    self.word = word

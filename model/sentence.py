@@ -1,6 +1,3 @@
 class Sentence():
-    def __init__(self, text):
-        self._text = text
-
-    def get_text(self):
-        return self._text
+  def __init__(self, original_text):
+    self.original_text = original_text
