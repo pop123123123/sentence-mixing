@@ -1,5 +1,7 @@
-import config
 from num2words import num2words
+
+import config
+
 
 def replace_numbers(text_array):
     """
@@ -13,7 +15,10 @@ def replace_numbers(text_array):
     """
 
     transformed = [
-        num2words(int(word), lang=config.get_property('lang')).replace('-',' ').split(' ') if word.isdigit()
+        num2words(int(word), lang=config.get_property("lang"))
+        .replace("-", " ")
+        .split(" ")
+        if word.isdigit()
         else [word]
         for word in text_array
     ]
@@ -24,6 +29,7 @@ def replace_numbers(text_array):
             final_array.append(word)
 
     return final_array
+
 
 def replace_numbers_string(text):
     """
@@ -36,6 +42,12 @@ def replace_numbers_string(text):
     transformation of text with numbers replaced in plain text
     """
 
-    text = text.replace(",", "").replace(";", "").replace(".", "").replace("!", "").replace("!", "")
+    text = (
+        text.replace(",", "")
+        .replace(";", "")
+        .replace(".", "")
+        .replace("!", "")
+        .replace("!", "")
+    )
 
-    return ' '.join(replace_numbers(text.split(' ')))
+    return " ".join(replace_numbers(text.split(" ")))

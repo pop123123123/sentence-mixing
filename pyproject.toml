@@ -1,11 +1,11 @@
 [tool.black]
-line-length = 88
+line-length = 79
 include = '\.pyi?$'
 exclude = '''
 /(
-   \.git
-  | \.tox
-  | \.venv
-  | \.docker
+    \.git
+  | \.subs
+  | \.downloads
+  | \.env
 )/
 '''

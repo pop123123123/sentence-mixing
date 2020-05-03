@@ -1,4 +1,4 @@
-class AudioSegment():
+class AudioSegment:
     """This class represent an abstract audio segment
 
     Internal attributes:
@@ -7,13 +7,12 @@ class AudioSegment():
     """
 
     def __init__(self, start, end):
-        self.start = start
-        self.end = end
+        self._start = start
+        self._end = end
 
-    def _get_wave_path(self):
+    def _get_audio_wave(self):
         raise NotImplementedError()
 
     def get_wave(self):
-        audio_path = _get_wave_path()
-        #TODO: play data
-
+        rate, data = self._get_audio_wave()
+        return data[int(self._start * rate) : int(self._end * rate)]

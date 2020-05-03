@@ -1,88 +1,95 @@
+import os
+
 from main import main
 from serialize import load, save
 from video_creator.audio import concat_wav
 
-import os
+AUDIO_FILE_PATH = "out.wav"
 
-AUDIO_FILE_PATH = 'out.wav'
 
 def clear_screen():
-  os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
+
 
 def get_sentence(text):
-  if text is not None:
-    print('Previous sentences:\n', text)
-  return input('Enter a sentence: ')
+    if text is not None:
+        print("Previous sentences:\n", text)
+    return input("Enter a sentence: ")
+
 
 def loop_interface(audio_command, skip_first, links):
-  total_timestamps = []
-  total_text = ""
-  timestamps_buffer = []
-  timestamps_buffer_sentence = []
-  skip = skip_first
+    total_timestamps = []
+    total_text = ""
+    timestamps_buffer = []
+    timestamps_buffer_sentence = []
+    skip = skip_first
 
-  sentence = get_sentence(None)
+    sentence = get_sentence(None)
 
-  while sentence != '':
-    timestamps = []
+    while sentence != "":
+        timestamps = []
 
-    edit = False
-    store = False
-    valid = False
-    load_audio_index = None
-    while not valid:
-      if edit:
-        sentence = get_sentence(total_text)
-
-      # Stores previous audio in buffer
-      if store:
-        timestamps_buffer.append(timestamps)
-        timestamps_buffer_sentence.append(sentence)
+        edit = False
         store = False
-
-      if load_audio_index is not None:
-        timestamps = timestamps_buffer[load_audio_index]
+        valid = False
         load_audio_index = None
-      else:
-        bad_sentence = True
-        while bad_sentence:
-          try:
-            timestamps = main(sentence, links, skip=skip)
-            bad_sentence = False
-          except KeyError as e:
-            print(e, 'not recognized')
-            sentence = get_sentence(total_text)
+        while not valid:
+            if edit:
+                sentence = get_sentence(total_text)
 
-      concat_wav(AUDIO_FILE_PATH, timestamps)
+            # Stores previous audio in buffer
+            if store:
+                timestamps_buffer.append(timestamps)
+                timestamps_buffer_sentence.append(sentence)
+                store = False
 
-      os.system(audio_command.format(AUDIO_FILE_PATH))
+            if load_audio_index is not None:
+                timestamps = timestamps_buffer[load_audio_index]
+                load_audio_index = None
+            else:
+                bad_sentence = True
+                while bad_sentence:
+                    try:
+                        timestamps = main(sentence, links, skip=skip)
+                        bad_sentence = False
+                    except KeyError as e:
+                        print(e, "not recognized")
+                        sentence = get_sentence(total_text)
 
-      if timestamps_buffer_sentence:
-          print("Stashed audios:")
-          for i, stashed_sentence in enumerate(timestamps_buffer_sentence):
-            print(i, ".", stashed_sentence)
-          print("")
+            concat_wav(AUDIO_FILE_PATH, timestamps)
 
-      line = input("Enter 'y' to validate, 'e' to edit the sentence, 's' to store this audio in the buffer, 'l' + index for loading previously stored audio, otherwise just press enter: ")
-      valid = line == 'y'
-      edit = line == 'e'
-      store = line == 's'
+            os.system(audio_command.format(AUDIO_FILE_PATH))
 
-      if line.startswith("l "):
-          index = line.split(" ")[1]
-          if index.isdigit():
-            index = int(index)
-            if -1 < index < len(timestamps_buffer):
-              load_audio_index = index
-              print(load_audio_index)
+            if timestamps_buffer_sentence:
+                print("Stashed audios:")
+                for i, stashed_sentence in enumerate(
+                    timestamps_buffer_sentence
+                ):
+                    print(i, ".", stashed_sentence)
+                print("")
 
-      skip = True
-      clear_screen()
+            line = input(
+                "Enter 'y' to validate, 'e' to edit the sentence, 's' to store this audio in the buffer, 'l' + index for loading previously stored audio, otherwise just press enter: "
+            )
+            valid = line == "y"
+            edit = line == "e"
+            store = line == "s"
 
-    total_timestamps.extend(timestamps)
-    total_text += '\n' + sentence
+            if line.startswith("l "):
+                index = line.split(" ")[1]
+                if index.isdigit():
+                    index = int(index)
+                    if -1 < index < len(timestamps_buffer):
+                        load_audio_index = index
+                        print(load_audio_index)
 
-    save(total_timestamps, total_text, name='video.json')
-    sentence = get_sentence(total_text)
-  clear_screen()
-  return total_timestamps, total_text
+            skip = True
+            clear_screen()
+
+        total_timestamps.extend(timestamps)
+        total_text += "\n" + sentence
+
+        save(total_timestamps, total_text, name="video.json")
+        sentence = get_sentence(total_text)
+    clear_screen()
+    return total_timestamps, total_text

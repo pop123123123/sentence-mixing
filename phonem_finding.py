@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def get_best_phonem_combos(target, subtitles):
     """
     Returns the best phonem sequences in subtitles and returns its indexes
@@ -34,11 +35,15 @@ def get_best_phonem_combos(target, subtitles):
     found, index_found = _longestSubstringFinder(target, subtitles)
 
     if index_found == -1:
-        raise Exception("Error, phonems", target, "not found in given subtitles")
+        raise Exception(
+            "Error, phonems", target, "not found in given subtitles"
+        )
 
     # Recursively launches the function on remaining left and right phonems
     left_tab = get_best_phonem_combos(target[:index_found], subtitles)
-    right_tab = get_best_phonem_combos(target[index_found+len(found):], subtitles)
+    right_tab = get_best_phonem_combos(
+        target[index_found + len(found) :], subtitles
+    )
 
     # Concatenates all the results in the proper order
     return_tab = []
@@ -51,6 +56,7 @@ def get_best_phonem_combos(target, subtitles):
         return_tab.extend(right_tab)
 
     return return_tab
+
 
 def _longestSubstringFinder(target, subtitles):
     """
@@ -69,9 +75,9 @@ def _longestSubstringFinder(target, subtitles):
             if target[i] == subtitles[j]:
                 # Now iterates to find the longest common sequence from this first phonem
                 match_index = i
-                for k in range(min(len(subtitles)-j, len(target)-i)):
-                    if target[i+k] == subtitles[j+k]:
-                        match.append(target[i+k])
+                for k in range(min(len(subtitles) - j, len(target) - i)):
+                    if target[i + k] == subtitles[j + k]:
+                        match.append(target[i + k])
                     else:
                         break
 
@@ -81,6 +87,7 @@ def _longestSubstringFinder(target, subtitles):
                     answer_start_index_target = match_index
 
     return answer, answer_start_index_target
+
 
 def _matchings(subtitles, found):
     """
@@ -93,6 +100,6 @@ def _matchings(subtitles, found):
     found_tab = []
     for i in range(len(subtitles)):
         if subtitles[i] == found[0]:
-            if subtitles[i:i+len(found)] == found:
+            if subtitles[i : i + len(found)] == found:
                 found_tab.append((i, len(found)))
     return found_tab

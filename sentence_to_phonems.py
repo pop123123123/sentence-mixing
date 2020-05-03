@@ -3,6 +3,7 @@
 import config
 from utils import replace_numbers
 
+
 def get_phonems(text, sentence_splitter=False):
     """
     Transforms sentence to an array of array of phonems
@@ -44,7 +45,13 @@ def get_phonems(text, sentence_splitter=False):
             # -turning to uppercase
             # -splitting on spaces
             def _format_string(sentence):
-                sentence =  sentence.replace(".", " SP ").replace("!", "").replace(",", "").replace("?", "").replace(";", "")
+                sentence = (
+                    sentence.replace(".", " SP ")
+                    .replace("!", "")
+                    .replace(",", "")
+                    .replace("?", "")
+                    .replace(";", "")
+                )
                 sentence = sentence.replace("'", "' ")
                 sentence = sentence.strip()
                 return sentence.split()
@@ -57,6 +64,7 @@ def get_phonems(text, sentence_splitter=False):
             def _format_string_upper(sentence):
                 def _upper(word):
                     return word.upper()
+
                 return list(map(_upper, sentence))
 
             sentences = list(map(_format_string_upper, sentences))
@@ -64,21 +72,28 @@ def get_phonems(text, sentence_splitter=False):
             # Third transformation: replaces all the ords by arrays of its phonems
             def _to_phonem(sentence):
                 def _word_to_phonem(word):
-                    if word == 'SP':
-                        return ['sp']
+                    if word == "SP":
+                        return ["sp"]
                     return phonem_dict[word].split()
+
                 return list(map(_word_to_phonem, sentence))
 
             sentences = list(map(_to_phonem, sentences))
 
             # Fourth transformation: flattens all the array of phonems to a single one
             def _big_flatten(sentence):
-                final_array = [phonem for phonem_array in sentence for phonem in phonem_array]
+                final_array = [
+                    phonem
+                    for phonem_array in sentence
+                    for phonem in phonem_array
+                ]
                 return final_array
 
             sentences = list(map(_big_flatten, sentences))
     except EnvironmentError:
-        print("File specified in property 'dict_path' of JSON config file was not found.")
+        print(
+            "File specified in property 'dict_path' of JSON config file was not found."
+        )
         exit(1)
 
     return sentences
