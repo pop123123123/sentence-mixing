@@ -26,7 +26,7 @@ def from_token_to_phonem(token):
     return get_dict()[token].split()
 
 
-def transform_numbers(text):
+def _transform_numbers(text):
     text = re.sub(
         r"(\d+)",
         lambda x: num2words(x.group(1), lang=config.get_property("lang")),
@@ -36,6 +36,7 @@ def transform_numbers(text):
 
 
 def split_text(text):
+    text = _transform_numbers(text)
     text = re.sub(r"\s*([^\s\w])\s*", " \\1 ", text)
     return text.split(" ")
 

@@ -1,6 +1,6 @@
 from scipy.io import wavfile
 
-from model.subtitleLine import SubtitleLine
+from model.audio import SubtitleLine
 
 
 class Video:
