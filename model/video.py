@@ -15,6 +15,7 @@ class Video:
         self._subtitles_extension = subtitles_extension
         self._extension = extension
         self.subtitles = []
+        self.index_subtitles = {}
 
     def _get_audio_path(self):
         return self._base_path + ".wav"
@@ -34,11 +35,15 @@ class Video:
 
     def add_subtitle(self, subtitle):
         assert type(subtitle) == SubtitleLine
+        self.index_subtitles[subtitle] = len(self.subtitles)
         self.subtitles.append(subtitle)
 
-    def extend_subtitles(self, iter_subtitles):
-        # assumes all members of the iterator are SubtitleLine
-        self.subtitles.extend(iter_subtitles)
+    def get_index_subtitle(self, subtitle):
+        assert (
+            self.index_subtitles is not None
+            and subtitle in self.index_subtitles
+        )
+        return self.index_subtitles[subtitle]
 
     @lru_cache(maxsize=None)
     def get_subtitle_file(self):

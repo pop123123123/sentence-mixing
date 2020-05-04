@@ -3,15 +3,22 @@ import itertools
 import math
 
 
+def sequence_word(word):
+    while word is not None:
+        if word.token is not None:
+            yield word
+        word = word.next_in_seq()
+
+
 @functools.lru_cache(maxsize=None)
-def get_same_tokens(starting_word0, starting_word1):
-    w0, w1 = starting_word0, starting_word1
-    return itertools.takewhile(
-        lambda ws: ws[0].token == ws[1].token,
-        zip(
-            w0.sentence.words[w0.get_index_in_sentence() :],
-            w1.sentence.words[w0.get_index_in_sentence() :],
-        ),
+def get_same_tokens(target_phonem, audio_phonem):
+    w0, w1 = target_phonem, audio_phonem
+    assert w0.token == w1.token
+    return list(
+        itertools.takewhile(
+            lambda ws: ws[0].token == ws[1].token,
+            zip(sequence_word(w0), sequence_word(w1),),
+        )
     )
 
 
@@ -62,6 +69,8 @@ def step_3_audio_rating(previousaudio_phonem, audio_phonem):
 NODES = 1 << 12
 SCORE_THRESHOLD = 50
 
+SCORE_SAME_AUDIO_WORD = 200
+
 
 def get_n_best_combos(sentence, videos, n=10):
     audio_phonems = [
@@ -74,6 +83,7 @@ def get_n_best_combos(sentence, videos, n=10):
     target_phonems = list(
         itertools.chain(*map(lambda w: w.phonems, sentence.words))
     )
+    target_phonems_indices = {ph: i for i, ph in enumerate(target_phonems)}
     # Rate all associations
 
     # split, then call get_best_combos with subset of words from
@@ -85,13 +95,9 @@ def get_n_best_combos(sentence, videos, n=10):
             audio_phonems, key=lambda x: rating(target_phonem, x), reverse=True
         )
 
-    def get_best_combos(audio_chosen, nodes_left):
-        import code
-
-        # code.interact(local=locals())
+    def get_best_combos(audio_chosen, t_p, nodes_left):
         total = 0
         rates = []
-        t_p = target_phonems[len(audio_chosen)]
 
         candidates = get_candidates(t_p)
 
@@ -100,49 +106,70 @@ def get_n_best_combos(sentence, videos, n=10):
             rate = rating(t_p, audio_phonem)
             if len(audio_chosen) > 0:
                 rate += step_3_audio_rating(audio_chosen[-1], audio_phonem)
-            rate += get_word_similarity(t_p, audio_phonem)
-
-            total += rate
+                rate += (
+                    audio_chosen[-1].word == audio_phonem.word
+                ) * SCORE_SAME_AUDIO_WORD
 
             # not enough nodes left
-            if nodes_left * rate < total:
+            if nodes_left * rate < (total + rate):
+                # not trivial
                 break
+
+            total += rate
             rates.append(rate)
 
         combos = []
         # Exploration
         for audio_phonem, rate_chosen in zip(candidates, rates):
             new_chosen = audio_chosen + [audio_phonem]
-            if len(audio_chosen) + 1 == len(target_phonems):
+
+            nodes = math.ceil(nodes_left * rate_chosen / total)
+            next_target_phonem = target_phonems[
+                target_phonems_indices[t_p] + 1
+            ]
+            # Phonem skipping if word similarity found
+            if (
+                t_p.word.token == audio_phonem.word.token
+                and t_p.get_index_in_word() == audio_phonem.get_index_in_word()
+                and get_same_tokens(t_p.word, audio_phonem.word)[-1][
+                    0
+                ].phonems[-1]
+                != t_p
+            ):
+                n = target_phonems_indices[next_target_phonem]
+                for _, audio_word in get_same_tokens(
+                    t_p.word, audio_phonem.word
+                ):
+                    if audio_word == audio_phonem.word:
+                        # add current word left phonems
+                        # Should be within bounds, otherwise get back on paper
+                        new_chosen.extend(
+                            audio_word.phonems[
+                                audio_phonem.get_index_in_word() + 1 :
+                            ]
+                        )
+                    else:
+                        # add next word(s) phonems
+                        new_chosen.extend(audio_word.phonems)
+                last_target_word = get_same_tokens(
+                    t_p.word, audio_phonem.word
+                )[-1][0]
+                # update current phonem
+                next_target_phonem = last_target_word.phonems[-1]
+                rate_chosen *= (
+                    target_phonems_indices[next_target_phonem] - n + 1
+                )
+            # stop condition
+            if target_phonems[-1] == next_target_phonem:
                 combos.append((new_chosen, rate_chosen))
             else:
-                nodes = math.ceil(nodes_left * rate_chosen / total)
-                # Phonem skipping if word similarity found
-                if (
-                    t_p.word.token == audio_phonem.word.token
-                    and t_p.get_index_in_word()
-                    == audio_phonem.get_index_in_word()
+                for chosen, rate in get_best_combos(
+                    new_chosen, next_target_phonem, nodes
                 ):
-                    n = len(new_chosen)
-                    for _, audio_word in get_same_tokens(
-                        t_p.word, audio_phonem.word
-                    ):
-                        if audio_word == audio_phonem.word:
-                            # Should be within bounds, otherwise get back on paper
-                            new_chosen.extend(
-                                audio_word.phonems[
-                                    audio_phonem.get_index_in_word() + 1
-                                ]
-                            )
-                        else:
-                            new_chosen.extend(audio_word.phonems)
-                    rate_chosen *= (len(new_chosen) - n) + 1
-
-                for chosen, rate in get_best_combos(new_chosen, nodes):
                     combos.append((chosen, rate + rate_chosen))
 
         return combos
 
-    combos = get_best_combos([], NODES)
+    combos = get_best_combos([], target_phonems[0], NODES)
     combos = sorted(combos, key=lambda c: c[1], reverse=True)
     return list(map(lambda c: c[0], combos[:n]))

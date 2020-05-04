@@ -1,4 +1,9 @@
-class Sentence:
+class Sequencable:
+    def next_in_seq(self):
+        raise NotImplementedError()
+
+
+class Sentence(Sequencable):
     """
     Represents an abstract sequence of words
 
@@ -26,7 +31,7 @@ class Sentence:
         return self.index_words[word]
 
 
-class Word:
+class Word(Sequencable):
     """
     Represents an abstract word
 
@@ -61,8 +66,19 @@ class Word:
     def get_index_in_sentence(self):
         return self.sentence.get_index_word(self)
 
+    def next_in_seq(self):
+        if self == self.sentence.words[-1]:
+            sentence = self.sentence.next_in_seq()
+            while sentence is not None and len(sentence.words) == 0:
+                sentence = sentence.next_in_seq()
+            if sentence is None:
+                return None
+            else:
+                return sentence.words[0]
+        return self.sentence.words[self.get_index_in_sentence() + 1]
 
-class Phonem:
+
+class Phonem(Sequencable):
     """
     Represents an abstract phonem
 
@@ -78,3 +94,14 @@ class Phonem:
 
     def get_index_in_word(self):
         return self.word.get_index_phonem(self)
+
+    def next_in_seq(self):
+        if self == self.word.phonems[-1]:
+            word = self.word.next_in_seq()
+            while word is not None and len(word.phonems) == 0:
+                word = word.next_in_seq()
+            if word is None:
+                return None
+            else:
+                return word.phonems[0]
+        return self.word.phonems[self.get_index_in_word() + 1]

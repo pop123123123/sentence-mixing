@@ -14,6 +14,9 @@ class TargetSentence(Sentence):
 
         self.set_words(TargetWord(self, ow) for ow in original_words)
 
+    def next_in_seq(self):
+        return None
+
 
 class TargetWord(Word):
     """Represents words inside the TargetSentence"""
