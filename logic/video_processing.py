@@ -9,7 +9,7 @@ import youtube_dl
 from scipy.io import wavfile
 
 import config
-import logic.target_parser as tp
+import logic.text_parser as tp
 import model.audio as audio
 from model.video import Video
 
