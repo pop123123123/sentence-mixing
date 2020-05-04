@@ -11,4 +11,4 @@ def load(name="save.pckl"):
         with open(name, "rb") as f:
             return pickle.load(f)
     except Exception:
-        return None
+        return (None,)
