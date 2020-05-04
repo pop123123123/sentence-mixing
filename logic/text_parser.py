@@ -50,8 +50,12 @@ def from_word_to_token(word):
     - puts text in uppercase
     """
 
-    if word == ".":
+    punctuation = [".", "?", "!", ",", ";", ":"]
+    if word in punctuation:
         return "SP"
+
+    if not word.isalnum():
+        return None
 
     return word.upper()
 
@@ -60,5 +64,6 @@ def from_token_to_phonem(token):
     """Returns a phonem transcription list corresponding to a given word token"""
 
     if token == "SP":
-        return "sp"
+        return ["sp"]
+
     return get_dict()[token].split()

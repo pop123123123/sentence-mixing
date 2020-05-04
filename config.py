@@ -31,3 +31,13 @@ def get_property(name):
         raise KeyError(
             f"Please add the {name} property to your config.json containing {config_errmsg[name]}."
         )
+
+
+def set_temp_property(name, value):
+    if config is None:
+        _load_config()
+
+    if name in config:
+        raise KeyError(f"Property {name} already exists")
+
+    config[name] = value

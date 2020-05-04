@@ -1,4 +1,6 @@
+import argparse
 import os
+import random
 import shutil
 from sys import argv
 
@@ -14,7 +16,9 @@ from serialize import load, save
 
 
 # assuming french for now
-def main(sentence, video_urls):
+def main(seed, sentence, video_urls):
+    random.seed(seed)
+
     # transcribe sentence to pseudo-phonetic string
     target_sentence = target.TargetSentence(sentence)
 
@@ -31,7 +35,33 @@ def main(sentence, video_urls):
     return combos
 
 
+DEFAULT_SEED = 0
+
+DESCRIPTION = "CLI Interface to build a sentence from a video"
+
+SEED_HELP = f"change the seed used in phonem association's score attribution (default: {DEFAULT_SEED})"
+TARGET_SENTENCE_HELP = "a sentence you want to hear from the video"
+VIDEO_URL_HELP = "a YouTube url of the wanted video"
+
 if __name__ == "__main__":
-    # format: exe sentence url1 url2 ...
-    if len(argv) >= 3:
-        print(main(argv[1], argv[2:]))
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser.add_argument(
+        "-s", "--seed", default=DEFAULT_SEED, help=SEED_HELP,
+    )
+    parser.add_argument(
+        "sentence",
+        metavar="TARGET_SENTENCE",
+        action="store",
+        help=TARGET_SENTENCE_HELP,
+    )
+    parser.add_argument(
+        "video_urls",
+        metavar="VIDEO_URL",
+        nargs="+",
+        action="store",
+        help=VIDEO_URL_HELP,
+    )
+
+    args = parser.parse_args()
+
+    print(main(args.seed, args.sentence, args.video_urls))
