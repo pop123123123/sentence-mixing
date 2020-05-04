@@ -14,9 +14,11 @@ import model.target as target
 from phonem_finding import get_best_phonem_combos
 from serialize import load, save
 
+DEFAULT_SEED = 0
+
 
 # assuming french for now
-def main(seed, sentence, video_urls):
+def main(sentence, video_urls, seed=DEFAULT_SEED):
     random.seed(seed)
 
     # transcribe sentence to pseudo-phonetic string
@@ -34,8 +36,6 @@ def main(seed, sentence, video_urls):
     combos = logic.analyze.get_n_best_combos(target_sentence, videos)
     return combos
 
-
-DEFAULT_SEED = 0
 
 DESCRIPTION = "CLI Interface to build a sentence from a video"
 
@@ -64,4 +64,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(main(args.seed, args.sentence, args.video_urls))
+    print(main(args.sentence, args.video_urls, args.seed))
