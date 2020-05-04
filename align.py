@@ -9,7 +9,6 @@ from scipy.io import wavfile
 
 import config
 from subtitle import Subtitle
-from utils import replace_numbers_string
 
 
 def _read_subs(path):
@@ -23,7 +22,7 @@ def _read_subs(path):
         Subtitle(
             _get_sec(caption.start),
             _get_sec(caption.end),
-            replace_numbers_string(caption.text.split("\n")[-1]),
+            None,  # replace_numbers_string(caption.text.split("\n")[-1]),
         )
         for caption in webvtt.read(path)
     ]

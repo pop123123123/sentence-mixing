@@ -1,4 +1,5 @@
 import os
+import shutil
 from sys import argv
 
 import textgrid
@@ -28,6 +29,8 @@ def main(sentence, videos, skip=False):
     ]  # Handle multiple sentences
 
     # saves all the subs chunks to the folder
+
+    shutil.rmtree(config.get_property("folder"), True)
     subs = []
     for audio_path, subs_path in video_paths:
         subs.extend(extract_subs(audio_path, subs_path))
@@ -131,8 +134,6 @@ def dl_videos(urls):
 
 
 if __name__ == "__main__":
-    os.rmdir(config.get_property("folder"))
-
     # format: exe sentence url1 url2 ...
     if len(argv) >= 3:
         if argv[1] == "skip":

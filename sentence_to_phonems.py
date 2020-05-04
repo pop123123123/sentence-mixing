@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import config
-from utils import replace_numbers
 
 
 def get_phonems(text, sentence_splitter=False):
@@ -58,7 +57,7 @@ def get_phonems(text, sentence_splitter=False):
 
             sentences = list(map(_format_string, sentences))
 
-            sentences = list(map(replace_numbers, sentences))
+            # sentences = list(map(replace_numbers, sentences))
 
             # Second transformation: puts everything in upper case
             def _format_string_upper(sentence):
