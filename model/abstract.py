@@ -1,4 +1,13 @@
 class Sentence:
+    """
+    Represents an abstract sequence of words
+
+    Class attributes:
+    original_text - string of sentence
+    words - list of associated words
+    index_words - dictionary associating for each word its index in words list
+    """
+
     def __init__(self, original_text):
         self.original_text = original_text
         self.words = []
@@ -18,6 +27,17 @@ class Sentence:
 
 
 class Word:
+    """
+    Represents an abstract word
+
+    Class attributes:
+    sentence - sentence where the word comes from
+    token - word as found in the dictionary
+    original_word - word as found in the original sentence
+    phonems - list of associated phonems
+    index_phonems - dictionary associating for each phonem its index in phonems list
+    """
+
     def __init__(self, sentence_class, sentence, token, original_word):
         self.token = token
         self.original_word = original_word
@@ -43,6 +63,14 @@ class Word:
 
 
 class Phonem:
+    """
+    Represents an abstract phonem
+
+    Class attributes:
+    word - word where the phonem comes from
+    transcription - phonem transcription as found  in the dictionary
+    """
+
     def __init__(self, word_class, word, transcription):
         self.transcription = transcription
         assert type(word) == word_class
