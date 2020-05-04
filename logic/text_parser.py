@@ -1,22 +1,20 @@
 import re
+from functools import lru_cache
 
 from num2words import num2words
 
 import config
 
-PHONEM_DICT = None
 
-
+@lru_cache(maxsize=None)
 def get_dict():
-    global PHONEM_DICT
-    if PHONEM_DICT is None:
-        dict_path = config.get_property("dict_path")
+    dict_path = config.get_property("dict_path")
 
-        # Opens the dictionary file and puts it in a dict
-        with open(dict_path) as f:
-            PHONEM_DICT = dict(x.rstrip().split(None, 1) for x in f)
+    # Opens the dictionary file and puts it in a dict
+    with open(dict_path) as f:
+        phonem_dict = dict(x.rstrip().split(None, 1) for x in f)
 
-    return PHONEM_DICT
+    return phonem_dict
 
 
 def from_token_to_phonem(token):
