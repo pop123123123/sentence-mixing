@@ -14,6 +14,18 @@ import model.audio as audio
 from model.video import Video
 
 
+def _create_videos(video_urls):
+    """Builds basic video objects by downloading videos"""
+
+    paths = _dl_videos(video_urls)
+
+    # TODO: modifier le "" pour mettre l'extension de la vidéo
+    return [
+        Video(base_path, subtitles_extension, "")
+        for base_path, subtitles_extension in paths
+    ]
+
+
 # TODO: fusionner ce dl_videos avec celui de create video
 def _dl_videos(urls):
     """
@@ -23,8 +35,9 @@ def _dl_videos(urls):
     - urls: iterable of youtube urls of the wanted videos
 
     Returns:
-    A list of tuples (wave_file, subs_file) matching the given urls
+    A list of tuples (path, subtitle_file_extension) matching the given urls
     """
+
     paths = []
     for url in urls:
         ydl_opts = {
@@ -50,17 +63,9 @@ def _dl_videos(urls):
     return paths
 
 
-def _create_videos(video_urls):
-    paths = _dl_videos(video_urls)
-
-    # TODO: modifier le "" pour mettre l'extension de la vidéo
-    return [
-        Video(base_path, subtitles_extension, "")
-        for base_path, subtitles_extension in paths
-    ]
-
-
 def _create_subs(videos):
+    """Adds a list of basic subtitle object for each given video by parsing subtitle file"""
+
     subtitle_files = [(video, video.get_subtitle_file()) for video in videos]
 
     for video, subtitle_file in subtitle_files:
@@ -69,6 +74,8 @@ def _create_subs(videos):
 
 
 def _parse_caption(video, caption):
+    """Parses a webvtt caption to an AudioSubtitle object"""
+
     def _get_sec(time_str):
         h, m, s = time_str.split(":")
         return float(h) * 3600 + float(m) * 60 + float(s)
@@ -82,7 +89,10 @@ def _parse_caption(video, caption):
 
 
 def _split_audio_in_files(video):
-    """Saves each sub in a separate audio file and text file"""
+    """
+    Saves each SubtitleLine in a separate audio file and text file in order to be processed by
+    Montreal aligner
+    """
 
     folder_name = config.get_property("folder")
     Path(folder_name).mkdir(parents=True, exist_ok=True)
@@ -105,7 +115,11 @@ def _split_audio_in_files(video):
 
 
 def _align_phonems():
-    """Launches the aligner"""
+    """
+    Launches the aligner
+
+    Returns the temporary directory containing the analysis results
+    """
 
     folder = config.get_property("folder")
     speakers = 1
@@ -125,6 +139,11 @@ def _align_phonems():
 
 
 def _parse_align_result(textgrid_path, subtitle):
+    """
+    Retrieves and parses the result of the aligner and enriches given subtitle objet by creating
+    associated AudioWords and AudioPhonem
+    """
+
     if not os.path.exists(textgrid_path):
         return 0
     t = textgrid.TextGrid.fromFile(textgrid_path)
@@ -170,15 +189,30 @@ def _parse_align_result(textgrid_path, subtitle):
 
 
 def preprocess_and_align(video_urls):
+    """
+    Build all the model objects for several video urls by downloading videos and analysing the
+    videos using Montreal aligner.
+
+    Argument:
+    video_urls - list containing youtube videos url
+
+    Returns a list containing all the video objects
+    """
+
+    # Creates basic Video objects
     videos = _create_videos(video_urls)
 
+    # Enriches Video objects with SubtitleLine objects
     _create_subs(videos)
 
+    # Prepares the aligner
     for video in videos:
         _split_audio_in_files(video)
 
+    # Launches the aligner
     out_dir = _align_phonems()
 
+    # Enriches Video objects with AudioWords and AudioPhonem objects
     for video in videos:
         for i, subtitle in enumerate(video.subtitles):
             textgrid_path = os.path.join(
