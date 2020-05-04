@@ -25,11 +25,12 @@ class TargetWord(Word):
 
         Word.__init__(self, TargetSentence, sentence, token, original_word)
 
-        transcriptions = parser.from_token_to_phonem(token)
-        self.set_phonems(
-            TargetPhonem(self, transcription)
-            for transcription in transcriptions
-        )
+        if self.token is not None:
+            transcriptions = parser.from_token_to_phonem(self.token)
+            self.set_phonems(
+                TargetPhonem(self, transcription)
+                for transcription in transcriptions
+            )
 
 
 class TargetPhonem(Phonem):
