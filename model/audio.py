@@ -28,14 +28,6 @@ class SubtitleLine(Sentence, AudioSegment):
         self.video = video
         self._words = []
 
-    def add_word(self, word):
-        assert type(word) == AudioWord
-        self._subtitles.append(word)
-
-    def extend_subtitles(self, iter_subtitles):
-        # assumes all members of the iterator are SubtitleLine
-        self._subtitles.extend(iter_subtitles)
-
     def _get_audio_wave(self):
         return self.video.get_audio_wave()
 

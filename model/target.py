@@ -8,7 +8,7 @@ class TargetSentence(Sentence):
 
         original_words = parser.split_text(self.original_text)
 
-        self.words = [TargetWord(self, ow) for ow in original_words]
+        self.set_words(TargetWord(self, ow) for ow in original_words)
 
 
 class TargetWord(Word):
@@ -18,10 +18,10 @@ class TargetWord(Word):
         Word.__init__(self, TargetSentence, sentence, token, original_word)
 
         transcriptions = parser.from_token_to_phonem(token)
-        self.phonems = [
+        self.set_phonems(
             TargetPhonem(self, transcription)
             for transcription in transcriptions
-        ]
+        )
 
 
 class TargetPhonem(Phonem):
