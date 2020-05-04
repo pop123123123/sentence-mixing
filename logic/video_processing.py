@@ -55,8 +55,8 @@ def _create_videos(video_urls):
 
     # TODO: modifier le "" pour mettre l'extension de la vidéo
     return [
-        Video(base_path, subtitles_extension, "")
-        for base_path, subtitles_extension in paths
+        Video(url, base_path, subtitles_extension, "")
+        for url, (base_path, subtitles_extension) in zip(video_urls, paths)
     ]
 
 

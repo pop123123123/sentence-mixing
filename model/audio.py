@@ -18,7 +18,7 @@ class AudioSegment:
 
     def get_wave(self):
         rate, data = self._get_audio_wave()
-        return data[int(self.start * rate) : int(self.end * rate)]
+        return rate, data[int(self.start * rate) : int(self.end * rate)]
 
 
 class SubtitleLine(Sentence, AudioSegment):
@@ -36,13 +36,9 @@ class AudioWord(Word, AudioSegment):
     def __init__(self, subtitle, token, original_word, start, end):
         Word.__init__(self, SubtitleLine, subtitle, token, original_word)
         AudioSegment.__init__(self, start, end)
-        self.phonems = []
 
     def _get_audio_wave(self):
-        return self.subtitle._get_audio_wave()
-
-    def add_phonem(self, phonem):
-        self.phonems.append(phonem)
+        return self.sentence._get_audio_wave()
 
 
 class AudioPhonem(Phonem, AudioSegment):

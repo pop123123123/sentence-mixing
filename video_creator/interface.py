@@ -22,7 +22,6 @@ def loop_interface(audio_command, skip_first, links):
     total_text = ""
     timestamps_buffer = []
     timestamps_buffer_sentence = []
-    skip = skip_first
 
     sentence = get_sentence(None)
 
@@ -33,9 +32,11 @@ def loop_interface(audio_command, skip_first, links):
         store = False
         valid = False
         load_audio_index = None
+        i = 0
         while not valid:
             if edit:
                 sentence = get_sentence(total_text)
+                i = 0
 
             # Stores previous audio in buffer
             if store:
@@ -50,7 +51,7 @@ def loop_interface(audio_command, skip_first, links):
                 bad_sentence = True
                 while bad_sentence:
                     try:
-                        timestamps = main(sentence, links, skip=skip)
+                        timestamps = main(sentence, links)[i % 10]
                         bad_sentence = False
                     except KeyError as e:
                         print(e, "not recognized")
@@ -83,7 +84,7 @@ def loop_interface(audio_command, skip_first, links):
                         load_audio_index = index
                         print(load_audio_index)
 
-            skip = True
+            i += 1
             clear_screen()
 
         total_timestamps.extend(timestamps)

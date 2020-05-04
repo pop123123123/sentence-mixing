@@ -7,5 +7,8 @@ def save(*args, name="save.pckl"):
 
 
 def load(name="save.pckl"):
-    with open(name, "rb") as f:
-        return tuple(pickle.load(f))
+    try:
+        with open(name, "rb") as f:
+            return pickle.load(f)
+    except Exception:
+        return None
