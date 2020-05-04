@@ -10,15 +10,15 @@ class AudioSegment:
     """
 
     def __init__(self, start, end):
-        self._start = start
-        self._end = end
+        self.start = start
+        self.end = end
 
     def _get_audio_wave(self):
         raise NotImplementedError()
 
     def get_wave(self):
         rate, data = self._get_audio_wave()
-        return data[int(self._start * rate) : int(self._end * rate)]
+        return data[int(self.start * rate) : int(self.end * rate)]
 
 
 class SubtitleLine(Sentence, AudioSegment):
@@ -26,7 +26,7 @@ class SubtitleLine(Sentence, AudioSegment):
         Sentence.__init__(self, original_text)
         AudioSegment.__init__(self, start, end)
         self.video = video
-        self._words = []
+        self.words = []
 
     def _get_audio_wave(self):
         return self.video.get_audio_wave()
@@ -36,14 +36,18 @@ class AudioWord(Word, AudioSegment):
     def __init__(self, subtitle, token, original_word, start, end):
         Word.__init__(self, SubtitleLine, subtitle, token, original_word)
         AudioSegment.__init__(self, start, end)
+        self.phonems = []
 
     def _get_audio_wave(self):
         return self.subtitle._get_audio_wave()
 
+    def add_phonem(self, phonem):
+        self.phonems.append(phonem)
+
 
 class AudioPhonem(Phonem, AudioSegment):
     def __init__(self, word, transcription, start, end):
-        Phonem.__init__(self, word, transcription)
+        Phonem.__init__(self, AudioWord, word, transcription)
         AudioSegment.__init__(self, start, end)
 
     def _get_audio_wave(self):
