@@ -57,6 +57,11 @@ class SubtitleLine(Sentence, VideoSegment):
             return None
         return self.video.subtitles[self.get_index_in_video() + 1]
 
+    def previous_in_seq(self):
+        if self == self.video.subtitles[0]:
+            return None
+        return self.video.subtitles[self.get_index_in_video() - 1]
+
 
 class AudioWord(Word, VideoSegment):
     """Represents a word spotted by Montreal aligner in a sentence"""

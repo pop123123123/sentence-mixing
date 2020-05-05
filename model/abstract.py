@@ -2,6 +2,9 @@ class Sequencable:
     def next_in_seq(self):
         raise NotImplementedError()
 
+    def previous_in_seq(self):
+        raise NotImplementedError()
+
 
 class Sentence(Sequencable):
     """
@@ -77,6 +80,17 @@ class Word(Sequencable):
                 return sentence.words[0]
         return self.sentence.words[self.get_index_in_sentence() + 1]
 
+    def previous_in_seq(self):
+        if self == self.sentence.words[0]:
+            sentence = self.sentence.previous_in_seq()
+            while sentence is not None and len(sentence.words) == 0:
+                sentence = sentence.previous_in_seq()
+            if sentence is None:
+                return None
+            else:
+                return sentence.words[-1]
+        return self.sentence.words[self.get_index_in_sentence() - 1]
+
 
 class Phonem(Sequencable):
     """
@@ -105,3 +119,14 @@ class Phonem(Sequencable):
             else:
                 return word.phonems[0]
         return self.word.phonems[self.get_index_in_word() + 1]
+
+    def previous_in_seq(self):
+        if self == self.word.phonems[0]:
+            word = self.word.previous_in_seq()
+            while word is not None and len(word.phonems) == 0:
+                word = word.previous_in_seq()
+            if word is None:
+                return None
+            else:
+                return word.phonems[-1]
+        return self.word.phonems[self.get_index_in_word() - 1]

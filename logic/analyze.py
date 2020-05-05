@@ -39,8 +39,11 @@ def get_same_tokens(target_phonem, audio_phonem):
     )
 
 
+RATING_LENGTH_SAME_PHONEM = 80
+
+
 def rating_sequence_by_phonem_length(x):
-    return 80 * x
+    return RATING_LENGTH_SAME_PHONEM * x
 
 
 def rating_word_by_phonem_length(x):
@@ -99,9 +102,21 @@ def rating(target_phonem, audio_phonem):
 
 
 @functools.lru_cache(maxsize=None)
-def step_3_audio_rating(previousaudio_phonem, audio_phonem):
+def step_3_audio_rating(previous_audio_phonem, audio_phonem):
     # TODO audio matching
     return 0
+
+
+def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
+    if len(audio_chosen) == 0:
+        return 0
+    n = 0
+    previous_phonems = get_phonems(audio_chosen)
+    audio_phonem = audio_phonem.previous_in_seq()
+    while audio_phonem == previous_phonems.pop():
+        audio_phonem = audio_phonem.previous_in_seq()
+        n += 1
+    return n
 
 
 def get_last_phonem(audio):
@@ -119,6 +134,17 @@ RIGHT_PRIVILEGE = 0.8
 SCORE_SAME_AUDIO_WORD = 200
 
 
+def get_phonems(words_or_phonems):
+    return list(
+        itertools.chain(
+            *map(
+                lambda w: w.phonems if isinstance(w, Word) else [w],
+                words_or_phonems,
+            )
+        )
+    )
+
+
 def get_n_best_combos(sentence, videos, n=100):
     audio_phonems = [
         p
@@ -127,9 +153,7 @@ def get_n_best_combos(sentence, videos, n=100):
         for w in s.words
         for p in w.phonems
     ]
-    target_phonems = list(
-        itertools.chain(*map(lambda w: w.phonems, sentence.words))
-    )
+    target_phonems = get_phonems(sentence.words)
     # Rate all associations
 
     # split, then call get_best_combos with subset of words from
@@ -154,6 +178,12 @@ def get_n_best_combos(sentence, videos, n=100):
             if len(audio_chosen) > 0:
                 last_phonem = get_last_phonem(audio_chosen[-1])
                 rate += step_3_audio_rating(last_phonem, audio_phonem)
+                rate += (
+                    RATING_LENGTH_SAME_PHONEM
+                    * step_3_n_following_previous_phonems(
+                        audio_chosen, audio_phonem
+                    )
+                )
                 rate += (
                     t_p.word.token == audio_phonem.word.token
                 ) * SCORE_SAME_AUDIO_WORD
