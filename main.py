@@ -11,7 +11,6 @@ import config
 import logic.analyze
 import logic.video_processing as video_processing
 import model.target as target
-from phonem_finding import get_best_phonem_combos
 from serialize import load, save
 
 DEFAULT_SEED = 0
