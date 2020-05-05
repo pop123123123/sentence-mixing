@@ -108,12 +108,10 @@ def step_3_audio_rating(previous_audio_phonem, audio_phonem):
 
 
 def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
-    if len(audio_chosen) == 0:
-        return 0
     n = 0
     previous_phonems = get_phonems(audio_chosen)
     audio_phonem = audio_phonem.previous_in_seq()
-    while audio_phonem == previous_phonems.pop():
+    while len(previous_phonems) > 0 and audio_phonem == previous_phonems.pop():
         audio_phonem = audio_phonem.previous_in_seq()
         n += 1
     return n
