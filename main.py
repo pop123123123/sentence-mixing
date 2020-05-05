@@ -64,4 +64,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(main(args.sentence, args.video_urls, args.seed))
+    print(main(args.sentence, args.video_urls, args.seed)[0])

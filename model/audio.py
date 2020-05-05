@@ -23,6 +23,9 @@ class AudioSegment:
         rate, data = self._get_audio_wave()
         return rate, data[int(self.start * rate) : int(self.end * rate)]
 
+    def __repr__(self):
+        return f"{self.start}, {self.end}, {type(self)}"
+
 
 class SubtitleLine(Sentence, AudioSegment):
     """Represents a line of subtitle in a video"""
