@@ -22,7 +22,7 @@ def main(audio_command, skip_first, urls):
     for v, p in zip(videos, paths):
         n = len(v._base_path)
         assert p[:n] == v._base_path
-        v.extension = p[n:]
+        v.extension = p[n + 1 :]
 
     create_video_file(total_timestamps, paths)
 
