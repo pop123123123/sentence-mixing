@@ -163,7 +163,9 @@ def get_n_best_combos(sentence, videos, n=100):
             audio_phonems, key=lambda x: rating(target_phonem, x), reverse=True
         )
 
-    def get_best_combos(audio_chosen, t_p, nodes_left):
+    def get_best_combos(
+        audio_chosen, t_p, nodes_left, associated_target_words
+    ):
         total = 0
         rates = []
 
@@ -206,6 +208,7 @@ def get_n_best_combos(sentence, videos, n=100):
         # Exploration
         for audio_phonem, rate_chosen in zip(candidates, rates):
             new_chosen = audio_chosen.copy()
+            new_associated = associated_target_words.copy()
 
             nodes = math.ceil(nodes_left * rate_chosen / total)
             next_target_phonem = t_p.next_in_seq()
@@ -215,9 +218,10 @@ def get_n_best_combos(sentence, videos, n=100):
                 and t_p.get_index_in_word() == audio_phonem.get_index_in_word()
             ):
                 n = 0
-                for _, audio_word in get_same_tokens(
+                for t_w, audio_word in get_same_tokens(
                     t_p.word, audio_phonem.word
                 ):
+                    n_phon = 0
                     if (
                         audio_word == audio_phonem.word
                         and audio_phonem.get_index_in_word() != 0
@@ -228,14 +232,16 @@ def get_n_best_combos(sentence, videos, n=100):
                                 audio_phonem.get_index_in_word() :
                             ]
                         )
-                        n += (
+                        n_phon = (
                             len(audio_word.phonems)
                             - audio_phonem.get_index_in_word()
                         )
                     else:
                         # add next word(s) phonems
                         new_chosen.append(audio_word)
-                        n += len(audio_word.phonems)
+                        n_phon = len(audio_word.phonems)
+                    n += n_phon
+                    new_associated.extend([t_w] * n_phon)
                 last_target_word = get_same_tokens(
                     t_p.word, audio_phonem.word
                 )[-1][0]
@@ -243,26 +249,29 @@ def get_n_best_combos(sentence, videos, n=100):
                 next_target_phonem = last_target_word.phonems[-1].next_in_seq()
                 rate_chosen *= n
                 if next_target_phonem is None:
-                    combos.append((new_chosen, rate_chosen))
+                    combos.append((new_chosen, new_associated, rate_chosen))
                     continue
             else:
                 new_chosen += [audio_phonem]
+                new_associated += [t_p.word]
             # stop condition
             if target_phonems[-1] == next_target_phonem:
-                combos.append((new_chosen, rate_chosen))
+                combos.append((new_chosen, new_associated, rate_chosen))
             else:
-                for chosen, rate in get_best_combos(
-                    new_chosen, next_target_phonem, nodes
+                for chosen, associated, rate in get_best_combos(
+                    new_chosen, next_target_phonem, nodes, new_associated
                 ):
-                    combos.append((chosen, rate + rate_chosen))
+                    combos.append((chosen, associated, rate + rate_chosen))
 
         return combos
 
     combos = None
     if len(target_phonems) == 1:
-        combos = [[a_p] for a_p in get_candidates(target_phonems[0])[:n]]
+        combos = [
+            ([a_p], [target_phonems[0].word], [rating(target_phonems[0], a_p)])
+            for a_p in get_candidates(target_phonems[0])[:n]
+        ]
     else:
-        combos = get_best_combos([], target_phonems[0], NODES)
-        combos = sorted(combos, key=lambda c: c[1], reverse=True)
-        combos = list(map(lambda c: c[0], combos[:n]))
+        combos = get_best_combos([], target_phonems[0], NODES, [])
+        combos = sorted(combos, key=lambda c: c[2], reverse=True)
     return combos

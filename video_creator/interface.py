@@ -1,5 +1,6 @@
 import os
 
+from logic.display import combo_displayer
 from main import main
 from model.exceptions import PhonemError
 from serialize import load, save
@@ -29,7 +30,8 @@ def loop_interface(audio_command, video_futures):
 
     while sentence != "":
         timestamps = []
-        available_timestamps = []
+        combo = None
+        available_combos = []
 
         edit = False
         store = False
@@ -39,7 +41,7 @@ def loop_interface(audio_command, video_futures):
         while not valid:
             if edit:
                 sentence = get_sentence(total_text)
-                available_timestamps = []
+                available_combos = []
                 i = 0
 
             # Stores previous audio in buffer
@@ -52,14 +54,14 @@ def loop_interface(audio_command, video_futures):
                 timestamps = timestamps_buffer[load_audio_index]
                 load_audio_index = None
             else:
-                if len(available_timestamps) == 0:
+                if len(available_combos) == 0:
                     bad_sentence = True
                     while bad_sentence:
                         try:
                             if videos is None:
                                 print("downloading...")
                                 videos = list(video_futures)[0]
-                            available_timestamps = main(sentence, videos)
+                            available_combos = main(sentence, videos)
                             bad_sentence = False
                         except KeyError as e:
                             print(e, "not recognized")
@@ -70,8 +72,10 @@ def loop_interface(audio_command, video_futures):
                                 "Try to change your sentence or add more videos.",
                             )
                             sentence = get_sentence(total_text)
-                timestamps = available_timestamps.pop(0)
+                combo = available_combos.pop(0)
+                timestamps = combo[0]
 
+            print(combo_displayer(combo[:2]))
             concat_wav(AUDIO_FILE_PATH, timestamps)
 
             os.system(audio_command.format(AUDIO_FILE_PATH))
