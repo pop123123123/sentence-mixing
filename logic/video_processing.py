@@ -170,36 +170,31 @@ def _parse_align_result(textgrid_path, subtitle):
     # TODO: examiner mieux
     for word in words:
         original_word = word.mark
+        start = word.bounds()[0] + subtitle.start
+        end = word.bounds()[1] + subtitle.start
+        token = tp.from_word_to_token(word.mark)
 
-        # Blank word is banned
-        if original_word != "":
-            start = word.bounds()[0] + subtitle.start
-            end = word.bounds()[1] + subtitle.start
-            token = tp.from_word_to_token(word.mark)
+        audio_word = audio.AudioWord(
+            subtitle, token, original_word, start, end
+        )
+        subtitle.add_word(audio_word)
 
-            audio_word = audio.AudioWord(
-                subtitle, token, original_word, start, end
-            )
-            subtitle.add_word(audio_word)
+        while (
+            i_phonems < len(phonems)
+            and phonems[i_phonems].bounds()[0] < word.bounds()[1]
+        ):
+            # If the phonem is included in the word
+            if phonems[i_phonems].bounds()[0] >= word.bounds()[0]:
+                transcription = phonems[i_phonems].mark
+                start_phon = phonems[i_phonems].bounds()[0] + subtitle.start
+                end_phon = phonems[i_phonems].bounds()[1] + subtitle.start
 
-            while (
-                i_phonems < len(phonems)
-                and phonems[i_phonems].bounds()[0] < word.bounds()[1]
-            ):
-                # If the phonem is included in the word
-                if phonems[i_phonems].bounds()[0] >= word.bounds()[0]:
-                    transcription = phonems[i_phonems].mark
-                    start_phon = (
-                        phonems[i_phonems].bounds()[0] + subtitle.start
+                audio_word.add_phonem(
+                    audio.AudioPhonem(
+                        audio_word, transcription, start_phon, end_phon
                     )
-                    end_phon = phonems[i_phonems].bounds()[1] + subtitle.start
-
-                    audio_word.add_phonem(
-                        audio.AudioPhonem(
-                            audio_word, transcription, start_phon, end_phon
-                        )
-                    )
-                i_phonems += 1
+                )
+            i_phonems += 1
 
 
 def preprocess_and_align(video_urls):
