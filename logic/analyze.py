@@ -40,14 +40,15 @@ def get_same_tokens(target_phonem, audio_phonem):
 
 
 RATING_LENGTH_SAME_PHONEM = 80
+RATING_LENGTH_SAME_WORD = 100
 
 
 def rating_sequence_by_phonem_length(x):
-    return RATING_LENGTH_SAME_PHONEM * x
+    return noise_score(RATING_LENGTH_SAME_PHONEM) * x
 
 
 def rating_word_by_phonem_length(x):
-    return 100 * x
+    return noise_score(RATING_LENGTH_SAME_WORD) * x
 
 
 @functools.lru_cache(maxsize=None)
@@ -96,7 +97,7 @@ def rating(target_phonem, audio_phonem):
 
     # Same transcription
     if target_phonem.transcription == audio_phonem.transcription:
-        score += SCORE_SAME_TRANSCRIPTION
+        score += noise_score(SCORE_SAME_TRANSCRIPTION)
 
     return score
 
@@ -143,6 +144,9 @@ def get_phonems(words_or_phonems):
     )
 
 
+MAX_DEFAULT_RATE = 500
+
+
 def get_n_best_combos(sentence, videos, n=100):
     audio_phonems = [
         p
@@ -169,6 +173,8 @@ def get_n_best_combos(sentence, videos, n=100):
 
         candidates = get_candidates(t_p)
 
+        rate = random.uniform(0, MAX_DEFAULT_RATE)
+
         modif = 1.0
         # Rating
         for audio_phonem in candidates:
@@ -184,7 +190,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 )
                 rate += (
                     t_p.word.token == audio_phonem.word.token
-                ) * SCORE_SAME_AUDIO_WORD
+                ) * noise_score(SCORE_SAME_AUDIO_WORD)
 
             rate *= modif
             # not enough nodes left
