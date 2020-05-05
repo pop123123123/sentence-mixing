@@ -170,7 +170,7 @@ def _parse_align_result(textgrid_path, subtitle):
 
             while (
                 i_phonems < len(phonems)
-                and phonems[i_phonems].bounds()[0] <= word.bounds()[1]
+                and phonems[i_phonems].bounds()[0] < word.bounds()[1]
             ):
                 # If the phonem is included in the word
                 if phonems[i_phonems].bounds()[0] >= word.bounds()[0]:
