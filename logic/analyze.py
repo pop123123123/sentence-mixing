@@ -154,7 +154,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 last_phonem = get_last_phonem(audio_chosen[-1])
                 rate += step_3_audio_rating(last_phonem, audio_phonem)
                 rate += (
-                    last_phonem.word == audio_phonem.word
+                    t_p.word.token == audio_phonem.word.token
                 ) * SCORE_SAME_AUDIO_WORD
 
             rate *= modif
