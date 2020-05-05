@@ -3,6 +3,7 @@ import itertools
 import math
 import random
 
+import logic.text_parser as tp
 from model.abstract import Phonem, Sentence, Word
 from model.exceptions import PhonemError
 
@@ -83,9 +84,69 @@ def get_word_similarity(target_phonem, audio_phonem):
 SCORE_SAME_TRANSCRIPTION = 200
 
 
+MINIMAL_PHONEM_LENGTH = 0.1
+MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS = 1000
+
+MAXIMAL_CONSONANT_LENGTH = 0.25
+MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS = 1000
+
+MAXIMAL_VOWEL_LENGTH = 0.5
+MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS = 1000
+
+
+@functools.lru_cache(maxsize=None)
+def score_length(audio_phonem):
+    """
+    Assigns a score malus to an audio phonem depending on the length of its audio and its phonem type
+
+    The malus is computed following a quadratic distance to a length limit.
+
+    These limits are more or less severe depending of the type of the phonem (consonant, vowel or
+    space)
+
+    Returns: a negative score corresponding to a negative malus
+    """
+
+    length = audio_phonem.get_length()
+
+    multiplier = (
+        math.sqrt(MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS) / MINIMAL_PHONEM_LENGTH
+    )
+    malus = ((MINIMAL_PHONEM_LENGTH - length) * multiplier) ** 2
+
+    c_v_dict = tp.get_consonant_vowel_dict()
+    if c_v_dict[audio_phonem.transcription] == "CONSONANT":
+        if length > MAXIMAL_CONSONANT_LENGTH:
+            multiplier = (
+                math.sqrt(MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS)
+                / MAXIMAL_CONSONANT_LENGTH
+            )
+            malus += min(
+                ((length - MAXIMAL_CONSONANT_LENGTH) * multiplier) ** 2,
+                MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS,
+            )
+    elif c_v_dict[audio_phonem.transcription] == "VOWEL":
+        if length > MAXIMAL_CONSONANT_LENGTH:
+            multiplier = (
+                math.sqrt(MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS)
+                / MAXIMAL_VOWEL_LENGTH
+            )
+            malus += min(
+                ((length - MAXIMAL_VOWEL_LENGTH) * multiplier) ** 2,
+                MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS,
+            )
+    elif c_v_dict[audio_phonem.transcription] == "SPACE":
+        pass
+
+    return -malus
+
+
 @functools.lru_cache(maxsize=None)
 def rating(target_phonem, audio_phonem):
     score = 0
+
+    # Apply malus on phonem length
+    score += score_length(audio_phonem)
 
     # Parts of the same word
     score += get_word_similarity(target_phonem, audio_phonem)
