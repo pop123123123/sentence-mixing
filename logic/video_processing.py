@@ -1,5 +1,6 @@
 import base64
 import os
+import shutil
 import tempfile
 from itertools import groupby
 from pathlib import Path
@@ -107,6 +108,7 @@ def _split_audio_in_files(video):
     """
 
     folder_name = config.get_property("folder")
+    shutil.rmtree(folder_name, True)
     Path(folder_name).mkdir(parents=True, exist_ok=True)
 
     video_hashed_name = video.get_hashed_basename()
