@@ -113,6 +113,7 @@ def get_last_phonem(audio):
 
 NODES = 1 << 12
 SCORE_THRESHOLD = 50
+RIGHT_PRIVILEGE = 0.8
 
 SCORE_SAME_AUDIO_WORD = 200
 
@@ -145,6 +146,7 @@ def get_n_best_combos(sentence, videos, n=100):
 
         candidates = get_candidates(t_p)
 
+        modif = 1.0
         # Rating
         for audio_phonem in candidates:
             rate = rating(t_p, audio_phonem)
@@ -155,13 +157,18 @@ def get_n_best_combos(sentence, videos, n=100):
                     last_phonem.word == audio_phonem.word
                 ) * SCORE_SAME_AUDIO_WORD
 
+            rate *= modif
             # not enough nodes left
             if nodes_left * rate < (total + rate):
                 # not trivial
                 break
 
+            modif *= RIGHT_PRIVILEGE
             total += rate
             rates.append(rate)
+
+        rates = [r ** 2 for r in rates]
+        total = sum(rates)
 
         combos = []
         # Exploration
