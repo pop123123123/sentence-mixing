@@ -30,6 +30,9 @@ class VideoSegment:
         clip = self._get_original_video()
         return clip.subclip(self.start, self.end)
 
+    def get_length(self):
+        return self.end - self.start
+
     def __repr__(self):
         return f"VideoSegment({self.start}, {self.end}, {type(self)})"
 

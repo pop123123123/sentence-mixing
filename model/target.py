@@ -34,6 +34,7 @@ class TargetWord(Word):
                 TargetPhonem(self, transcription)
                 for transcription in transcriptions
             )
+            self.add_phonem(TargetPhonem(self, "sp"))
 
 
 class TargetPhonem(Phonem):

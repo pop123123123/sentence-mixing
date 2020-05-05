@@ -189,11 +189,14 @@ def _parse_align_result(textgrid_path, subtitle):
                 start_phon = phonems[i_phonems].bounds()[0] + subtitle.start
                 end_phon = phonems[i_phonems].bounds()[1] + subtitle.start
 
-                audio_word.add_phonem(
-                    audio.AudioPhonem(
-                        audio_word, transcription, start_phon, end_phon
+                # Only creates phonem if it is exploitable
+                # Excludes phonems whose transcription like 'sil', 'spn', ''
+                if transcription in tp.get_all_phonems():
+                    audio_word.add_phonem(
+                        audio.AudioPhonem(
+                            audio_word, transcription, start_phon, end_phon
+                        )
                     )
-                )
             i_phonems += 1
 
 
