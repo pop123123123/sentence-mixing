@@ -17,13 +17,7 @@ from serialize import load, save
 DEFAULT_SEED = 0
 
 
-# assuming french for now
-def main(sentence, video_urls, seed=DEFAULT_SEED):
-    random.seed(seed)
-
-    # transcribe sentence to pseudo-phonetic string
-    target_sentence = target.TargetSentence(sentence)
-
+def get_videos(video_urls):
     (videos,) = load()
     if (
         type(videos) != list
@@ -32,6 +26,15 @@ def main(sentence, video_urls, seed=DEFAULT_SEED):
     ):
         videos = video_processing.preprocess_and_align(video_urls)
         save(videos)
+    return videos
+
+
+# assuming french for now
+def main(sentence, videos, seed=DEFAULT_SEED):
+    random.seed(seed)
+
+    # transcribe sentence to pseudo-phonetic string
+    target_sentence = target.TargetSentence(sentence)
 
     combos = logic.analyze.get_n_best_combos(target_sentence, videos)
     return combos
@@ -64,4 +67,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(main(args.sentence, args.video_urls, args.seed)[0])
+    videos = get_videos(args.video_urls)
+    print(main(args.sentence, videos, args.seed)[0])

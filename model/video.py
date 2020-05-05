@@ -10,11 +10,11 @@ from model.audio import SubtitleLine
 
 
 class Video:
-    def __init__(self, url, base_path, subtitles_extension, extension):
+    def __init__(self, url, base_path, subtitles_extension):
         self.url = url
         self._base_path = base_path
         self._subtitles_extension = subtitles_extension
-        self._extension = extension
+        self.extension = None
         self.subtitles = []
         self.index_subtitles = {}
 
@@ -22,7 +22,8 @@ class Video:
         return self._base_path + ".wav"
 
     def _get_video_path(self):
-        return self._base_path + "." + self._extension
+        assert self.extension is not None
+        return self._base_path + "." + self.extension
 
     def get_subtitle_path(self):
         return self._base_path + self._subtitles_extension

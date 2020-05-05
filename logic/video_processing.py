@@ -21,9 +21,20 @@ def _create_videos(video_urls):
 
     # TODO: modifier le "" pour mettre l'extension de la vidéo
     return [
-        Video(url, base_path, subtitles_extension, "")
+        Video(url, base_path, subtitles_extension)
         for url, (base_path, subtitles_extension) in zip(video_urls, paths)
     ]
+
+
+class Logger(object):
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        print(msg)
 
 
 # TODO: fusionner ce dl_videos avec celui de create video
@@ -46,6 +57,7 @@ def _dl_videos(urls):
             "subtitleslangs": ["fr"],
             "outtmpl": ".downloads/%(title)s.%(ext)s",
             "format": "bestaudio/best",
+            "logger": Logger(),
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
