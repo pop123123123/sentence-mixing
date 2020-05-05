@@ -27,6 +27,7 @@ def loop_interface(audio_command, skip_first, links):
 
     while sentence != "":
         timestamps = []
+        available_timestamps = []
 
         edit = False
         store = False
@@ -36,6 +37,7 @@ def loop_interface(audio_command, skip_first, links):
         while not valid:
             if edit:
                 sentence = get_sentence(total_text)
+                available_timestamps = []
                 i = 0
 
             # Stores previous audio in buffer
@@ -48,14 +50,16 @@ def loop_interface(audio_command, skip_first, links):
                 timestamps = timestamps_buffer[load_audio_index]
                 load_audio_index = None
             else:
-                bad_sentence = True
-                while bad_sentence:
-                    try:
-                        timestamps = main(sentence, links)[i % 10]
-                        bad_sentence = False
-                    except KeyError as e:
-                        print(e, "not recognized")
-                        sentence = get_sentence(total_text)
+                if len(available_timestamps) == 0:
+                    bad_sentence = True
+                    while bad_sentence:
+                        try:
+                            available_timestamps = main(sentence, links)
+                            bad_sentence = False
+                        except KeyError as e:
+                            print(e, "not recognized")
+                            sentence = get_sentence(total_text)
+                timestamps = available_timestamps.pop(0)
 
             concat_wav(AUDIO_FILE_PATH, timestamps)
 
