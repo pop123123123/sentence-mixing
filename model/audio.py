@@ -3,7 +3,7 @@ from model.abstract import Phonem, Sentence, Word
 
 class VideoSegment:
     """
-    This class represents an abstract audio segment
+    This class represents an abstract video segment
     All the following audio classes are inherited from this object, soidentifies precise spots of
     the video
 
@@ -31,7 +31,7 @@ class VideoSegment:
         return clip.subclip(self.start, self.end)
 
     def __repr__(self):
-        return f"{self.start}, {self.end}, {type(self)}"
+        return f"VideoSegment({self.start}, {self.end}, {type(self)})"
 
 
 class SubtitleLine(Sentence, VideoSegment):
