@@ -210,6 +210,9 @@ def get_n_best_combos(sentence, videos, n=100):
                 # update current phonem
                 next_target_phonem = last_target_word.phonems[-1].next_in_seq()
                 rate_chosen *= n
+                if next_target_phonem is None:
+                    combos.append((new_chosen, rate_chosen))
+                    continue
             else:
                 new_chosen += [audio_phonem]
             # stop condition
