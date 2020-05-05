@@ -3,6 +3,7 @@ from functools import lru_cache
 
 import numpy as np
 import webvtt
+from moviepy.editor import VideoFileClip
 from scipy.io import wavfile
 
 from model.audio import SubtitleLine
@@ -20,7 +21,7 @@ class Video:
     def _get_audio_path(self):
         return self._base_path + ".wav"
 
-    def get_video_path(self):
+    def _get_video_path(self):
         return self._base_path + "." + self._extension
 
     def get_subtitle_path(self):
@@ -32,6 +33,10 @@ class Video:
         if len(np.shape(data)) == 1 or data.shape[1] == 1:
             data = np.stack((data, data), axis=1)
         return (rate, data)
+
+    @lru_cache(maxsize=None)
+    def get_video(self):
+        return VideoFileClip(self._get_video_path())
 
     def add_subtitle(self, subtitle):
         assert type(subtitle) == SubtitleLine
