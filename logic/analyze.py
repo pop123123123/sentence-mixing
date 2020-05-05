@@ -258,6 +258,11 @@ def get_n_best_combos(sentence, videos, n=100):
 
         return combos
 
-    combos = get_best_combos([], target_phonems[0], NODES)
-    combos = sorted(combos, key=lambda c: c[1], reverse=True)
-    return list(map(lambda c: c[0], combos[:n]))
+    combos = None
+    if len(target_phonems) == 1:
+        combos = [[a_p] for a_p in get_candidates(target_phonems[0])[:n]]
+    else:
+        combos = get_best_combos([], target_phonems[0], NODES)
+        combos = sorted(combos, key=lambda c: c[1], reverse=True)
+        combos = list(map(lambda c: c[0], combos[:n]))
+    return combos
