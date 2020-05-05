@@ -1,6 +1,7 @@
 import os
 
 from main import main
+from model.exceptions import PhonemError
 from serialize import load, save
 from video_creator.audio import concat_wav
 
@@ -58,6 +59,12 @@ def loop_interface(audio_command, skip_first, links):
                             bad_sentence = False
                         except KeyError as e:
                             print(e, "not recognized")
+                            sentence = get_sentence(total_text)
+                        except PhonemError as e:
+                            print(
+                                e,
+                                "Try to change your sentence or add more videos.",
+                            )
                             sentence = get_sentence(total_text)
                 timestamps = available_timestamps.pop(0)
 

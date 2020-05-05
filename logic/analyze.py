@@ -4,6 +4,7 @@ import math
 import random
 
 from model.abstract import Phonem, Sentence, Word
+from model.exceptions import PhonemError
 
 
 def noise_score(base_score, sigma=None):
@@ -166,6 +167,9 @@ def get_n_best_combos(sentence, videos, n=100):
             modif *= RIGHT_PRIVILEGE
             total += rate
             rates.append(rate)
+
+        if total == 0:
+            raise PhonemError(t_p)
 
         rates = [r ** 2 for r in rates]
         total = sum(rates)
