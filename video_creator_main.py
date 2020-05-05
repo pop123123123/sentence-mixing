@@ -3,6 +3,7 @@
 import argparse
 import concurrent.futures
 
+from main import get_videos
 from video_creator.download import dl_video
 from video_creator.interface import loop_interface
 from video_creator.video import create_video_file
@@ -10,13 +11,18 @@ from video_creator.video import create_video_file
 
 def main(audio_command, skip_first, urls):
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = executor.map(dl_video, urls)
+        futures_vids = executor.map(dl_video, urls)
+        futures_vids_audio = executor.map(get_videos, [urls])
 
-        total_timestamps, total_text = loop_interface(
-            audio_command, skip_first, urls
+        total_timestamps, total_text, videos = loop_interface(
+            audio_command, futures_vids_audio
         )
 
-        paths = list(futures)
+        paths = list(futures_vids)
+    for v, p in zip(videos, paths):
+        n = len(v._base_path)
+        assert p[:n] == v._base_path
+        v.extension = p[n:]
 
     create_video_file(total_timestamps, paths)
 
