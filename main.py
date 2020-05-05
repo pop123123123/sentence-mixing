@@ -19,6 +19,8 @@ DEFAULT_SEED = 0
 
 # assuming french for now
 def main(sentence, video_urls, seed=DEFAULT_SEED):
+    shutil.rmtree(config.get_property("folder"), True)
+
     random.seed(seed)
 
     # transcribe sentence to pseudo-phonetic string
