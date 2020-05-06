@@ -35,15 +35,13 @@ def center_in_string(s, n, fill=" "):
 
 
 def combo_displayer(combo):
-    combo = list(zip(combo[0], combo[1]))
     phonems = [
-        [(seg, t_w)]
-        if isinstance(seg, Phonem)
-        else [(p, t_w) for p in seg.phonems]
-        for seg, t_w in combo
+        [seg] if isinstance(seg, Phonem) else seg.phonems for seg in combo[0]
     ]
     phonems = [p for ps in phonems for p in ps]
+    phonems = list(zip(phonems, zip(*combo[1:])))
     phonems_transcriptions = [p.transcription for p, _ in phonems]
+    phonems_scores = [score for _, (_, score) in phonems]
 
     segments_s = [f"{round(p.start, 2)}-{round(p.end, 2)}" for p, _ in phonems]
 
@@ -58,6 +56,14 @@ def combo_displayer(combo):
     strings.append(
         COL.join(
             [
+                center_in_string(str(round(score, 2)), len(s))
+                for s, score in zip(segments_s, phonems_scores)
+            ]
+        )
+    )
+    strings.append(
+        COL.join(
+            [
                 center_in_string(p, len(s))
                 for s, p in zip(segments_s, phonems_transcriptions)
             ]
@@ -69,7 +75,7 @@ def combo_displayer(combo):
 
     len_by_ws = [
         (w, sum(len(s) + 1 for s, _ in g) - 1)
-        for w, g in groupby(zip(segments_s, phonems), key=lambda x: x[1][1])
+        for w, g in groupby(zip(segments_s, phonems), key=lambda x: x[1][1][0])
     ]
     strings.append(
         COL.join([center_in_string(w.token, l) for w, l in len_by_ws])
