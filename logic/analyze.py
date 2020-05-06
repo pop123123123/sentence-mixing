@@ -34,7 +34,8 @@ def get_same_tokens(target_phonem, audio_phonem):
     assert w0.token == w1.token
     return list(
         itertools.takewhile(
-            lambda ws: ws[0].token == ws[1].token,
+            lambda ws: tp.from_token_to_phonem(ws[0].token)
+            == tp.from_token_to_phonem(ws[1].token),
             zip(sequence_word(w0), sequence_word(w1),),
         )
     )
@@ -268,7 +269,7 @@ def get_n_best_combos(sentence, videos, n=100):
         if total == 0:
             raise PhonemError(t_p)
 
-        rates = [r ** 2 for r in rates]
+        rates = [r ** 1.1 for r in rates]
         total = sum(rates)
 
         combos = []

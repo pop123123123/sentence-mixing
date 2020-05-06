@@ -104,4 +104,7 @@ def from_token_to_phonem(token):
     if token == "<BLANK>":
         return ["sp"]
 
+    if token == "<TRASH>":
+        return None
+
     return get_dict()[token].split()
