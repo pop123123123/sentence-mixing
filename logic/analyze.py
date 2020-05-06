@@ -6,7 +6,6 @@ import logic.analyze_step_2 as step_2
 import logic.analyze_step_3 as step_3
 import logic.parameters as params
 import logic.randomizer as rnd
-import logic.text_parser as tp
 import logic.utils as utils
 from model.abstract import Phonem, Sentence, Word
 from model.exceptions import PhonemError
