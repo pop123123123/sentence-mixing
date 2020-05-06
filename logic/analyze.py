@@ -314,21 +314,22 @@ def get_n_best_combos(sentence, videos, n=100):
                 )[-1][0]
                 # update current phonem
                 next_target_phonem = last_target_word.phonems[-1].next_in_seq()
-                rate_chosen *= n
                 if next_target_phonem is None:
-                    combos.append((new_chosen, new_associated, rate_chosen))
+                    combos.append(
+                        (new_chosen, new_associated, [rate_chosen] * n)
+                    )
                     continue
             else:
                 new_chosen += [audio_phonem]
                 new_associated += [t_p.word]
             # stop condition
             if target_phonems[-1] == next_target_phonem:
-                combos.append((new_chosen, new_associated, rate_chosen))
+                combos.append((new_chosen, new_associated, [rate_chosen]))
             else:
                 for chosen, associated, rate in get_best_combos(
                     new_chosen, next_target_phonem, nodes, new_associated
                 ):
-                    combos.append((chosen, associated, rate + rate_chosen))
+                    combos.append((chosen, associated, rate + [rate_chosen]))
 
         return combos
 
@@ -340,5 +341,5 @@ def get_n_best_combos(sentence, videos, n=100):
         ]
     else:
         combos = get_best_combos([], target_phonems[0], NODES, [])
-        combos = sorted(combos, key=lambda c: c[2], reverse=True)
+        combos = sorted(combos, key=lambda c: sum(c[2]), reverse=True)
     return combos

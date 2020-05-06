@@ -75,7 +75,7 @@ def loop_interface(audio_command, video_futures):
                 combo = available_combos.pop(0)
                 timestamps = combo[0]
 
-            print(combo_displayer(combo[:2]))
+            print(combo_displayer(combo))
             concat_wav(AUDIO_FILE_PATH, timestamps)
 
             os.system(audio_command.format(AUDIO_FILE_PATH))
