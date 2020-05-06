@@ -31,14 +31,16 @@ def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
 
 
 def step_3_rating(audio_chosen, audio_phonem):
-    rate = 0
+    if len(audio_chosen) > 0:
+        rate = 0
 
-    last_phonem = get_last_phonem(audio_chosen[-1])
-    rate += step_3_audio_rating(last_phonem, audio_phonem)
+        last_phonem = get_last_phonem(audio_chosen[-1])
+        rate += step_3_audio_rating(last_phonem, audio_phonem)
 
-    rate += (
-        params.RATING_LENGTH_SAME_PHONEM
-        * step_3_n_following_previous_phonems(audio_chosen, audio_phonem)
-    )
+        rate += (
+            params.RATING_LENGTH_SAME_PHONEM
+            * step_3_n_following_previous_phonems(audio_chosen, audio_phonem)
+        )
 
-    return rate
+        return rate
+    return 0

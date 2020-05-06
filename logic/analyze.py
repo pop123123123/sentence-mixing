@@ -54,12 +54,8 @@ def get_n_best_combos(sentence, videos, n=100):
         # Rating
         for audio_phonem in candidates:
             rate = step_1_and_step_2_rating(t_p, audio_phonem)
-            if len(audio_chosen) > 0:
-                rate += step_3.step_3_rating(audio_chosen, audio_phonem)
 
-                rate += (
-                    t_p.word.token == audio_phonem.word.token
-                ) * rnd.noise_score(params.SCORE_SAME_AUDIO_WORD)
+            rate += step_3.step_3_rating(audio_chosen, audio_phonem)
 
             rate *= modif
             # not enough nodes left
