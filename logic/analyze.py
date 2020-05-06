@@ -3,6 +3,7 @@ import itertools
 import math
 import random
 
+import logic.audio_analysis as audio_analysis
 import logic.text_parser as tp
 from model.abstract import Phonem, Sentence, Word
 from model.exceptions import PhonemError
@@ -164,10 +165,36 @@ def rating(target_phonem, audio_phonem):
     return score
 
 
+def get_last_vowel(audio_chosen):
+    c_v_dict = tp.get_consonant_vowel_dict()
+    for audio_seg in reversed(audio_chosen):
+        if isinstance(audio_seg, Word):
+            for audio_phonem in reversed(audio_seg.phonems):
+                if c_v_dict[audio_phonem.transcription] == "VOWEL":
+                    return audio_phonem
+        elif c_v_dict[audio_seg.transcription] == "VOWEL":
+            return audio_seg
+    return None
+
+
 @functools.lru_cache(maxsize=None)
-def step_3_audio_rating(previous_audio_phonem, audio_phonem):
-    # TODO audio matching
-    return 0
+def step_3_audio_rating(last_vowel, audio_phonem):
+    # TODO split by words
+    score = 0
+    c_v_dict = tp.get_consonant_vowel_dict()
+    if (
+        last_vowel is not None
+        and c_v_dict[audio_phonem.transcription] == "VOWEL"
+    ):
+        (rate, last_vowel_wave), (_, current_wave) = tuple(
+            audio_analysis.resample_highest_rate(
+                [last_vowel.get_wave(), audio_phonem.get_wave()]
+            )
+        )
+        score += audio_analysis.cross_power_spectral_density_sum(
+            current_wave, last_vowel_wave, rate
+        )
+    return score
 
 
 def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
@@ -193,6 +220,7 @@ SCORE_THRESHOLD = 50
 RIGHT_PRIVILEGE = 0.8
 
 SCORE_SAME_AUDIO_WORD = 200
+RATING_SPECTRAL_SIMILARITY = 50
 
 
 def get_phonems(words_or_phonems):
@@ -244,8 +272,12 @@ def get_n_best_combos(sentence, videos, n=100):
         for audio_phonem in candidates:
             rate = rating(t_p, audio_phonem)
             if len(audio_chosen) > 0:
-                last_phonem = get_last_phonem(audio_chosen[-1])
-                rate += step_3_audio_rating(last_phonem, audio_phonem)
+                rate += (
+                    step_3_audio_rating(
+                        get_last_vowel(audio_chosen), audio_phonem
+                    )
+                    * RATING_SPECTRAL_SIMILARITY
+                )
                 rate += (
                     RATING_LENGTH_SAME_PHONEM
                     * step_3_n_following_previous_phonems(
