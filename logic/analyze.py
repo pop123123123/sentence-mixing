@@ -252,9 +252,6 @@ def get_n_best_combos(sentence, videos, n=100):
                         audio_chosen, audio_phonem
                     )
                 )
-                rate += (
-                    t_p.word.token == audio_phonem.word.token
-                ) * noise_score(SCORE_SAME_AUDIO_WORD)
 
             rate *= modif
             # not enough nodes left
