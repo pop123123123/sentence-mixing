@@ -1,244 +1,21 @@
 import functools
-import itertools
 import math
-import random
 
+import logic.analyze_step_1 as step_1
+import logic.analyze_step_2 as step_2
+import logic.analyze_step_3 as step_3
+import logic.parameters as params
+import logic.randomizer as rnd
 import logic.text_parser as tp
+import logic.utils as utils
 from model.abstract import Phonem, Sentence, Word
 from model.exceptions import PhonemError
 
 
-def noise_score(base_score, sigma=None):
-    if not sigma:
-        sigma = base_score * 0.2
-
-    return random.gauss(base_score, sigma)
-
-
-def sequence_phonem(phonem):
-    while phonem is not None:
-        yield phonem
-        phonem = phonem.next_in_seq()
-
-
-def sequence_word(word):
-    while word is not None:
-        if word.token != "<BLANK>":
-            yield word
-        word = word.next_in_seq()
-
-
-@functools.lru_cache(maxsize=None)
-def get_same_tokens(target_phonem, audio_phonem):
-    w0, w1 = target_phonem, audio_phonem
-    assert w0.token == w1.token
-    return list(
-        itertools.takewhile(
-            lambda ws: tp.from_token_to_phonem(ws[0].token)
-            == tp.from_token_to_phonem(ws[1].token),
-            zip(sequence_word(w0), sequence_word(w1),),
-        )
+def step_1_and_step_2_rating(target_phonem, audio_phonem):
+    return step_1.step_1_rating(audio_phonem) + step_2.step_2_rating(
+        target_phonem, audio_phonem
     )
-
-
-@functools.lru_cache(maxsize=None)
-def get_same_phonems_in_word(target_phonem, audio_phonem):
-    w0, w1 = target_phonem, audio_phonem
-    assert w0.token == w1.token
-    return list(
-        itertools.takewhile(
-            lambda ws: tp.from_token_to_phonem(ws[0].token) == ws[1].phonems,
-            zip(sequence_word(w0), sequence_word(w1),),
-        )
-    )
-
-
-RATING_LENGTH_SAME_PHONEM = 80
-RATING_LENGTH_SAME_WORD = 100
-
-
-def rating_sequence_by_phonem_length(x):
-    return noise_score(RATING_LENGTH_SAME_PHONEM) * x
-
-
-def rating_word_by_phonem_length(x):
-    return noise_score(RATING_LENGTH_SAME_WORD) * x
-
-
-@functools.lru_cache(maxsize=None)
-def get_phonem_similarity(target_phonem, audio_phonem):
-    p0, p1 = target_phonem, audio_phonem
-    n_same_transcriptions = len(
-        list(
-            itertools.takewhile(
-                lambda ps: ps[0].transcription == ps[1].transcription,
-                zip(sequence_phonem(p0), sequence_phonem(p1),),
-            )
-        )
-    )
-    return rating_sequence_by_phonem_length(n_same_transcriptions)
-
-
-@functools.lru_cache(maxsize=None)
-def get_word_similarity(target_phonem, audio_phonem):
-    if (
-        target_phonem.word.token == audio_phonem.word.token
-        and target_phonem.get_index_in_word()
-        == audio_phonem.get_index_in_word()
-    ):
-        n_same_tokens = sum(
-            len(w.phonems)
-            for w, _ in get_same_tokens(target_phonem.word, audio_phonem.word)
-        )
-        return rating_word_by_phonem_length(n_same_tokens)
-    return 0
-
-
-@functools.lru_cache(maxsize=None)
-def get_word_phonem_similarity(target_phonem, audio_phonem):
-    if (
-        target_phonem.word.token == audio_phonem.word.token
-        and target_phonem.get_index_in_word()
-        == audio_phonem.get_index_in_word()
-    ):
-        n_same_tokens = sum(
-            len(w.phonems)
-            for w, _ in get_same_phonems_in_word(
-                target_phonem.word, audio_phonem.word
-            )
-        )
-        return rating_word_by_phonem_length(n_same_tokens)
-    return 0
-
-
-SCORE_SAME_TRANSCRIPTION = 200
-
-
-MINIMAL_PHONEM_LENGTH = 0.1
-MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS = 1000
-
-MAXIMAL_CONSONANT_LENGTH = 0.25
-MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS = 1000
-
-MAXIMAL_VOWEL_LENGTH = 0.5
-MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS = 1000
-
-
-@functools.lru_cache(maxsize=None)
-def score_length(audio_phonem):
-    """
-    Assigns a score malus to an audio phonem depending on the length of its audio and its phonem type
-
-    The malus is computed following a quadratic distance to a length limit.
-
-    These limits are more or less severe depending of the type of the phonem (consonant, vowel or
-    space)
-
-    Returns: a negative score corresponding to a negative malus
-    """
-
-    length = audio_phonem.get_length()
-
-    multiplier = (
-        math.sqrt(MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS) / MINIMAL_PHONEM_LENGTH
-    )
-    malus = ((MINIMAL_PHONEM_LENGTH - length) * multiplier) ** 2
-
-    c_v_dict = tp.get_consonant_vowel_dict()
-    if c_v_dict[audio_phonem.transcription] == "CONSONANT":
-        if length > MAXIMAL_CONSONANT_LENGTH:
-            multiplier = (
-                math.sqrt(MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS)
-                / MAXIMAL_CONSONANT_LENGTH
-            )
-            malus += min(
-                ((length - MAXIMAL_CONSONANT_LENGTH) * multiplier) ** 2,
-                MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS,
-            )
-    elif c_v_dict[audio_phonem.transcription] == "VOWEL":
-        if length > MAXIMAL_CONSONANT_LENGTH:
-            multiplier = (
-                math.sqrt(MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS)
-                / MAXIMAL_VOWEL_LENGTH
-            )
-            malus += min(
-                ((length - MAXIMAL_VOWEL_LENGTH) * multiplier) ** 2,
-                MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS,
-            )
-    elif c_v_dict[audio_phonem.transcription] == "SPACE":
-        pass
-
-    return -malus
-
-
-@functools.lru_cache(maxsize=None)
-def rating(target_phonem, audio_phonem):
-    score = 0
-
-    # Apply malus on phonem length
-    score += score_length(audio_phonem)
-
-    # Parts of the same word
-    score += get_word_similarity(target_phonem, audio_phonem)
-
-    # Parts of the same
-    score += get_word_phonem_similarity(target_phonem, audio_phonem)
-
-    # Same phonem sequence
-    score += get_phonem_similarity(target_phonem, audio_phonem)
-
-    # Wave Context TODO
-
-    # Same transcription
-    if target_phonem.transcription == audio_phonem.transcription:
-        score += noise_score(SCORE_SAME_TRANSCRIPTION)
-
-    return score
-
-
-@functools.lru_cache(maxsize=None)
-def step_3_audio_rating(previous_audio_phonem, audio_phonem):
-    # TODO audio matching
-    return 0
-
-
-def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
-    n = 0
-    previous_phonems = get_phonems(audio_chosen)
-    audio_phonem = audio_phonem.previous_in_seq()
-    while len(previous_phonems) > 0 and audio_phonem == previous_phonems.pop():
-        audio_phonem = audio_phonem.previous_in_seq()
-        n += 1
-    return n
-
-
-def get_last_phonem(audio):
-    if isinstance(audio, Sentence):
-        audio = audio.words[-1]
-    if isinstance(audio, Word):
-        audio = audio.phonems[-1]
-    return audio
-
-
-NODES = 1 << 12
-SCORE_THRESHOLD = 50
-RIGHT_PRIVILEGE = 0.8
-
-SCORE_SAME_AUDIO_WORD = 200
-
-
-def get_phonems(words_or_phonems):
-    return list(
-        itertools.chain(
-            *map(
-                lambda w: w.phonems if isinstance(w, Word) else [w],
-                words_or_phonems,
-            )
-        )
-    )
-
-
-MAX_DEFAULT_RATE = 500
 
 
 def get_n_best_combos(sentence, videos, n=100):
@@ -249,7 +26,9 @@ def get_n_best_combos(sentence, videos, n=100):
         for w in s.words
         for p in w.phonems
     ]
-    target_phonems = get_phonems(sentence.words)
+
+    target_phonems = utils.get_phonems(sentence.words)
+
     # Rate all associations
 
     # split, then call get_best_combos with subset of words from
@@ -258,7 +37,9 @@ def get_n_best_combos(sentence, videos, n=100):
     @functools.lru_cache(maxsize=None)
     def get_candidates(target_phonem):
         return sorted(
-            audio_phonems, key=lambda x: rating(target_phonem, x), reverse=True
+            audio_phonems,
+            key=lambda x: step_1_and_step_2_rating(target_phonem, x),
+            reverse=True,
         )
 
     def get_best_combos(
@@ -269,24 +50,16 @@ def get_n_best_combos(sentence, videos, n=100):
 
         candidates = get_candidates(t_p)
 
-        rate = random.uniform(0, MAX_DEFAULT_RATE)
-
         modif = 1.0
         # Rating
         for audio_phonem in candidates:
-            rate = rating(t_p, audio_phonem)
+            rate = step_1_and_step_2_rating(t_p, audio_phonem)
             if len(audio_chosen) > 0:
-                last_phonem = get_last_phonem(audio_chosen[-1])
-                rate += step_3_audio_rating(last_phonem, audio_phonem)
-                rate += (
-                    RATING_LENGTH_SAME_PHONEM
-                    * step_3_n_following_previous_phonems(
-                        audio_chosen, audio_phonem
-                    )
-                )
+                rate += step_3.step_3_rating(audio_chosen, audio_phonem)
+
                 rate += (
                     t_p.word.token == audio_phonem.word.token
-                ) * noise_score(SCORE_SAME_AUDIO_WORD)
+                ) * rnd.noise_score(params.SCORE_SAME_AUDIO_WORD)
 
             rate *= modif
             # not enough nodes left
@@ -294,7 +67,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 # not trivial
                 break
 
-            modif *= RIGHT_PRIVILEGE
+            modif *= params.RIGHT_PRIVILEGE
             total += rate
             rates.append(rate)
 
@@ -320,7 +93,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 and t_p.get_index_in_word() == audio_phonem.get_index_in_word()
             ):
                 n = 0
-                for t_w, audio_word in get_same_tokens(
+                for t_w, audio_word in utils.get_same_tokens(
                     t_p.word, audio_phonem.word
                 ):
                     n_phon = 0
@@ -345,7 +118,7 @@ def get_n_best_combos(sentence, videos, n=100):
                     n += n_phon
                     new_associated.extend([t_w] * n_phon)
                     new_scores.extend([rate_chosen] * n_phon)
-                last_target_word = get_same_tokens(
+                last_target_word = utils.get_same_tokens(
                     t_p.word, audio_phonem.word
                 )[-1][0]
 
@@ -372,10 +145,14 @@ def get_n_best_combos(sentence, videos, n=100):
     combos = None
     if len(target_phonems) == 1:
         combos = [
-            ([a_p], [target_phonems[0].word], [rating(target_phonems[0], a_p)])
+            (
+                [a_p],
+                [target_phonems[0].word],
+                [step_1_and_step_2_rating(target_phonems[0], a_p)],
+            )
             for a_p in get_candidates(target_phonems[0])[:n]
         ]
     else:
-        combos = get_best_combos([], target_phonems[0], NODES, [])
+        combos = get_best_combos([], target_phonems[0], params.NODES, [])
         combos = sorted(combos, key=lambda c: sum(c[2]), reverse=True)
     return combos
