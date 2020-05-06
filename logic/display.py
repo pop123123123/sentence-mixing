@@ -35,14 +35,11 @@ def center_in_string(s, n, fill=" "):
 
 
 def combo_displayer(combo):
-    combo = list(zip(combo[0], combo[1]))
     phonems = [
-        [(seg, t_w)]
-        if isinstance(seg, Phonem)
-        else [(p, t_w) for p in seg.phonems]
-        for seg, t_w in combo
+        [seg] if isinstance(seg, Phonem) else seg.phonems for seg in combo[0]
     ]
     phonems = [p for ps in phonems for p in ps]
+    phonems = list(zip(phonems, combo[1]))
     phonems_transcriptions = [p.transcription for p, _ in phonems]
 
     segments_s = [f"{round(p.start, 2)}-{round(p.end, 2)}" for p, _ in phonems]

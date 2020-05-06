@@ -91,6 +91,9 @@ class Word(Sequencable):
                 return sentence.words[-1]
         return self.sentence.words[self.get_index_in_sentence() - 1]
 
+    def __repr__(self):
+        return f"<Word: {self.token}>"
+
 
 class Phonem(Sequencable):
     """
