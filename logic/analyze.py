@@ -41,6 +41,18 @@ def get_same_tokens(target_phonem, audio_phonem):
     )
 
 
+@functools.lru_cache(maxsize=None)
+def get_same_phonems_in_word(target_phonem, audio_phonem):
+    w0, w1 = target_phonem, audio_phonem
+    assert w0.token == w1.token
+    return list(
+        itertools.takewhile(
+            lambda ws: tp.from_token_to_phonem(ws[0].token) == ws[1].phonems,
+            zip(sequence_word(w0), sequence_word(w1),),
+        )
+    )
+
+
 RATING_LENGTH_SAME_PHONEM = 80
 RATING_LENGTH_SAME_WORD = 100
 
@@ -77,6 +89,23 @@ def get_word_similarity(target_phonem, audio_phonem):
         n_same_tokens = sum(
             len(w.phonems)
             for w, _ in get_same_tokens(target_phonem.word, audio_phonem.word)
+        )
+        return rating_word_by_phonem_length(n_same_tokens)
+    return 0
+
+
+@functools.lru_cache(maxsize=None)
+def get_word_phonem_similarity(target_phonem, audio_phonem):
+    if (
+        target_phonem.word.token == audio_phonem.word.token
+        and target_phonem.get_index_in_word()
+        == audio_phonem.get_index_in_word()
+    ):
+        n_same_tokens = sum(
+            len(w.phonems)
+            for w, _ in get_same_phonems_in_word(
+                target_phonem.word, audio_phonem.word
+            )
         )
         return rating_word_by_phonem_length(n_same_tokens)
     return 0
@@ -151,6 +180,9 @@ def rating(target_phonem, audio_phonem):
 
     # Parts of the same word
     score += get_word_similarity(target_phonem, audio_phonem)
+
+    # Parts of the same
+    score += get_word_phonem_similarity(target_phonem, audio_phonem)
 
     # Same phonem sequence
     score += get_phonem_similarity(target_phonem, audio_phonem)
