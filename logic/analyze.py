@@ -276,6 +276,7 @@ def get_n_best_combos(sentence, videos, n=100):
         for audio_phonem, rate_chosen in zip(candidates, rates):
             new_chosen = audio_chosen.copy()
             new_associated = associated_target_words.copy()
+            new_scores = []
 
             nodes = math.ceil(nodes_left * rate_chosen / total)
             next_target_phonem = t_p.next_in_seq()
@@ -309,27 +310,27 @@ def get_n_best_combos(sentence, videos, n=100):
                         n_phon = len(audio_word.phonems)
                     n += n_phon
                     new_associated.extend([t_w] * n_phon)
+                    new_scores.extend([rate_chosen] * n_phon)
                 last_target_word = get_same_tokens(
                     t_p.word, audio_phonem.word
                 )[-1][0]
                 # update current phonem
                 next_target_phonem = last_target_word.phonems[-1].next_in_seq()
                 if next_target_phonem is None:
-                    combos.append(
-                        (new_chosen, new_associated, [rate_chosen] * n)
-                    )
+                    combos.append((new_chosen, new_associated, new_scores))
                     continue
             else:
                 new_chosen += [audio_phonem]
                 new_associated += [t_p.word]
+                new_scores += [rate_chosen]
             # stop condition
             if target_phonems[-1] == next_target_phonem:
-                combos.append((new_chosen, new_associated, [rate_chosen]))
+                combos.append((new_chosen, new_associated, new_scores))
             else:
                 for chosen, associated, rate in get_best_combos(
                     new_chosen, next_target_phonem, nodes, new_associated
                 ):
-                    combos.append((chosen, associated, rate + [rate_chosen]))
+                    combos.append((chosen, associated, rate + new_scores))
 
         return combos
 
