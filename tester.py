@@ -3,6 +3,7 @@ import os
 
 import logic.video_processing
 import main
+import video_creator.interface
 from logic.display import combo_displayer
 from serialize import load, save
 
@@ -75,6 +76,10 @@ if __name__ == "__main__":
     out_dir = args.out_dir
 
     videos = get_videos(args.video_urls)
-    for c in reversed(main.main(args.sentence, videos, args.seed)):
+    combos = main.main(args.sentence, videos, args.seed)
+    for c in reversed(combos):
         print("total score:", sum(c[2]))
         print(combo_displayer(c))
+    video_creator.audio.concat_wav(
+        video_creator.interface.AUDIO_FILE_PATH, combos[0][0]
+    )
