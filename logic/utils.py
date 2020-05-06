@@ -26,7 +26,9 @@ def sequence_word(word):
 @functools.lru_cache(maxsize=None)
 def get_same_tokens(target_phonem, audio_phonem):
     w0, w1 = target_phonem, audio_phonem
-    assert w0.token == w1.token
+    assert tp.from_token_to_phonem(w0.token) == tp.from_token_to_phonem(
+        w1.token
+    )
     return list(
         itertools.takewhile(
             lambda ws: tp.from_token_to_phonem(ws[0].token)
