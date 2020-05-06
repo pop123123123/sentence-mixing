@@ -70,7 +70,8 @@ def split_text(text):
     """
 
     text = transform_numbers(text)
-    text = re.sub(r"\s*([^\s\w])\s*", " \\1 ", text)
+    text = re.sub(r"\s*(\w')\s*", "\\1 ", text)
+    text = re.sub(r"\s*([^\s\w'])\s*", " \\1 ", text)
     return text.split(" ")
 
 
@@ -85,7 +86,7 @@ def from_word_to_token(word):
     if word in punctuation:
         return "SP"
 
-    if not word.isalnum():
+    if not word.replace("'", "a").isalnum():
         return None
 
     return word.upper()
