@@ -56,12 +56,12 @@ def _score_length(audio_phonem):
 
 @functools.lru_cache(maxsize=None)
 def step_1_rating(audio_phonem):
-    score = 0
+    score = []
 
     # Assigns random score to each audio phonem
-    score += random.uniform(0, params.MAX_DEFAULT_RATE)
+    score.append(random.uniform(0, params.MAX_DEFAULT_RATE))
 
     # Apply malus on phonem length
-    score += _score_length(audio_phonem)
+    score.append(_score_length(audio_phonem))
 
     return score

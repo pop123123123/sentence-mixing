@@ -1,6 +1,8 @@
 import functools
 import math
 
+import numpy as np
+
 import logic.analyze_step_1 as step_1
 import logic.analyze_step_2 as step_2
 import logic.analyze_step_3 as step_3
@@ -37,7 +39,7 @@ def get_n_best_combos(sentence, videos, n=100):
     def get_candidates(target_phonem):
         return sorted(
             audio_phonems,
-            key=lambda x: step_1_and_step_2_rating(target_phonem, x),
+            key=lambda x: sum(step_1_and_step_2_rating(target_phonem, x)),
             reverse=True,
         )
 
@@ -54,23 +56,28 @@ def get_n_best_combos(sentence, videos, n=100):
         for audio_phonem in candidates:
             rate = step_1_and_step_2_rating(t_p, audio_phonem)
 
-            rate += step_3.step_3_rating(audio_chosen, audio_phonem)
+            rate.extend(step_3.step_3_rating(audio_chosen, audio_phonem))
 
-            rate *= modif
+            rate = [r * modif for r in rate]
             # not enough nodes left
-            if nodes_left * rate < (total + rate):
+            if nodes_left * sum(rate) < (total + sum(rate)):
+                # print(len(audio_chosen), len(rates))
                 # not trivial
                 break
 
             modif *= params.RIGHT_PRIVILEGE
-            total += rate
+            total += sum(rate)
             rates.append(rate)
 
         if total == 0:
             raise PhonemError(t_p)
 
-        rates = [r ** params.RATE_POWER for r in rates]
-        total = sum(rates)
+        def fake_power(array, power):
+            a = np.array(array)
+            return list(a / a.sum() * np.power(a.sum(), power))
+
+        rates = [fake_power(r, params.RATE_POWER) for r in rates]
+        total = sum(map(sum, rates))
 
         combos = []
         # Exploration
@@ -79,7 +86,7 @@ def get_n_best_combos(sentence, videos, n=100):
             new_associated = associated_target_words.copy()
             new_scores = []
 
-            nodes = math.ceil(nodes_left * rate_chosen / total)
+            nodes = math.ceil(nodes_left * sum(rate_chosen) / total)
             next_target_phonem = t_p.next_in_seq()
             # Phonem skipping if word similarity found
             if (
@@ -123,9 +130,9 @@ def get_n_best_combos(sentence, videos, n=100):
                     combos.append((new_chosen, new_associated, new_scores))
                     continue
             else:
-                new_chosen += [audio_phonem]
-                new_associated += [t_p.word]
-                new_scores += [rate_chosen]
+                new_chosen.append(audio_phonem)
+                new_associated.append(t_p.word)
+                new_scores.append(rate_chosen)
             # stop condition
             if target_phonems[-1] == next_target_phonem:
                 combos.append((new_chosen, new_associated, new_scores))
@@ -149,5 +156,7 @@ def get_n_best_combos(sentence, videos, n=100):
         ]
     else:
         combos = get_best_combos([], target_phonems[0], params.NODES, [])
-        combos = sorted(combos, key=lambda c: sum(c[2]), reverse=True)
+        combos = sorted(
+            combos, key=lambda c: sum(map(sum, c[2])), reverse=True
+        )[:n]
     return combos

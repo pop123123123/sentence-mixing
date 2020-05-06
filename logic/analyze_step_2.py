@@ -83,21 +83,23 @@ def get_same_phonems_in_word(target_phonem, audio_phonem):
 
 @functools.lru_cache(maxsize=None)
 def step_2_rating(target_phonem, audio_phonem):
-    score = 0
+    score = []
 
     # Parts of the same word
-    score += get_word_similarity(target_phonem, audio_phonem)
+    score.append(get_word_similarity(target_phonem, audio_phonem))
 
     # Parts of the same
-    score += get_word_phonem_similarity(target_phonem, audio_phonem)
+    score.append(get_word_phonem_similarity(target_phonem, audio_phonem))
 
     # Same phonem sequence
-    score += get_phonem_similarity(target_phonem, audio_phonem)
+    score.append(get_phonem_similarity(target_phonem, audio_phonem))
 
     # Wave Context TODO
 
     # Same transcription
-    if target_phonem.transcription == audio_phonem.transcription:
-        score += rnd.noise_score(params.SCORE_SAME_TRANSCRIPTION)
+    score.append(
+        (target_phonem.transcription == audio_phonem.transcription)
+        * rnd.noise_score(params.SCORE_SAME_TRANSCRIPTION)
+    )
 
     return score
