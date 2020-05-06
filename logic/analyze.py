@@ -50,7 +50,7 @@ def get_n_best_combos(sentence, videos, n=100):
 
         candidates = get_candidates(t_p)
 
-        modif = 1.0
+        modif = params.START_MODIF
         # Rating
         for audio_phonem in candidates:
             rate = step_1_and_step_2_rating(t_p, audio_phonem)
@@ -74,7 +74,7 @@ def get_n_best_combos(sentence, videos, n=100):
         if total == 0:
             raise PhonemError(t_p)
 
-        rates = [r ** 1.1 for r in rates]
+        rates = [r ** params.RATE_POWER for r in rates]
         total = sum(rates)
 
         combos = []
