@@ -1,3 +1,5 @@
+import itertools
+
 import logic.text_parser as parser
 from model.abstract import Phonem, Sentence, Word
 
@@ -12,7 +14,16 @@ class TargetSentence(Sentence):
 
         original_words = parser.split_text(self.original_text)
 
-        self.set_words(TargetWord(self, ow) for ow in original_words)
+        # Add blank word between each word
+        interleaved_words = list(
+            itertools.chain(
+                *[
+                    [TargetWord(self, ow), TargetWord(self, "")]
+                    for ow in original_words
+                ]
+            )
+        )
+        self.set_words(interleaved_words)
 
     def next_in_seq(self):
         return None
@@ -28,13 +39,12 @@ class TargetWord(Word):
 
         Word.__init__(self, TargetSentence, sentence, token, original_word)
 
-        if self.token is not None:
+        if self.token != "<TRASH>":
             transcriptions = parser.from_token_to_phonem(self.token)
             self.set_phonems(
                 TargetPhonem(self, transcription)
                 for transcription in transcriptions
             )
-            self.add_phonem(TargetPhonem(self, "sp"))
 
 
 class TargetPhonem(Phonem):

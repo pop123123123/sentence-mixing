@@ -23,7 +23,7 @@ def sequence_phonem(phonem):
 
 def sequence_word(word):
     while word is not None:
-        if word.token is not None:
+        if word.token != "<BLANK>":
             yield word
         word = word.next_in_seq()
 
@@ -282,6 +282,7 @@ def get_n_best_combos(sentence, videos, n=100):
             # Phonem skipping if word similarity found
             if (
                 t_p.word.token == audio_phonem.word.token
+                and t_p.word.token != "<BLANK>"
                 and t_p.get_index_in_word() == audio_phonem.get_index_in_word()
             ):
                 n = 0
@@ -312,6 +313,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 last_target_word = get_same_tokens(
                     t_p.word, audio_phonem.word
                 )[-1][0]
+
                 # update current phonem
                 next_target_phonem = last_target_word.phonems[-1].next_in_seq()
                 rate_chosen *= n

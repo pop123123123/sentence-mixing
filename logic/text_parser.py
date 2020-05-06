@@ -86,8 +86,11 @@ def from_word_to_token(word):
     if word in punctuation:
         return "SP"
 
+    if word == "":
+        return "<BLANK>"
+
     if not word.replace("'", "a").isalnum():
-        return None
+        return "<TRASH>"
 
     return word.upper()
 
@@ -96,6 +99,9 @@ def from_token_to_phonem(token):
     """Returns a phonem transcription list corresponding to a given word token"""
 
     if token == "SP":
+        return ["sp"]
+
+    if token == "<BLANK>":
         return ["sp"]
 
     return get_dict()[token].split()
