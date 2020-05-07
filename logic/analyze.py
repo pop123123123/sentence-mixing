@@ -140,7 +140,7 @@ def get_n_best_combos(sentence, videos, n=100):
                 for chosen, associated, rate in get_best_combos(
                     new_chosen, next_target_phonem, nodes, new_associated
                 ):
-                    combos.append((chosen, associated, rate + new_scores))
+                    combos.append((chosen, associated, new_scores + rate))
 
         return combos
 
