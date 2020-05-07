@@ -42,6 +42,21 @@ def get_consonant_vowel_dict():
     return consonant_vowel_dict
 
 
+def are_token_homophones(token0, token1):
+    """
+    Determines if two token refers to homophones
+    For example, TROUVE and TROUVES are homophones, because they are associated to the same phonems
+    """
+
+    if token0 == token1:
+        return True
+
+    if from_token_to_phonem(token0) == from_token_to_phonem(token1):
+        return True
+
+    return False
+
+
 @functools.lru_cache(maxsize=None)
 def get_all_phonems():
     """Retrieves a list of all phonems relying on the consonant-vowel dictionary"""
