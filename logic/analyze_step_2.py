@@ -38,7 +38,8 @@ def get_phonem_similarity(target_phonem, audio_phonem):
 @functools.lru_cache(maxsize=None)
 def get_word_similarity(target_phonem, audio_phonem):
     if (
-        target_phonem.word.token == audio_phonem.word.token
+        tp.from_token_to_phonem(target_phonem.word.token)
+        == tp.from_token_to_phonem(audio_phonem.word.token)
         and target_phonem.get_index_in_word()
         == audio_phonem.get_index_in_word()
     ):
@@ -55,7 +56,8 @@ def get_word_similarity(target_phonem, audio_phonem):
 @functools.lru_cache(maxsize=None)
 def get_word_phonem_similarity(target_phonem, audio_phonem):
     if (
-        target_phonem.word.token == audio_phonem.word.token
+        tp.from_token_to_phonem(target_phonem.word.token)
+        == audio_phonem.word.phonems
         and target_phonem.get_index_in_word()
         == audio_phonem.get_index_in_word()
     ):
@@ -72,7 +74,7 @@ def get_word_phonem_similarity(target_phonem, audio_phonem):
 @functools.lru_cache(maxsize=None)
 def get_same_phonems_in_word(target_phonem, audio_phonem):
     w0, w1 = target_phonem, audio_phonem
-    assert w0.token == w1.token
+    assert tp.from_token_to_phonem(w0.token) == w1.phonems
     return list(
         itertools.takewhile(
             lambda ws: tp.from_token_to_phonem(ws[0].token) == ws[1].phonems,

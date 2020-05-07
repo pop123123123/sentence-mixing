@@ -1,8 +1,8 @@
 import functools
 import math
-import random
 
 import logic.parameters as params
+import logic.randomizer as rnd
 import logic.text_parser as tp
 
 
@@ -59,7 +59,7 @@ def step_1_rating(audio_phonem):
     score = []
 
     # Assigns random score to each audio phonem
-    score.append(random.uniform(0, params.MAX_DEFAULT_RATE))
+    score.append(rnd.random_basic_score())
 
     # Apply malus on phonem length
     score.append(_score_length(audio_phonem))
