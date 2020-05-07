@@ -1,4 +1,5 @@
 from model.abstract import Phonem, Sentence, Word
+from model.scorable import Scorable
 
 
 class VideoSegment:
@@ -80,15 +81,24 @@ class AudioWord(Word, VideoSegment):
         return self.sentence._get_original_video()
 
 
-class AudioPhonem(Phonem, VideoSegment):
+class AudioPhonem(Phonem, VideoSegment, Scorable):
     """Represents a phonem spotted by Montreal aligner in a sentence"""
 
     def __init__(self, word, transcription, start, end):
         Phonem.__init__(self, AudioWord, word, transcription)
         VideoSegment.__init__(self, start, end)
 
+        self.random_default_score = None
+        self.length_score = None
+
     def _get_original_wave(self):
         return self.word._get_original_wave()
 
     def _get_original_video(self):
         return self.word._get_original_video()
+
+    def get_splited_score(self):
+        return {
+            "random": self.random_default_score,
+            "length": self.length_score,
+        }
