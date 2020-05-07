@@ -12,17 +12,21 @@ class Choice(Scorable):
     Class parameters:
     parent - father node in the tree
     association - last association decided by parent
-    _step_3_score - score of association for step 3
+    _audio_score - audio score of association (step 3 scoring)
+    _previous_score - previous score of association (step 3 scoring)
     children - children nodes in the tree
     """
 
-    def __init__(self, parent, current_association, step_3_score_association):
+    def __init__(
+        self, parent, current_association, audio_score, previous_score
+    ):
         self.parent = parent
         self.children = []
 
         self.association = current_association
 
-        self._step_3_score = step_3_score_association
+        self._audio_score = audio_score
+        self._previous_score = previous_score
 
     # TODO: cacher ou pas ?
     @functools.lru_cache(maxsize=None)
@@ -53,14 +57,16 @@ class Choice(Scorable):
         return [child.get_combos() for child in self.children]
 
     def get_splited_score(self):
-        # TODO: recursion ?
-        step_3_scores = {"step_3": self._step_3_score}
+        step_3_scores = {
+            "audio": self._audio_score,
+            "previous": self._previous_score,
+        }
         return {**self.association.get_splited_score, **step_3_scores}
 
 
 class SkippedChoice(Choice):
     def __init__(self, parent, associations_list):
-        Choice.__init__(self, parent, associations_list[0], 0)
+        Choice.__init__(self, parent, associations_list[0], 0, 0)
         self._associations_list = associations_list
 
     def _create_children(self):
@@ -99,3 +105,12 @@ class Combo:
 
     def __init__(self, leaf_choice):
         self.leaf_choice = leaf_choice
+
+    def get_score(self):
+        score = 0
+        current_choice = self.leaf_choice
+        while current_choice is not None:
+            score += current_choice.get_total_score()
+            current_choice = current_choice.parent
+
+        return score
