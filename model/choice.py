@@ -73,6 +73,11 @@ class SkippedChoice(Choice):
         SkippedChoice(self, self._associations_list[1:])
 
 
+@functools.lru_cache(maxsize=None)
+def association_builder(target_phonem, audio_phonem):
+    return Association(target_phonem, audio_phonem)
+
+
 class Association(Scorable):
     """Storage class regrouping target and audio phonem and associating a step 2 score"""
 
