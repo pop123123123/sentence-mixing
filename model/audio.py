@@ -98,6 +98,9 @@ class AudioPhonem(Phonem, VideoSegment, Scorable):
         return self.word._get_original_video()
 
     def get_splited_score(self):
+        assert self.random_default_score is not None
+        assert self.length_score is not None
+
         return {
             "random": self.random_default_score,
             "length": self.length_score,
