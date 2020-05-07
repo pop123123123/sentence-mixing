@@ -8,6 +8,7 @@ import logic.analyze_step_2 as step_2
 import logic.analyze_step_3 as step_3
 import logic.parameters as params
 import logic.randomizer as rnd
+import logic.text_parser as tp
 import logic.utils as utils
 from model.abstract import Phonem, Sentence, Word
 from model.exceptions import PhonemError
@@ -90,7 +91,9 @@ def get_n_best_combos(sentence, videos, n=100):
             next_target_phonem = t_p.next_in_seq()
             # Phonem skipping if word similarity found
             if (
-                t_p.word.token == audio_phonem.word.token
+                tp.are_token_homophones(
+                    t_p.word.token, audio_phonem.word.token
+                )
                 and t_p.word.token != "<BLANK>"
                 and t_p.get_index_in_word() == audio_phonem.get_index_in_word()
             ):
