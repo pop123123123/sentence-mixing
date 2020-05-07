@@ -91,6 +91,15 @@ class Word(Sequencable):
                 return sentence.words[-1]
         return self.sentence.words[self.get_index_in_sentence() - 1]
 
+    def has_same_phonems_transcription(self, other):
+        assert isinstance(other, Word)
+        return len(self.phonems) == len(other.phonems) and all(
+            map(
+                lambda phs: phs[0].transcription == phs[1].transcription,
+                zip(self.phonems, other.phonems),
+            )
+        )
+
     def __repr__(self):
         return f"<Word: {self.token}>"
 

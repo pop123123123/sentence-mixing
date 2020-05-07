@@ -1,21 +1,68 @@
+import math
+
+import logic.global_audio_data
+import logic.parameters
 import logic.utils as utils
-from logic.global_audio_data import get_candidates
 from model.choice import Choice, Combo
+from model.exceptions import PhonemError
 
 
-def get_best_first_associations(target_phonem):
-    associations = get_candidates(target_phonem)
-    raise NotImplementedError()
-    return associations
+def compute_children(target_phonem, nodes_left, choice):
+    total = 0
+    chosen = []
+
+    association_candidates = logic.global_audio_data.get_candidates(
+        target_phonem
+    )
+
+    # Rating
+    for association in association_candidates:
+        computed_rate = association.get_total_score()
+
+        step_3_rate = []
+        if choice is not None:
+            step_3_rate = choice.compute_child_step_3_score(association)
+        else:
+            step_3_rate = [0, 0]
+        computed_rate += sum(step_3_rate)
+        # not enough nodes left
+        if not utils.has_at_least_one_node(nodes_left, total, computed_rate):
+            # not trivial
+            break
+
+        total += computed_rate
+        chosen.append((association, step_3_rate))
+
+    if total == 0:
+        raise PhonemError(target_phonem)
+
+    return [
+        Choice(
+            choice,
+            association,
+            math.ceil(
+                logic.utils.compute_nodes_left(
+                    nodes_left,
+                    total,
+                    sum(rate) + association.get_total_score(),
+                )
+            ),
+            *rate
+        )
+        for association, rate in chosen
+    ]
 
 
 def get_n_best_combos(sentence, videos, n=100):
+    logic.global_audio_data.set_videos(videos)
 
     target_phonems = utils.get_phonems(sentence.words)
 
-    best_assos = get_best_first_associations(target_phonems[0])
-    roots = [Choice(None, asso, 0, 0) for asso in best_assos]
+    roots = compute_children(target_phonems[0], logic.parameters.NODES, None)
 
-    combos = [root.get_combos() for root in roots]
+    combos = []
+    for combo in roots:
+        combos.extend(combo.get_combos())
+    combos.sort(key=lambda c: c.get_score(), reverse=True)
 
-    return combos
+    return combos[:n]

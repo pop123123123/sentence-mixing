@@ -60,14 +60,14 @@ def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
 
 def step_3_rating(audio_chosen, audio_phonem):
     if len(audio_chosen) > 0:
-        rate = 0
+        rate = []
 
-        rate += (
+        rate.append(
             step_3_audio_rating(get_last_vowel(audio_chosen), audio_phonem)
             * params.RATING_SPECTRAL_SIMILARITY
         )
 
-        rate += (
+        rate.append(
             params.RATING_LENGTH_SAME_PHONEM
             * step_3_n_following_previous_phonems(audio_chosen, audio_phonem)
         )

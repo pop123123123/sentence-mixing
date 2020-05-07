@@ -77,9 +77,7 @@ if __name__ == "__main__":
 
     videos = get_videos(args.video_urls)
     combos = main.main(args.sentence, videos, args.seed)
-    for c in reversed(combos):
-        print("total score:", sum(c[2]))
-        print(combo_displayer(c))
+    print(combos[0])
     video_creator.audio.concat_wav(
-        video_creator.interface.AUDIO_FILE_PATH, combos[0][0]
+        video_creator.interface.AUDIO_FILE_PATH, combos[0].get_audio_phonems()
     )

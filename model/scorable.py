@@ -5,9 +5,13 @@ class Scorable:
         """Computes final score for a storable"""
 
         scores = self.get_splited_score()
-        return sum([score for _, score in scores.items()])
+        return sum(scores.values())
 
     def get_splited_score(self):
         """Retrieves dict stored detailed score"""
 
+        raise NotImplementedError()
+
+    def set_multiply_factor(factor):
+        """Retrieves dict stored detailed score"""
         raise NotImplementedError()
