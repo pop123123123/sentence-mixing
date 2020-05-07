@@ -25,7 +25,7 @@ def _score_length(audio_phonem):
         math.sqrt(params.MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS)
         / params.MINIMAL_PHONEM_LENGTH
     )
-    malus = ((params.MINIMAL_PHONEM_LENGTH - length) * multiplier) ** 2
+    malus = (max((params.MINIMAL_PHONEM_LENGTH - length), 0) * multiplier) ** 2
 
     c_v_dict = tp.get_consonant_vowel_dict()
     if c_v_dict[audio_phonem.transcription] == "CONSONANT":
