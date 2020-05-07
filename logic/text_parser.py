@@ -1,9 +1,11 @@
 import functools
 import re
+from itertools import groupby
 
 from num2words import num2words
 
 import config
+from model.exceptions import TokenAmbiguityError
 
 
 @functools.lru_cache(maxsize=None)
@@ -14,9 +16,30 @@ def get_dict():
 
     # Opens the dictionary file and puts it in a dict
     with open(dict_path) as f:
-        phonem_dict = dict(x.rstrip().split(None, 1) for x in f)
+        phonem_dict = {
+            k: [v.split() for _, v in g]
+            for k, g in groupby(
+                (x.rstrip().split(None, 1) for x in f), lambda x: x[0]
+            )
+        }
 
     return phonem_dict
+
+
+def get_dict_entry(token):
+    """Retrieves an entry from the dictionary
+
+    Raises
+    ------
+    TokenAmbiguityError
+        If the token has multiple pronunciations.
+    """
+
+    w = get_dict()[token]
+    if len(w) > 1:
+        raise TokenAmbiguityError(token)
+
+    return w[0]
 
 
 @functools.lru_cache(maxsize=None)
@@ -122,4 +145,4 @@ def from_token_to_phonem(token):
     if token == "<TRASH>":
         return None
 
-    return get_dict()[token].split()
+    return get_dict_entry(token)
