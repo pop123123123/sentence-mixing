@@ -155,9 +155,14 @@ class Association(Scorable):
 
     @property
     def _step_2_word_sequence_score(self):
-        return logic.analyze_step_2.rating_word_by_phonem_length(
-            len(self.sequence_same_phonems_last_word_truncated())
-        )
+        if (
+            self.target_phonem.get_index_in_word()
+            == self.audio_phonem.get_index_in_word()
+        ):
+            return logic.analyze_step_2.rating_word_by_phonem_length(
+                len(list(self.sequence_dictionary_homophones_phonems()))
+            )
+        return 0
 
     @property
     def _step_2_phonem_sequence_score(self):
