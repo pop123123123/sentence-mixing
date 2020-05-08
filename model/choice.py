@@ -43,7 +43,8 @@ class Choice(Scorable):
     def get_self_and_previous_choices(self):
         yield self
         if self.parent is not None:
-            return self.parent.get_self_and_previous_choices()
+            for c in self.parent.get_self_and_previous_choices():
+                yield c
 
     @functools.lru_cache(maxsize=None)
     def _create_children(self):
@@ -61,18 +62,17 @@ class Choice(Scorable):
                 self.association.sequence_aligner_homophones_phonems()
             )
 
-            if (
-                len(dictionary_homophones_phonems) > 0
-                or len(aligner_homophones_phonems) > 0
-            ):
-                return [SkippedChoice(self, dictionary_homophones_phonems)]
+            if len(dictionary_homophones_phonems) > 2:
+                return [SkippedChoice(self, dictionary_homophones_phonems[1:])]
+            elif len(aligner_homophones_phonems) > 2:
+                return [SkippedChoice(self, aligner_homophones_phonems[1:])]
 
         # Check for phonem skipping
         same_phonems = (
             self.association.sequence_same_phonems_first_word_truncated()
         )
-        if len(same_phonems) > 1:
-            return [SkippedChoice(self, same_phonems)]
+        if len(same_phonems) > 2:
+            return [SkippedChoice(self, same_phonems[1:])]
 
         # Normal workflow
         target_phonem = self.association.target_phonem.next_in_seq()
@@ -261,7 +261,11 @@ class Combo:
         )
 
     def get_audio_phonems(self):
-        return [
-            ch.association.audio_phonem
-            for ch in self.leaf_choice.get_self_and_previous_choices()
-        ]
+        return list(
+            reversed(
+                [
+                    ch.association.audio_phonem
+                    for ch in self.leaf_choice.get_self_and_previous_choices()
+                ]
+            )
+        )
