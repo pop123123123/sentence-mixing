@@ -16,15 +16,11 @@ def get_last_phonem(audio):
     return audio
 
 
-def get_last_vowel(audio_chosen):
+def get_last_vowel(choices):
     c_v_dict = tp.get_consonant_vowel_dict()
-    for audio_seg in reversed(audio_chosen):
-        if isinstance(audio_seg, Word):
-            for audio_phonem in reversed(audio_seg.phonems):
-                if c_v_dict[audio_phonem.transcription] == "VOWEL":
-                    return audio_phonem
-        elif c_v_dict[audio_seg.transcription] == "VOWEL":
-            return audio_seg
+    for choice in choices:
+        if c_v_dict[choice.association.audio_phonem.transcription] == "VOWEL":
+            return choice.association.audio_phonem
     return None
 
 
@@ -48,28 +44,35 @@ def step_3_audio_rating(last_vowel, audio_phonem):
     return score
 
 
-def step_3_n_following_previous_phonems(audio_chosen, audio_phonem):
-    n = 0
-    previous_phonems = utils.get_phonems(audio_chosen)
-    audio_phonem = audio_phonem.previous_in_seq()
-    while len(previous_phonems) > 0 and audio_phonem == previous_phonems.pop():
-        audio_phonem = audio_phonem.previous_in_seq()
-        n += 1
-    return n
+def step_3_n_following_previous_phonems(choices):
+    return utils.count_finite_iterable(
+        itertools.takewhile(
+            lambda c: c.association.target_phonem.word.token == "<BLANK>"
+            or (
+                c.parent is not None
+                and c.association.audio_phonem.previous_in_seq()
+                == c.parent.association.audio_phonem
+            ),
+            choices,
+        )
+    )
 
 
-def step_3_rating(audio_chosen, audio_phonem):
-    if len(audio_chosen) > 0:
+def step_3_rating(choice):
+    choices = list(choice.get_self_and_previous_choices())
+    if len(choices) > 0:
         rate = []
 
         rate.append(
-            step_3_audio_rating(get_last_vowel(audio_chosen), audio_phonem)
+            step_3_audio_rating(
+                get_last_vowel(choices), choice.association.audio_phonem
+            )
             * params.RATING_SPECTRAL_SIMILARITY
         )
 
         rate.append(
             params.RATING_LENGTH_SAME_PHONEM
-            * step_3_n_following_previous_phonems(audio_chosen, audio_phonem)
+            * step_3_n_following_previous_phonems(choices)
         )
 
         return rate

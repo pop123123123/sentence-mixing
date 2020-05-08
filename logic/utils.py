@@ -6,6 +6,10 @@ import model
 from model.abstract import Word
 
 
+def count_finite_iterable(iterable):
+    return sum(1 for _ in iterable)
+
+
 def get_phonems(words_or_phonems):
     return list(
         itertools.chain(

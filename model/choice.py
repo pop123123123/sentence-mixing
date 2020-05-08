@@ -98,13 +98,7 @@ class Choice(Scorable):
         return {**self.association.get_splited_score(), **step_3_scores}
 
     def compute_child_step_3_score(self, association):
-        return logic.analyze_step_3.step_3_rating(
-            [
-                ch.association.audio_phonem
-                for ch in self.get_self_and_previous_choices()
-            ],
-            association.audio_phonem,
-        )
+        return logic.analyze_step_3.step_3_rating(self)
 
 
 class SkippedChoice(Choice):
