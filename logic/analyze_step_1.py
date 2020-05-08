@@ -7,7 +7,7 @@ import logic.text_parser as tp
 
 
 @functools.lru_cache(maxsize=None)
-def _score_length(audio_phonem):
+def score_length(audio_phonem):
     """
     Assigns a score malus to an audio phonem depending on the length of its audio and its phonem type
 
@@ -52,16 +52,3 @@ def _score_length(audio_phonem):
         pass
 
     return -malus
-
-
-@functools.lru_cache(maxsize=None)
-def step_1_rating(audio_phonem):
-    score = 0
-
-    # Assigns random score to each audio phonem
-    score += rnd.random_basic_score()
-
-    # Apply malus on phonem length
-    score += _score_length(audio_phonem)
-
-    return score

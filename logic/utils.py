@@ -2,6 +2,7 @@ import functools
 import itertools
 
 import logic.text_parser as tp
+import model
 from model.abstract import Word
 
 
@@ -16,6 +17,22 @@ def get_phonems(words_or_phonems):
     )
 
 
+def sequence_association(start_association):
+    return map(
+        lambda phs: model.choice.association_builder(*phs),
+        zip(
+            sequence_phonem(start_association.target_phonem),
+            sequence_phonem(start_association.audio_phonem),
+        ),
+    )
+
+
+def sequence_phonem(phonem):
+    while phonem is not None:
+        yield phonem
+        phonem = phonem.next_in_seq()
+
+
 def sequence_word(word):
     while word is not None:
         if word.token != "<BLANK>":
@@ -24,13 +41,39 @@ def sequence_word(word):
 
 
 @functools.lru_cache(maxsize=None)
-def get_same_tokens(target_phonem, audio_phonem):
-    w0, w1 = target_phonem, audio_phonem
-    assert tp.are_token_homophones(w0.token, w1.token)
+def get_sequence_aligner_homophones(target_phonem, audio_phonem):
+    w0, w1 = target_phonem.word, audio_phonem.word
     return list(
         itertools.takewhile(
-            lambda ws: tp.from_token_to_phonem(ws[0].token)
-            == tp.from_token_to_phonem(ws[1].token),
+            lambda ws: ws[0].has_same_phonems_transcription(ws[1]),
             zip(sequence_word(w0), sequence_word(w1),),
         )
+    )
+
+
+@functools.lru_cache(maxsize=None)
+def get_sequence_dictionary_homophones(target_phonem, audio_phonem):
+    w0, w1 = target_phonem.word, audio_phonem.word
+    return list(
+        itertools.takewhile(
+            lambda ws: tp.are_token_homophones(ws[0].token, ws[1].token),
+            zip(sequence_word(w0), sequence_word(w1),),
+        )
+    )
+
+
+def has_at_least_one_node(base_nodes, total, rating):
+    return base_nodes * rating >= total
+
+
+def compute_nodes_left(base_nodes, total, rating):
+    return base_nodes * rating / total
+
+
+def association_sequence_from_words(words):
+    return map(
+        lambda x: model.choice.association_builder(*x),
+        itertools.chain(
+            *map(lambda w: zip(w[0].phonems, w[1].phonems), words)
+        ),
     )

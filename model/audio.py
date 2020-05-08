@@ -1,4 +1,7 @@
+import logic.analyze_step_1
+import logic.randomizer
 from model.abstract import Phonem, Sentence, Word
+from model.scorable import Scorable
 
 
 class VideoSegment:
@@ -80,15 +83,27 @@ class AudioWord(Word, VideoSegment):
         return self.sentence._get_original_video()
 
 
-class AudioPhonem(Phonem, VideoSegment):
+class AudioPhonem(Phonem, VideoSegment, Scorable):
     """Represents a phonem spotted by Montreal aligner in a sentence"""
 
     def __init__(self, word, transcription, start, end):
         Phonem.__init__(self, AudioWord, word, transcription)
         VideoSegment.__init__(self, start, end)
 
+        self.random_default_score = logic.randomizer.random_basic_score()
+        self.length_score = logic.analyze_step_1.score_length(self)
+
     def _get_original_wave(self):
         return self.word._get_original_wave()
 
     def _get_original_video(self):
         return self.word._get_original_video()
+
+    def get_splited_score(self):
+        assert self.random_default_score is not None
+        assert self.length_score is not None
+
+        return {
+            "step_1_random": self.random_default_score,
+            "step_1_duration": self.length_score,
+        }
