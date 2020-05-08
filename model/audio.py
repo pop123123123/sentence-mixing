@@ -104,6 +104,6 @@ class AudioPhonem(Phonem, VideoSegment, Scorable):
         assert self.length_score is not None
 
         return {
-            "random": self.random_default_score,
-            "length": self.length_score,
+            "step_1_random": self.random_default_score,
+            "step_1_duration": self.length_score,
         }

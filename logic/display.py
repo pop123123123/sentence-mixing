@@ -21,6 +21,19 @@ BORDERS = {
     (False, False, False, False): " ",
 }
 
+RATING_STEP = [1, 1, 2, 2, 2, 2, 3, 3, 0]
+RATINGS = [
+    ("step_1_random", "Random"),
+    ("step_1_duration", "Duration"),
+    ("step_2_same_word", "Homophone"),
+    ("step_2_word_sequence", "Word seq"),
+    ("step_2_phonem_sequence", "Ph sequence"),
+    ("step_2_same_phonem", "Transcri"),
+    ("step_3_audio_spectral", "Wave freq"),
+    ("step_3_same_word_previous_phonems", "Previous"),
+    ("total", "Total"),
+]
+
 
 def center_in_string(s, n, fill=" "):
     assert len(s) <= n
@@ -35,11 +48,19 @@ def center_in_string(s, n, fill=" "):
 
 
 def combo_displayer(combo):
-    phonems = [
-        [seg] if isinstance(seg, Phonem) else seg.phonems for seg in combo[0]
-    ]
-    phonems = [p for ps in phonems for p in ps]
-    phonems = list(zip(phonems, zip(*combo[1:])))
+    phonems = [ch.association.audio_phonem for ch in combo.get_choices()]
+    phonems = list(
+        zip(
+            phonems,
+            [
+                (
+                    ch.association.target_phonem.word,
+                    [ch.get_splited_score()[k] for k, _ in RATINGS[:-1]],
+                )
+                for ch in combo.get_choices()
+            ],
+        )
+    )
     phonems_transcriptions = [p.transcription for p, _ in phonems]
     phonems_scores = [score for _, (_, score) in phonems]
 
@@ -49,14 +70,26 @@ def combo_displayer(combo):
     LINE = BORDERS[(False, True, False, True)]
     CROSS = BORDERS[tuple(4 * [True])]
 
+    legend_size = max(map(lambda x: len(x[1]), RATINGS[:-1])) + 2
+    padding = " " * (legend_size + 1)
+
     strings = []
     strings.append(COL.join(segments_s))
     strings.append(CROSS.join([len(seg) * LINE for seg in segments_s]))
 
+    for i, _ in enumerate(RATINGS[:-1]):
+        strings.append(
+            COL.join(
+                [
+                    center_in_string(str(round(score[i], 2)), len(s))
+                    for s, score in zip(segments_s, phonems_scores)
+                ]
+            )
+        )
     strings.append(
         COL.join(
             [
-                center_in_string(str(round(score, 2)), len(s))
+                center_in_string(str(round(sum(score), 2)), len(s))
                 for s, score in zip(segments_s, phonems_scores)
             ]
         )
@@ -97,7 +130,12 @@ def combo_displayer(combo):
 
     strings.reverse()
     strings = [
-        BORDERS[(i != 0, s[0] == LINE, i + 1 != len(strings), False)]
+        (
+            str(RATING_STEP[14 - i]) + RATINGS[14 - i][1].rjust(legend_size)
+            if 5 < i <= 5 + 9
+            else padding
+        )
+        + BORDERS[(i != 0, s[0] == LINE, i + 1 != len(strings), False)]
         + s
         + BORDERS[(i != 0, False, i + 1 != len(strings), s[0] == LINE)]
         for i, s in enumerate(strings)

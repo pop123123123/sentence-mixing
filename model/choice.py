@@ -92,8 +92,8 @@ class Choice(Scorable):
 
     def get_splited_score(self):
         step_3_scores = {
-            "audio": self._audio_score,
-            "previous": self._previous_score,
+            "step_3_audio_spectral": self._audio_score,
+            "step_3_same_word_previous_phonems": self._previous_score,
         }
         return {**self.association.get_splited_score(), **step_3_scores}
 
@@ -170,10 +170,10 @@ class Association(Scorable):
 
     def get_splited_score(self):
         step_2_scores = {
-            "same_phonem": self._step_2_same_phonem_score,
-            "same_word": self._step_2_same_word_score,
-            "word_sequence": self._step_2_word_sequence_score,
-            "phonem_sequence": self._step_2_phonem_sequence_score,
+            "step_2_same_phonem": self._step_2_same_phonem_score,
+            "step_2_same_word": self._step_2_same_word_score,
+            "step_2_word_sequence": self._step_2_word_sequence_score,
+            "step_2_phonem_sequence": self._step_2_phonem_sequence_score,
         }
         return {**self.audio_phonem.get_splited_score(), **step_2_scores}
 
@@ -261,11 +261,9 @@ class Combo:
         )
 
     def get_audio_phonems(self):
+        return [ch.association.audio_phonem for ch in self.get_choices()]
+
+    def get_choices(self):
         return list(
-            reversed(
-                [
-                    ch.association.audio_phonem
-                    for ch in self.leaf_choice.get_self_and_previous_choices()
-                ]
-            )
+            reversed(list(self.leaf_choice.get_self_and_previous_choices()))
         )
