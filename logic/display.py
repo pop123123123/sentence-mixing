@@ -21,10 +21,11 @@ BORDERS = {
     (False, False, False, False): " ",
 }
 
-RATING_STEP = [1, 1, 2, 2, 2, 2, 3, 3, 0]
+RATING_STEP = [1, 1, 2, 2, 2, 2, 2, 3, 3, 0]
 RATINGS = [
     ("step_1_random", "Random"),
     ("step_1_duration", "Duration"),
+    ("step_2_audio_score", "Wave ampl"),
     ("step_2_same_word", "Homophone"),
     ("step_2_word_sequence", "Word seq"),
     ("step_2_phonem_sequence", "Ph sequence"),
@@ -128,11 +129,14 @@ def combo_displayer(combo):
         ),
     )
 
+    length = 5 + len(RATING_STEP)
+
     strings.reverse()
     strings = [
         (
-            str(RATING_STEP[14 - i]) + RATINGS[14 - i][1].rjust(legend_size)
-            if 5 < i <= 5 + 9
+            str(RATING_STEP[length - i])
+            + RATINGS[length - i][1].rjust(legend_size)
+            if 5 < i <= length
             else padding
         )
         + BORDERS[(i != 0, s[0] == LINE, i + 1 != len(strings), False)]
