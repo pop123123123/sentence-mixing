@@ -60,7 +60,7 @@ def step_3_n_following_previous_phonems(choices):
 
 def step_3_rating(choice):
     choices = list(choice.get_self_and_previous_choices())
-    if len(choices) > 0:
+    if len(choices) > 1:
         rate = []
 
         rate.append(
@@ -76,4 +76,4 @@ def step_3_rating(choice):
         )
 
         return rate
-    return 0
+    return [0, 0]
