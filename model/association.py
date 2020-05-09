@@ -53,6 +53,12 @@ class Association(Scorable):
                 logic.audio_analysis.rate_silence(self.audio_phonem.get_wave())
                 * params.SCORE_SILENCE_AMPLITUDE
             )
+            score += (
+                logic.audio_analysis.rate_duration(
+                    self.audio_phonem.get_wave(), 0.1, 0.2
+                )
+                * params.SCORE_DURATION
+            )
         return score
 
     def __repr__(self):

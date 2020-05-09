@@ -1,6 +1,8 @@
 import numpy as np
 from scipy import signal
 
+import logic.parameters
+
 
 def cross_power_spectral_density_sum(x, y, fs):
     _, Pxy = signal.csd(x[:, 0], y[:, 0], fs, nperseg=1024)
@@ -24,3 +26,18 @@ def rate_silence(data):
     rate, data = data
     average_amplitude = 1 - (np.average(np.abs(data)) / (1 << 15))
     return average_amplitude
+
+
+def _soft_rectangle_function(x, a, b, alpha):
+    return (np.tanh(alpha * (x - a)) - np.tanh(alpha * (x - b))) / 2
+
+
+def rate_duration(data, inf, sup):
+    rate, data = data
+    return (
+        _soft_rectangle_function(
+            float(data.shape[0]) / rate, inf, sup, logic.parameters.ALPHA
+        )
+        * 2
+        - 1
+    )
