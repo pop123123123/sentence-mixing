@@ -17,11 +17,11 @@ def get_last_phonem(audio):
     return audio
 
 
-def get_last_vowel(choices):
+def get_last_vowel(associations):
     c_v_dict = tp.get_consonant_vowel_dict()
-    for choice in choices:
-        if c_v_dict[choice.association.audio_phonem.transcription] == "VOWEL":
-            return choice.association.audio_phonem
+    for a in associations:
+        if c_v_dict[a.audio_phonem.transcription] == "VOWEL":
+            return a.audio_phonem
     return None
 
 
@@ -45,38 +45,39 @@ def step_3_audio_rating(last_vowel, audio_phonem):
     return score
 
 
-def step_3_n_following_previous_phonems(choices):
-    return utils.count_finite_iterable(
-        itertools.takewhile(
-            lambda c: c.association.target_phonem.word.token == "<BLANK>"
-            or (
-                c.parent is not None
-                and c.association.audio_phonem.previous_in_seq()
-                == c.parent.association.audio_phonem
-            ),
-            choices,
-        )
-    )
+def step_3_n_following_previous_phonems(associations):
+    n = 0
+    i = 0
+    while i < len(associations) - 1:
+        a = associations[i]
+        parent = associations[i + 1]
+
+        if (
+            i != 0 and a.target_phonem.word.token == "<BLANK>"
+        ) or a.audio_phonem.previous_in_seq() == parent.audio_phonem:
+            n += 1
+        i += 1
+    return n
 
 
 def step_3_rating(choice, association):
-    choices = list(choice.get_self_and_previous_choices())
+    associations = [association] + [
+        c.association for c in choice.get_self_and_previous_choices()
+    ]
 
-    choices.insert(0, model.choice.Choice(choices[0], association, 1, 0, 0))
-
-    if len(choices) > 1:
+    if len(associations) > 1:
         rate = []
 
         rate.append(
             step_3_audio_rating(
-                get_last_vowel(choices), choice.association.audio_phonem
+                get_last_vowel(associations), choice.association.audio_phonem
             )
             * params.RATING_SPECTRAL_SIMILARITY
         )
 
         rate.append(
             params.RATING_LENGTH_SAME_PHONEM
-            * step_3_n_following_previous_phonems(choices)
+            * step_3_n_following_previous_phonems(associations)
         )
 
         return rate
