@@ -134,7 +134,13 @@ def from_word_to_token(word):
 
 
 def from_token_to_phonem(token):
-    """Returns a phonem transcription list corresponding to a given word token"""
+    """Returns a phonem transcription list corresponding to a given word token
+
+    Raises
+    ------
+    TokenAmbiguityError
+        If the token has multiple pronunciations.
+    """
 
     if token == "SP":
         return ["sp"]
