@@ -15,6 +15,7 @@ def compute_children(target_phonem, nodes_left, choice):
         target_phonem
     )
 
+    modif = logic.parameters.START_MODIF
     # Rating
     for association in association_candidates:
         computed_rate = association.get_total_score()
@@ -26,12 +27,14 @@ def compute_children(target_phonem, nodes_left, choice):
             step_3_rate = [0, 0]
         computed_rate += sum(step_3_rate)
         # not enough nodes left
+        computed_rate *= modif
         if not utils.has_at_least_one_node(nodes_left, total, computed_rate):
             # not trivial
             break
 
+        modif /= logic.parameters.RATE_POWER
         total += computed_rate
-        chosen.append((association, step_3_rate))
+        chosen.append((association, step_3_rate, computed_rate))
 
     if total == 0:
         raise PhonemError(target_phonem)
@@ -42,14 +45,12 @@ def compute_children(target_phonem, nodes_left, choice):
             association,
             math.ceil(
                 logic.utils.compute_nodes_left(
-                    nodes_left,
-                    total,
-                    sum(rate) + association.get_total_score(),
+                    nodes_left, total, computed_rate,
                 )
             ),
             *rate
         )
-        for association, rate in chosen
+        for association, rate, computed_rate in chosen
     ]
 
 
