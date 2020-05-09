@@ -164,9 +164,7 @@ class Association(Scorable):
         ) * params.SCORE_SAME_TRANSCRIPTION
 
         self._step_2_same_word_score = (
-            tp.are_token_homophones(
-                target_phonem.word.token, audio_phonem.word.token
-            )
+            logic.utils.are_homophones(target_phonem.word, audio_phonem.word)
             * params.SCORE_SAME_AUDIO_WORD
         )
 

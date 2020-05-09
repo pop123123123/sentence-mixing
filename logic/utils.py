@@ -56,11 +56,19 @@ def get_sequence_aligner_homophones(target_phonem, audio_phonem):
 
 
 @functools.lru_cache(maxsize=None)
+def are_homophones(target_word, audio_word):
+    try:
+        return tp.are_token_homophones(target_word.token, audio_word.token)
+    except model.exceptions.TokenAmbiguityError:
+        return target_word.has_same_phonems_transcription(audio_word)
+
+
+@functools.lru_cache(maxsize=None)
 def get_sequence_dictionary_homophones(target_phonem, audio_phonem):
     w0, w1 = target_phonem.word, audio_phonem.word
     return list(
         itertools.takewhile(
-            lambda ws: tp.are_token_homophones(ws[0].token, ws[1].token),
+            lambda ws: are_homophones(*ws),
             zip(sequence_word(w0), sequence_word(w1),),
         )
     )
