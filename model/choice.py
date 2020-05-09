@@ -214,7 +214,7 @@ class Association(Scorable):
     @property
     def _step_2_phonem_sequence_score(self):
         return logic.analyze_step_2.rating_sequence_by_phonem_length(
-            len(list(self.sequence_same_phonems()))
+            max(len(list(self.sequence_same_phonems())) - 1, 0)
         )
 
     def __repr__(self):
