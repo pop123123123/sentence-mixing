@@ -64,8 +64,31 @@ class Choice(Scorable):
 
             if len(dictionary_homophones_phonems) > 2:
                 return [SkippedChoice(self, dictionary_homophones_phonems[1:])]
+            elif len(dictionary_homophones_phonems) == 2:
+                return [
+                    Choice(
+                        self,
+                        dictionary_homophones_phonems[1],
+                        self.nodes_left,
+                        *self.compute_child_step_3_score(
+                            dictionary_homophones_phonems[1]
+                        ),
+                    )
+                ]
+
             elif len(aligner_homophones_phonems) > 2:
                 return [SkippedChoice(self, aligner_homophones_phonems[1:])]
+            elif len(aligner_homophones_phonems) == 2:
+                return [
+                    Choice(
+                        self,
+                        aligner_homophones_phonems[1],
+                        self.nodes_left,
+                        *self.compute_child_step_3_score(
+                            aligner_homophones_phonems[1]
+                        ),
+                    )
+                ]
 
         # Check for phonem skipping
         same_phonems = (
@@ -73,6 +96,15 @@ class Choice(Scorable):
         )
         if len(same_phonems) > 2:
             return [SkippedChoice(self, same_phonems[1:])]
+        elif len(same_phonems) == 2:
+            return [
+                Choice(
+                    self,
+                    same_phonems[1],
+                    self.nodes_left,
+                    *self.compute_child_step_3_score(same_phonems[1]),
+                )
+            ]
 
         # Normal workflow
         target_phonem = self.association.target_phonem.next_in_seq()
