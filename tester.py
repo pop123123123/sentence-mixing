@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     videos = get_videos(args.video_urls)
     combos = main.main(args.sentence, videos, args.seed)
-    print(combos[0])
+    print(combo_displayer(combos[0]))
     video_creator.audio.concat_wav(
         video_creator.interface.AUDIO_FILE_PATH, combos[0].get_audio_phonems()
     )
