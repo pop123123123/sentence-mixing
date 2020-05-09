@@ -23,7 +23,7 @@ def get_phonems(words_or_phonems):
 
 def sequence_association(start_association):
     return map(
-        lambda phs: model.choice.association_builder(*phs),
+        lambda phs: model.association.association_builder(*phs),
         zip(
             sequence_phonem(start_association.target_phonem),
             sequence_phonem(start_association.audio_phonem),
@@ -93,7 +93,7 @@ def compute_nodes_left(base_nodes, total, rating):
 
 def association_sequence_from_words(words):
     return map(
-        lambda x: model.choice.association_builder(*x),
+        lambda x: model.association.association_builder(*x),
         itertools.chain(
             *map(lambda w: zip(w[0].phonems, w[1].phonems), words)
         ),

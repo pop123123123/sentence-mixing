@@ -1,6 +1,6 @@
 import functools
 
-from model.choice import association_builder
+from model.association import association_builder
 
 VIDEOS = None
 
