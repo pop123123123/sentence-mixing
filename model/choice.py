@@ -197,10 +197,11 @@ class Association(Scorable):
         }
         return {**self.audio_phonem.get_splited_score(), **step_2_scores}
 
+    # TODO: changer le système pour forcer l'analyse du premier blank
     def sequence_dictionary_homophones_phonems(self):
         return logic.utils.association_sequence_from_words(
             logic.utils.get_sequence_dictionary_homophones(
-                self.target_phonem, self.audio_phonem
+                self.target_phonem, self.audio_phonem, True
             )
         )
 
