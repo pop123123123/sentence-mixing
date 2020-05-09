@@ -51,11 +51,22 @@ class Association(Scorable):
             max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0)
         )
 
+    @property
+    def _step_2_audio_score(self):
+        score = 0
+        if self.target_phonem.word.token == "<BLANK>":
+            score = (
+                logic.audio_analysis.rate_silence(self.audio_phonem.get_wave())
+                * params.SCORE_SILENCE_AMPLITUDE
+            )
+        return score
+
     def __repr__(self):
         return f"<Association {self.target_phonem, self.audio_phonem}>"
 
     def get_splited_score(self):
         step_2_scores = {
+            "step_2_audio_score": self._step_2_audio_score,
             "step_2_same_phonem": self._step_2_same_phonem_score,
             "step_2_same_word": self._step_2_same_word_score,
             "step_2_word_sequence": self._step_2_word_sequence_score,
