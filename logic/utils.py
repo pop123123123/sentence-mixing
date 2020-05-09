@@ -21,20 +21,24 @@ def get_phonems(words_or_phonems):
     )
 
 
-def sequence_association(start_association):
+def sequence_association(start_association, reverse=False):
     return map(
         lambda phs: model.association.association_builder(*phs),
         zip(
-            sequence_phonem(start_association.target_phonem),
-            sequence_phonem(start_association.audio_phonem),
+            sequence_phonem(start_association.target_phonem, reverse=reverse),
+            sequence_phonem(start_association.audio_phonem, reverse=reverse),
         ),
     )
 
 
-def sequence_phonem(phonem):
+def sequence_phonem(phonem, reverse=False):
     while phonem is not None:
         yield phonem
-        phonem = phonem.next_in_seq()
+
+        if not reverse:
+            phonem = phonem.next_in_seq()
+        else:
+            phonem = phonem.previous_in_seq()
 
 
 # TODO: le force_firt_blank est dé-gueu-lasse mais nécessaire pour éviter les effets de bord

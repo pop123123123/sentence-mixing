@@ -28,6 +28,9 @@ class TargetSentence(Sentence):
     def next_in_seq(self):
         return None
 
+    def previous_in_seq(self):
+        return None
+
 
 class TargetWord(Word):
     """Represents words inside the TargetSentence"""
