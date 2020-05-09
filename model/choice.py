@@ -135,7 +135,7 @@ class Choice(Scorable):
             rate.append(
                 logic.analyze_step_3.step_3_audio_rating(
                     logic.analyze_step_3.get_last_vowel(associations),
-                    self.association.audio_phonem,
+                    association.audio_phonem,
                 )
                 * params.RATING_SPECTRAL_SIMILARITY
             )
