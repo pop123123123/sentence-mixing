@@ -73,7 +73,7 @@ def loop_interface(audio_command, video_futures):
                             )
                             sentence = get_sentence(total_text)
                 combo = available_combos.pop(0)
-                timestamps = combo[0]
+                timestamps = combo.get_audio_phonems()
 
             print(combo_displayer(combo))
             concat_wav(AUDIO_FILE_PATH, timestamps)
