@@ -110,7 +110,7 @@ def split_text(text):
     text = transform_numbers(text)
     text = re.sub(r"(\w')\s*", "\\1 ", text)
     text = re.sub(r"\s*([^\s\w'])\s*", " \\1 ", text)
-    return text.split(" ")
+    return text.split()
 
 
 def from_word_to_token(word):
