@@ -46,6 +46,12 @@ class Association(Scorable):
         )
 
     @property
+    def _step_2_phonem_sequence_backward_score(self):
+        return logic.analyze_step_2.rating_sequence_by_phonem_length(
+            max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0)
+        )
+
+    @property
     def _step_2_audio_score(self):
         score = 0
         if self.target_phonem.word.token == "<BLANK>":
@@ -71,6 +77,7 @@ class Association(Scorable):
             "step_2_same_word": self._step_2_same_word_score,
             "step_2_word_sequence": self._step_2_word_sequence_score,
             "step_2_phonem_sequence": self._step_2_phonem_sequence_score,
+            "step_2_phonem_sequence_backward": self._step_2_phonem_sequence_backward_score,
         }
         return {**self.audio_phonem.get_splited_score(), **step_2_scores}
 
@@ -90,12 +97,12 @@ class Association(Scorable):
         )
 
     @functools.lru_cache(maxsize=None)
-    def sequence_same_phonems(self):
+    def sequence_same_phonems(self, reverse=False):
         return list(
             itertools.takewhile(
                 lambda association: association.target_phonem.transcription
                 == association.audio_phonem.transcription,
-                logic.utils.sequence_association(self),
+                logic.utils.sequence_association(self, reverse=reverse),
             )
         )
 

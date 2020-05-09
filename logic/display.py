@@ -21,13 +21,14 @@ BORDERS = {
     (False, False, False, False): " ",
 }
 
-RATING_STEP = [1, 1, 2, 2, 2, 2, 2, 3, 3, 0]
+RATING_STEP = [1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 0]
 RATINGS = [
     ("step_1_random", "Random"),
     ("step_1_duration", "Duration"),
     ("step_2_audio_score", "Wave ampl"),
     ("step_2_same_word", "Homophone"),
     ("step_2_word_sequence", "Word seq"),
+    ("step_2_phonem_sequence_backward", "Word seq back"),
     ("step_2_phonem_sequence", "Ph sequence"),
     ("step_2_same_phonem", "Transcri"),
     ("step_3_audio_spectral", "Wave freq"),
