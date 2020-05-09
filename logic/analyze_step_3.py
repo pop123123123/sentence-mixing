@@ -5,7 +5,6 @@ import logic.audio_analysis as audio_analysis
 import logic.parameters as params
 import logic.text_parser as tp
 import logic.utils as utils
-import model.choice
 from model.abstract import Sentence, Word
 
 
@@ -58,27 +57,3 @@ def step_3_n_following_previous_phonems(associations):
             n += 1
         i += 1
     return n
-
-
-def step_3_rating(choice, association):
-    associations = [association] + [
-        c.association for c in choice.get_self_and_previous_choices()
-    ]
-
-    if len(associations) > 1:
-        rate = []
-
-        rate.append(
-            step_3_audio_rating(
-                get_last_vowel(associations), choice.association.audio_phonem
-            )
-            * params.RATING_SPECTRAL_SIMILARITY
-        )
-
-        rate.append(
-            params.RATING_LENGTH_SAME_PHONEM
-            * step_3_n_following_previous_phonems(associations)
-        )
-
-        return rate
-    return [0, 0]

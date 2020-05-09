@@ -98,7 +98,30 @@ class Choice(Scorable):
         return {**self.association.get_splited_score(), **step_3_scores}
 
     def compute_child_step_3_score(self, association):
-        return logic.analyze_step_3.step_3_rating(self, association)
+        associations = [association] + [
+            c.association for c in self.get_self_and_previous_choices()
+        ]
+
+        if len(associations) > 1:
+            rate = []
+
+            rate.append(
+                logic.analyze_step_3.step_3_audio_rating(
+                    logic.analyze_step_3.get_last_vowel(associations),
+                    self.association.audio_phonem,
+                )
+                * params.RATING_SPECTRAL_SIMILARITY
+            )
+
+            rate.append(
+                params.RATING_LENGTH_SAME_PHONEM
+                * logic.analyze_step_3.step_3_n_following_previous_phonems(
+                    associations
+                )
+            )
+
+            return rate
+        return [0, 0]
 
 
 class SkippedChoice(Choice):
