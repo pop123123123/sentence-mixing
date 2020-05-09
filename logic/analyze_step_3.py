@@ -5,6 +5,7 @@ import logic.audio_analysis as audio_analysis
 import logic.parameters as params
 import logic.text_parser as tp
 import logic.utils as utils
+import model.choice
 from model.abstract import Sentence, Word
 
 
@@ -58,8 +59,11 @@ def step_3_n_following_previous_phonems(choices):
     )
 
 
-def step_3_rating(choice):
+def step_3_rating(choice, association):
     choices = list(choice.get_self_and_previous_choices())
+
+    choices.insert(0, model.choice.Choice(choices[0], association, 1, 0, 0))
+
     if len(choices) > 1:
         rate = []
 
