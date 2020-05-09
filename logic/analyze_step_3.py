@@ -45,15 +45,16 @@ def step_3_audio_rating(last_vowel, audio_phonem):
 
 
 def step_3_n_following_previous_phonems(associations):
+    associations = list(
+        filter(lambda x: x.target_phonem.word.token != "<BLANK>", associations)
+    )
     n = 0
     i = 0
     while i < len(associations) - 1:
         a = associations[i]
         parent = associations[i + 1]
 
-        if (
-            i != 0 and a.target_phonem.word.token == "<BLANK>"
-        ) or a.audio_phonem.previous_in_seq() == parent.audio_phonem:
+        if a.audio_phonem.previous_in_seq() == parent.audio_phonem:
             n += 1
         i += 1
     return n
