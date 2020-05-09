@@ -52,6 +52,7 @@ class Association(Scorable):
         )
 
     @property
+    @functools.lru_cache(maxsize=None)
     def _step_2_audio_score(self):
         score = 0
         if self.target_phonem.word.token == "<BLANK>":

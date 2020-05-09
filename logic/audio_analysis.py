@@ -24,7 +24,9 @@ def rate_silence(data):
     Compute a silence indicator between 0 (silent) and 1 (saturated).
     """
     rate, data = data
-    average_amplitude = 1 - (np.average(np.abs(data)) / (1 << 15))
+    average_amplitude = (
+        1 - (np.average(np.sqrt(np.average((data / (1 << 15)) ** 2, axis=0))))
+    ) ** 2
     return average_amplitude
 
 
