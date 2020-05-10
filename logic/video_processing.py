@@ -38,7 +38,6 @@ class Logger(object):
         print(msg)
 
 
-# TODO: fusionner ce dl_videos avec celui de create video
 def _dl_videos(urls):
     """
     Downloads audio and subs for videos at the given urls
