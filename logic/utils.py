@@ -97,15 +97,11 @@ def get_sequence_dictionary_homophones(
     """Retrieves the longest homophones sequence"""
 
     w0, w1 = target_phonem.word, audio_phonem.word
-    return list(
-        itertools.takewhile(
-            lambda ws: are_homophones(*ws),
-            # For audio word, we force the first <BLANK> token skipping to false
-            # <BLANK> token words are only contained in token word
-            zip(
-                sequence_word(w0, skip_force_blank), sequence_word(w1, False),
-            ),
-        )
+    return itertools.takewhile(
+        lambda ws: are_homophones(*ws),
+        # For audio word, we force the first <BLANK> token skipping to false
+        # <BLANK> token words are only contained in token word
+        zip(sequence_word(w0, skip_force_blank), sequence_word(w1, False),),
     )
 
 
