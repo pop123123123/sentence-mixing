@@ -166,7 +166,6 @@ def _parse_align_result(textgrid_path, subtitle):
     phonems = t[1]
     i_phonems = 0
 
-    # TODO: examiner mieux
     for word in words:
         original_word = word.mark
         start = word.bounds()[0] + subtitle.start
