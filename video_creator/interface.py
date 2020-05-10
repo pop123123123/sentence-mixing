@@ -2,7 +2,7 @@ import os
 
 from logic.display import combo_displayer
 from main import main
-from model.exceptions import PhonemError
+from model.exceptions import PhonemError, TokenAmbiguityError
 from serialize import load, save
 from video_creator.audio import concat_wav
 
@@ -38,11 +38,7 @@ def loop_interface(audio_command, video_futures):
         valid = False
         load_audio_index = None
         i = 0
-        while not valid:
-            if edit:
-                sentence = get_sentence(total_text)
-                available_combos = []
-                i = 0
+        while not valid and not edit:
 
             # Stores previous audio in buffer
             if store:
@@ -70,6 +66,11 @@ def loop_interface(audio_command, video_futures):
                             print(
                                 e,
                                 "Try to change your sentence or add more videos.",
+                            )
+                            sentence = get_sentence(total_text)
+                        except TokenAmbiguityError as e:
+                            print(
+                                e, "Please change this word",
                             )
                             sentence = get_sentence(total_text)
                 combo = available_combos.pop(0)
@@ -105,9 +106,9 @@ def loop_interface(audio_command, video_futures):
 
             i += 1
             clear_screen()
-
-        total_timestamps.extend(timestamps)
-        total_text += "\n" + sentence
+        if not edit:
+            total_timestamps.extend(timestamps)
+            total_text += "\n" + sentence
 
         save(total_timestamps, total_text, name="video.json")
         sentence = get_sentence(total_text)
