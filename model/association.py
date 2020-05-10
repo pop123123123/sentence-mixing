@@ -9,6 +9,8 @@ from model.scorable import Scorable
 
 @functools.lru_cache(maxsize=None)
 def association_builder(target_phonem, audio_phonem):
+    """Cached association constructor"""
+
     return Association(target_phonem, audio_phonem)
 
 
@@ -30,6 +32,8 @@ class Association(Scorable):
 
     @property
     def _step_2_word_sequence_score(self):
+        """Rates a common sequence of word between target and audio"""
+
         if (
             self.target_phonem.get_index_in_word()
             == self.audio_phonem.get_index_in_word()
@@ -41,12 +45,20 @@ class Association(Scorable):
 
     @property
     def _step_2_phonem_sequence_score(self):
+        """Rates a common sequence of phonem between target and audio"""
+
         return logic.analyze_step_2.rating_sequence_by_phonem_length(
             max(len(list(self.sequence_same_phonems())) - 1, 0)
         )
 
     @property
     def _step_2_phonem_sequence_backward_score(self):
+        """
+        Rates a common sequence of phonem between target and audio.
+        This rate is computed in the reverse order and is complementary to
+        _step_2_phonem_sequence_score.
+        """
+
         return logic.analyze_step_2.rating_sequence_by_phonem_length(
             max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0)
         )
@@ -54,6 +66,11 @@ class Association(Scorable):
     @property
     @functools.lru_cache(maxsize=None)
     def _step_2_audio_score(self):
+        """
+        Rates the audio content of a phonem.
+        For the <BLANK> tokens, checks if the audio_word is silent and also checks its duration.
+        """
+
         score = 0
         if self.target_phonem.word.token == "<BLANK>":
             score = (
@@ -95,6 +112,12 @@ class Association(Scorable):
         )
 
     def sequence_aligner_homophones_phonems(self):
+        """
+        Retrieves associations corresponding to homophones.
+        Two words are declared as homophones if they contain the same phonems as the Montreal audio
+        phonem decomposition of the word.
+        """
+
         return logic.utils.association_sequence_from_words(
             logic.utils.get_sequence_aligner_homophones(
                 self.target_phonem, self.audio_phonem
@@ -103,6 +126,14 @@ class Association(Scorable):
 
     @functools.lru_cache(maxsize=None)
     def sequence_same_phonems(self, reverse=False):
+        """
+        Returns the sequence of identical phonem between target and audio, starting from self
+        association.
+
+        Keyword arguments:
+        reverse - determines the direction of checking.
+                  if True, checks from the end of a word to the begining.
+        """
         return list(
             itertools.takewhile(
                 lambda association: association.target_phonem.transcription
@@ -113,6 +144,21 @@ class Association(Scorable):
 
     @functools.lru_cache(maxsize=None)
     def sequence_same_phonems_last_word_truncated(self):
+        """
+        Returns the sequence of identical phonem between target and audio, starting from self
+        association.
+        Only takes full words: if the common sequence finishes in the middle of the word, trunks
+        it to the end of last full word.
+
+        Example:
+        Target: "trique fructifier"
+        In audio, you can find: "géométrique frugale"
+        self: ['t', 't']
+
+        This function returns phonems associated to "trique", even if "fructifier" and "frugale"
+        have the same phonem sequence 'f', 'r', 'u'.
+        """
+
         try:
             target_last_end_phonem_word_index = next(
                 i
@@ -140,6 +186,11 @@ class Association(Scorable):
 
     @functools.lru_cache(maxsize=None)
     def sequence_same_phonems_first_word_truncated(self):
+        """
+        Returns the sequence of identical phonem between target and audio, starting from self
+        association. Breaks when a new word is reached.
+        """
+
         return list(
             map(
                 lambda x: x[1],
