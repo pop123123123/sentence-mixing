@@ -11,4 +11,4 @@ def noise_score(base_score, sigma=None):
 
 
 def random_basic_score():
-    return random.uniform(0, params.MAX_DEFAULT_RATE)
+    return random.gauss(0, params.RANDOM_SPAN)

@@ -1,4 +1,5 @@
 import functools
+import random
 
 from model.association import association_builder
 
@@ -32,6 +33,7 @@ def get_all_audio_phonems():
         for w in s.words
         for p in w.phonems
     ]
+    random.shuffle(audio_phonems)
     return audio_phonems
 
 
