@@ -41,7 +41,6 @@ def sequence_phonem(phonem, reverse=False):
             phonem = phonem.previous_in_seq()
 
 
-# TODO: le force_firt_blank est dé-gueu-lasse mais nécessaire pour éviter les effets de bord
 def sequence_word(word, force_first_blank=False):
     """
     This is a generator used to retrieve each word in a sentence, from the word given in parameter
