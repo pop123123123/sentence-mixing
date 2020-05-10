@@ -185,7 +185,7 @@ class Choice(Scorable):
 
         return sum((child.get_combos() for child in self.children), [])
 
-    def get_splited_score(self):
+    def _get_splited_score(self):
         step_3_scores = {
             "step_3_audio_spectral": self._audio_score,
             "step_3_same_word_previous_phonems": self._previous_score,
@@ -193,9 +193,10 @@ class Choice(Scorable):
         return {**self.association.get_splited_score(), **step_3_scores}
 
     def compute_child_step_3_score(self, association):
-        associations = [association] + [
+        associations = [association]
+        associations.extend(
             c.association for c in self.get_self_and_previous_choices()
-        ]
+        )
 
         if len(associations) > 1:
             rate = []

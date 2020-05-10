@@ -67,7 +67,6 @@ class Association(Scorable):
         )
 
     @property
-    @functools.lru_cache(maxsize=None)
     def _step_2_audio_score(self):
         """
         Rates the audio content of a phonem.
@@ -89,7 +88,8 @@ class Association(Scorable):
     def __repr__(self):
         return f"<Association {self.target_phonem, self.audio_phonem}>"
 
-    def get_splited_score(self):
+    def _get_splited_score(self):
+
         step_2_scores = {
             "step_2_audio_score": self._step_2_audio_score,
             "step_2_same_phonem": self._step_2_same_phonem_score,
