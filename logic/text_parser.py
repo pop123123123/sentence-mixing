@@ -16,12 +16,16 @@ def get_dict():
 
     # Opens the dictionary file and puts it in a dict
     with open(dict_path) as f:
-        phonem_dict = {
-            k: [v.split() for _, v in g]
-            for k, g in groupby(
-                (x.rstrip().split(None, 1) for x in f), lambda x: x[0]
-            )
-        }
+        phonem_dict = dict()
+        previous = None
+        for line in f:
+            split = line.split(maxsplit=1)
+            k, v = split[0], split[1]
+            if k == previous:
+                phonem_dict[k] = None
+            else:
+                phonem_dict[k] = v
+            previous = k
 
     return phonem_dict
 
@@ -36,10 +40,10 @@ def get_dict_entry(token):
     """
 
     w = get_dict()[token]
-    if len(w) > 1:
+    if w is None:
         raise TokenAmbiguityError(token)
 
-    return w[0]
+    return w.split()
 
 
 @functools.lru_cache(maxsize=None)
