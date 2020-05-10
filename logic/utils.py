@@ -6,6 +6,11 @@ import model
 from model.abstract import Word
 
 
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(*args, fillvalue=fillvalue)
+
+
 def count_finite_iterable(iterable):
     return sum(1 for _ in iterable)
 

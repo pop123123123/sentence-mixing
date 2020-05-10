@@ -38,28 +38,48 @@ def compute_children(target_phonem, nodes_left, choice):
     # This modif will be used to attenuate score
     modif = logic.parameters.START_MODIF
 
-    # Rating
-    for association in association_candidates:
-        computed_rate = association.get_total_score()
-
-        step_3_rate = []
+    for group in utils.grouper(
+        association_candidates, logic.parameters.ANALYSE_CHUNK_SIZE
+    ):
+        candidates = None
         if choice is not None:
-            step_3_rate = choice.compute_child_step_3_score(association)
+            candidates = sorted(
+                [
+                    (asso, choice.compute_child_step_3_score(asso))
+                    for asso in group
+                    if asso is not None
+                ],
+                key=lambda x: x[0].get_total_score() + sum(x[1]),
+                reverse=True,
+            )
         else:
-            # For root nodes, we have no step 3 score
-            step_3_rate = [0, 0]
-        computed_rate += sum(step_3_rate)
-        computed_rate *= modif
+            candidates = zip(
+                filter(lambda x: x is not None, group),
+                [[0, 0]] * logic.parameters.ANALYSE_CHUNK_SIZE,
+            )
 
-        # Not enough nodes left
-        if not utils.has_at_least_one_node(nodes_left, total, computed_rate):
-            # not trivial
-            break
+        # Rating
+        for association, step_3_rate in candidates:
+            computed_rate = association.get_total_score()
 
-        # After each association pick, highly decreasesa score modifier
-        modif /= logic.parameters.RATE_POWER
-        total += computed_rate
-        chosen.append((association, step_3_rate, computed_rate))
+            computed_rate += sum(step_3_rate)
+            computed_rate *= modif
+
+            # Not enough nodes left
+            if not utils.has_at_least_one_node(
+                nodes_left, total, computed_rate
+            ):
+                # not trivial
+                break
+
+            # After each association pick, highly decreasesa score modifier
+            modif /= logic.parameters.RATE_POWER
+            total += computed_rate
+            chosen.append((association, step_3_rate, computed_rate))
+        else:
+            # if didn't break, don't break
+            continue
+        break
 
     # Total score is null: we assume that the desired phonem was not found in the audio subtitles
     if total == 0:
