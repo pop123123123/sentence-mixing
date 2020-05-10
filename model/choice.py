@@ -198,13 +198,16 @@ class Choice(Scorable):
         if len(associations) > 1:
             rate = []
 
-            rate.append(
-                logic.analyze_step_3.step_3_audio_rating(
-                    logic.analyze_step_3.get_last_vowel(associations),
-                    association.audio_phonem,
+            if association.target_phonem.get_type() == "VOWEL":
+                rate.append(
+                    logic.analyze_step_3.step_3_audio_rating(
+                        logic.analyze_step_3.get_last_vowel(associations),
+                        association.audio_phonem,
+                    )
+                    * params.RATING_SPECTRAL_SIMILARITY
                 )
-                * params.RATING_SPECTRAL_SIMILARITY
-            )
+            else:
+                rate.append(0)
 
             rate.append(
                 params.RATING_LENGTH_SAME_PHONEM

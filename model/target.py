@@ -22,7 +22,7 @@ class TargetSentence(Sentence):
                     for ow in original_words
                 ]
             )
-        )
+        )[:-1]
         self.set_words(interleaved_words)
 
     def next_in_seq(self):
