@@ -77,13 +77,9 @@ def get_sequence_dictionary_homophones(
     target_phonem, audio_phonem, skip_force_blank=False
 ):
     w0, w1 = target_phonem.word, audio_phonem.word
-    return list(
-        itertools.takewhile(
-            lambda ws: are_homophones(*ws),
-            zip(
-                sequence_word(w0, skip_force_blank), sequence_word(w1, False),
-            ),
-        )
+    return itertools.takewhile(
+        lambda ws: are_homophones(*ws),
+        zip(sequence_word(w0, skip_force_blank), sequence_word(w1, False),),
     )
 
 
