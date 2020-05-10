@@ -8,9 +8,9 @@ from model.scorable import Scorable
 
 class Choice(Scorable):
     """
-    This class represents a node in the decision tree
+    This class represents a node in the decision tree.
 
-    Class parameters:
+    Class attributes:
     parent - father node in the tree
     association - last association decided by parent
     _audio_score - audio score of association (step 3 scoring)
@@ -36,6 +36,8 @@ class Choice(Scorable):
         self._previous_score = previous_score
 
     def get_self_and_previous_choices(self):
+        """This is a generator used to retrieve the current Choice and all its parents"""
+
         choice = self
         while choice is not None:
             yield choice
@@ -43,22 +45,83 @@ class Choice(Scorable):
 
     @functools.lru_cache(maxsize=None)
     def _create_children(self):
-        """Creates choice children"""
+        """
+        Creates choice children
+        This function is decomposed in two parts:
+        -skip checking
+        -normal workflow
+
+        Skip checking:
+            First, it tries to spot if an homophonous word sequence matching target can be found
+            from the current audio phonem.
+
+            If a skip occurs, the function creates SkippedChoice typed children instead of regular
+            Choice typed children.
+
+            Example:
+                -TargetSentence: "Les <BLANK> puissances <BLANK> de <BLANK>"
+                -In the audio subtitles, you can find "puissance deux"
+                -self.assocation = ['p', 'p']
+
+                The function, by checking the audio words followed by audio phonem 'p', will spot
+                a two consecutives homophones sequence, common in target and audio:
+                "puissances de" for target and "puissance deux" for audio.
+
+                These two sequences are considered as homophones because they contains strictly
+                the same phonems. Please note that <BLANK> token is skipped while looking for
+                word sequence (check the functionlogic.utils.get_sequence() for more details).
+
+                The function will then force the choice all the phonems of "puissance de" by
+                SkippedChoice children.
+
+
+            Then, it applies the same logic for identical phonem sequences.
+            A common sequence ends at the end of the current word.
+
+            Example:
+                -TargetSentence: "Ma <BLANK> trique <BLANK> sauce"
+                -In audio subtitles, you can find the word "géométrique saucisse"
+                -self.association = ['t', 't']
+
+                The function will check if a common phonem sequence can be found between audio and
+                target phonem.
+                It will find a common sequence, starting from current audio and target phonem 't':
+                phonems 't', 'r', 'i', 'k' ("trique").
+
+                Warning: despite "sauce" and "saucisse" contains common phonems at the begginging
+                        ('s', 'o', 's'), it will not be included in previous sequence ("trique"),
+                        because it is not part of the same word !
+
+                        Of course, when self.association will contains phonems ['s', 's'], this
+                        function will detect the common phonem sequence 's', 'o', 's'.
+
+
+        Normal workflow:
+
+            If no skip opportunity was found, the function will simply try to get the best
+            association for its children.
+            Normal workflow is handled by logic.analyze() function. Check it for more details.
+        """
+
         # Leaf child
         if self.association.target_phonem.next_in_seq() is None:
             return []
 
         # Check for word skipping
         if self.association.target_phonem.get_index_in_word() == 0:
+            # Checks homophones basing on the dictionary
             dictionary_homophones_phonems = list(
                 self.association.sequence_dictionary_homophones_phonems()
             )
+            # Checks homophones basing on audio word's list of phonems
             aligner_homophones_phonems = list(
                 self.association.sequence_aligner_homophones_phonems()
             )
 
+            # If at least a one-word-length sequence has be found
             if len(dictionary_homophones_phonems) > 2:
                 return [SkippedChoice(self, dictionary_homophones_phonems[1:])]
+            # If the word sequence contains a word of only two phonem
             elif len(dictionary_homophones_phonems) == 2:
                 return [
                     Choice(
@@ -71,8 +134,10 @@ class Choice(Scorable):
                     )
                 ]
 
+            # If at least a one-word-length sequence has be found
             elif len(aligner_homophones_phonems) > 2:
                 return [SkippedChoice(self, aligner_homophones_phonems[1:])]
+            # If the word sequence contains a word of only two phonem
             elif len(aligner_homophones_phonems) == 2:
                 return [
                     Choice(
@@ -89,6 +154,7 @@ class Choice(Scorable):
         same_phonems = (
             self.association.sequence_same_phonems_first_word_truncated()
         )
+        # A common phonem sequence has been found
         if len(same_phonems) > 2:
             return [SkippedChoice(self, same_phonems[1:])]
         elif len(same_phonems) == 2:
