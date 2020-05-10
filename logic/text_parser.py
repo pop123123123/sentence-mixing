@@ -128,7 +128,8 @@ def from_word_to_token(word):
     if word in punctuation:
         return "SP"
 
-    if word == "":
+    blank = ["", ","]
+    if word in blank:
         return "<BLANK>"
 
     if not word.replace("'", "a").isalnum():

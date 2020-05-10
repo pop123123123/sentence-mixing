@@ -14,15 +14,7 @@ class TargetSentence(Sentence):
 
         original_words = parser.split_text(self.original_text)
 
-        # Add blank word between each word
-        interleaved_words = list(
-            itertools.chain(
-                *[
-                    [TargetWord(self, ow), TargetWord(self, "")]
-                    for ow in original_words
-                ]
-            )
-        )[:-1]
+        interleaved_words = [TargetWord(self, ow) for ow in original_words]
         self.set_words(interleaved_words)
 
     def next_in_seq(self):
