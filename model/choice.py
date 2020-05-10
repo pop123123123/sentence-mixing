@@ -36,10 +36,10 @@ class Choice(Scorable):
         self._previous_score = previous_score
 
     def get_self_and_previous_choices(self):
-        yield self
-        if self.parent is not None:
-            for c in self.parent.get_self_and_previous_choices():
-                yield c
+        choice = self
+        while choice is not None:
+            yield choice
+            choice = choice.parent
 
     @functools.lru_cache(maxsize=None)
     def _create_children(self):
