@@ -1,10 +1,5 @@
-import functools
-import itertools
-
 import logic.parameters as params
 import logic.randomizer as rnd
-import logic.text_parser as tp
-import logic.utils as utils
 
 
 def rating_sequence_by_phonem_length(x):

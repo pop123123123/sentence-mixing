@@ -84,7 +84,10 @@ class AudioWord(Word, VideoSegment):
 
 
 class AudioPhonem(Phonem, VideoSegment, Scorable):
-    """Represents a phonem spotted by Montreal aligner in a sentence"""
+    """
+    Represents a phonem spotted by Montreal aligner in a sentence
+    An AudioPhonem has a step 1 phonem score.
+    """
 
     def __init__(self, word, transcription, start, end):
         Phonem.__init__(self, AudioWord, word, transcription)
