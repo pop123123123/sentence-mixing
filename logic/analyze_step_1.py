@@ -34,19 +34,18 @@ def score_length(audio_phonem):
     )
     malus = (max((params.MINIMAL_PHONEM_LENGTH - length), 0) * multiplier) ** 2
 
-    c_v_dict = tp.get_consonant_vowel_dict()
-    if c_v_dict[audio_phonem.transcription] == "CONSONANT":
+    if audio_phonem.get_type() == "CONSONANT":
         malus += get_malus(
             length,
             params.MAXIMAL_CONSONANT_LENGTH,
             params.MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS,
         )
-    elif c_v_dict[audio_phonem.transcription] == "VOWEL":
+    elif audio_phonem.get_type() == "VOWEL":
         malus += get_malus(
             length,
             params.MAXIMAL_VOWEL_LENGTH,
             params.MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS,
         )
-    elif c_v_dict[audio_phonem.transcription] == "SPACE":
+    elif audio_phonem.get_type() == "SPACE":
         pass
     return -malus

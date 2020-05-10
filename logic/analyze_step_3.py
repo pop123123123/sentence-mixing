@@ -17,9 +17,8 @@ def get_last_phonem(audio):
 
 
 def get_last_vowel(associations):
-    c_v_dict = tp.get_consonant_vowel_dict()
     for a in associations:
-        if c_v_dict[a.audio_phonem.transcription] == "VOWEL":
+        if a.audio_phonem.get_type() == "VOWEL":
             return a.audio_phonem
     return None
 
@@ -28,11 +27,7 @@ def get_last_vowel(associations):
 def step_3_audio_rating(last_vowel, audio_phonem):
     # TODO split by words
     score = 0
-    c_v_dict = tp.get_consonant_vowel_dict()
-    if (
-        last_vowel is not None
-        and c_v_dict[audio_phonem.transcription] == "VOWEL"
-    ):
+    if last_vowel is not None and audio_phonem.get_type() == "VOWEL":
         (rate, last_vowel_wave), (_, current_wave) = tuple(
             audio_analysis.resample_highest_rate(
                 [last_vowel.get_wave(), audio_phonem.get_wave()]

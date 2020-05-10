@@ -1,3 +1,6 @@
+import logic.text_parser as tp
+
+
 class Sequencable:
     def next_in_seq(self):
         raise NotImplementedError()
@@ -142,6 +145,9 @@ class Phonem(Sequencable):
             else:
                 return word.phonems[-1]
         return self.word.phonems[self.get_index_in_word() - 1]
+
+    def get_type(self):
+        return tp.get_consonant_vowel_dict()[self.transcription]
 
     def __repr__(self):
         return f"<Phonem: {self.transcription}>"
