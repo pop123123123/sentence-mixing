@@ -124,7 +124,7 @@ def from_word_to_token(word):
     - puts text in uppercase
     """
 
-    punctuation = [".", "?", "!", ",", ";", ":"]
+    punctuation = [".", "?", "!", ";", ":"]
     if word in punctuation:
         return "SP"
 
