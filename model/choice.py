@@ -59,7 +59,7 @@ class Choice(Scorable):
             Choice typed children.
 
             Example:
-                -TargetSentence: "Les <BLANK> puissances <BLANK> de <BLANK>"
+                -TargetSentence: "Les <BLANK> puissances <BLANK> de"
                 -In the audio subtitles, you can find "puissance deux"
                 -self.assocation = ['p', 'p']
 
@@ -218,6 +218,19 @@ class Choice(Scorable):
 
 
 class SkippedChoice(Choice):
+    """
+    This subclass of Choice is used when a skip is performed.
+    It represent a filiform portion of the tree.
+
+    For example, if a Choice detected a the following common phonem sequence 't', 'r', 'i', 'k',
+    a sequence of 4 SkippedChoice will be created.
+
+    Class attributes:
+    _associations_list - stack of all the remaining phonems of the skipped sequence.
+                         With the previous example: first SkippedChoice will have association list
+                         of 'r', 'i', 'k', second will have 'i', 'k'...
+    """
+
     def __init__(self, parent, associations_list):
         Choice.__init__(
             self,
@@ -229,6 +242,14 @@ class SkippedChoice(Choice):
         self._associations_list = associations_list[1:]
 
     def _create_children(self):
+        """
+        In opposite to _create_children() method of Choice, _create_children() method of
+        SkippedChoice doesn't perform any analyze but only creates a children with the next
+        phonem in the skipped sequence (associations_list).
+
+        When the skip is finished (_associations_list is empty): creates a regular Choice
+        """
+
         if len(self._associations_list) > 1:
             return [SkippedChoice(self, self._associations_list)]
         else:
