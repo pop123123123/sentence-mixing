@@ -34,11 +34,10 @@ def _soft_rectangle_function(x, a, b, alpha):
     return (np.tanh(alpha * (x - a)) - np.tanh(alpha * (x - b))) / 2
 
 
-def rate_duration(data, inf, sup):
-    rate, data = data
+def rate_duration(audio_seg, inf, sup):
     return (
         _soft_rectangle_function(
-            float(data.shape[0]) / rate, inf, sup, logic.parameters.ALPHA
+            audio_seg.get_length(), inf, sup, logic.parameters.ALPHA
         )
         * 2
         - 1
