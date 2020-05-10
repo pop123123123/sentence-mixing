@@ -10,6 +10,8 @@ class Choice(Scorable):
     """
     This class represents a node in the decision tree.
 
+    Also contains a step 3 score, rating the association comparatively to all parent associations.
+
     Class attributes:
     parent - father node in the tree
     association - last association decided by parent

@@ -81,7 +81,22 @@ def compute_children(target_phonem, nodes_left, choice):
 
 
 def get_n_best_combos(sentence, videos, n=100):
-    """Computes best n combos for a given sentence and set of videos"""
+    """
+    Computes best n combos for a given sentence and set of videos
+
+    All the algorithm bases on score values.
+
+    Scores are assigned in three different steps:
+    -Step 1: the audio phonems are scored individually
+    -Step 2: the target phonem and audio phonem associations are score individually
+    -Step 3: an association is scored comparatively to all previous chosen associations
+
+    Steps 1 and 2 are computed exhaustively.
+    However, step 3 cannot be computed exchaustively: the number of association combos is well
+    to high.
+
+    To counter this problem, we use a limited number of "nodes" Choices.
+    """
 
     logic.global_audio_data.set_videos(videos)
 

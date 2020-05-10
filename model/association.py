@@ -15,7 +15,10 @@ def association_builder(target_phonem, audio_phonem):
 
 
 class Association(Scorable):
-    """Storage class regrouping target and audio phonem and associating a step 2 score"""
+    """
+    Storage class regrouping target and audio phonem and associating a step 2 score
+    It also constains a step 2 score, rating the association of phonems.
+    """
 
     def __init__(self, target_phonem, audio_phonem):
         self.target_phonem = target_phonem
