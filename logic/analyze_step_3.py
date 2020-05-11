@@ -24,7 +24,7 @@ def get_last_vowel(associations):
 
 
 @functools.lru_cache(maxsize=None)
-def step_3_audio_rating(last_vowel, audio_phonem):
+def step_3_audio_spectral_rating(last_vowel, audio_phonem):
     # TODO split by words
     score = 0
     if last_vowel is not None and audio_phonem.get_type() == "VOWEL":
@@ -37,6 +37,25 @@ def step_3_audio_rating(last_vowel, audio_phonem):
             current_wave, last_vowel_wave, rate
         )
     return score
+
+
+def step_3_audio_amplitude_rating(previous_associations, current_association):
+    previous = list(
+        itertools.islice(
+            (
+                asso.audio_phonem
+                for asso in previous_associations
+                if asso.target_phonem.transcription != "sp"
+            ),
+            params.AMPLITUDE_STEPS_BACK,
+        )
+    )
+    if len(previous) > 0:
+        return audio_analysis.rate_amplitude_similarity(
+            previous, current_association.audio_phonem
+        )
+    else:
+        return 0
 
 
 def step_3_n_following_previous_phonems(associations):

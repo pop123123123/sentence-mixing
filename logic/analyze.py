@@ -55,7 +55,7 @@ def compute_children(target_phonem, nodes_left, choice):
         else:
             candidates = zip(
                 filter(lambda x: x is not None, group),
-                [[0, 0]] * logic.parameters.ANALYSE_CHUNK_SIZE,
+                [[0, 0, 0]] * logic.parameters.ANALYSE_CHUNK_SIZE,
             )
 
         # Rating

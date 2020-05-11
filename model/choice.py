@@ -25,7 +25,8 @@ class Choice(Scorable):
         parent,
         current_association,
         nodes_left,
-        audio_score,
+        audio_spectral_score,
+        audio_amplitude_score,
         previous_score,
     ):
         self.parent = parent
@@ -34,7 +35,8 @@ class Choice(Scorable):
 
         self.association = current_association
 
-        self._audio_score = audio_score
+        self._audio_spectral_score = audio_spectral_score
+        self._audio_amplitude_score = audio_amplitude_score
         self._previous_score = previous_score
 
     def get_self_and_previous_choices(self):
@@ -187,7 +189,8 @@ class Choice(Scorable):
 
     def _get_splited_score(self):
         step_3_scores = {
-            "step_3_audio_spectral": self._audio_score,
+            "step_3_audio_spectral": self._audio_spectral_score,
+            "step_3_audio_amplitude": self._audio_amplitude_score,
             "step_3_same_word_previous_phonems": self._previous_score,
         }
         return {**self.association.get_splited_score(), **step_3_scores}
@@ -203,11 +206,25 @@ class Choice(Scorable):
 
             if association.target_phonem.get_type() == "VOWEL":
                 rate.append(
-                    logic.analyze_step_3.step_3_audio_rating(
+                    logic.analyze_step_3.step_3_audio_spectral_rating(
                         logic.analyze_step_3.get_last_vowel(associations),
                         association.audio_phonem,
                     )
                     * params.RATING_SPECTRAL_SIMILARITY
+                )
+            else:
+                rate.append(0)
+
+            if association.target_phonem.transcription != "sp":
+                rate.append(
+                    logic.analyze_step_3.step_3_audio_amplitude_rating(
+                        (
+                            c.association
+                            for c in self.get_self_and_previous_choices()
+                        ),
+                        association,
+                    )
+                    * params.RATING_AMPLITUDE_DIFFERENCE
                 )
             else:
                 rate.append(0)
