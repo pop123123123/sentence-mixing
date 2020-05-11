@@ -1,3 +1,5 @@
+import functools
+
 import logic.text_parser as tp
 
 
@@ -35,6 +37,18 @@ class Sentence(Sequencable):
     def get_index_word(self, word):
         assert self.index_words is not None and word in self.index_words
         return self.index_words[word]
+
+    @functools.lru_cache(maxsize=None)
+    def get_phonem_size(self):
+        return sum(len(ps.phonems) for ps in self.words)
+
+    @functools.lru_cache(maxsize=None)
+    def get_phonem_index(self, phonem):
+        i = phonem.get_index_in_word()
+        return i + sum(
+            len(ps.phonems)
+            for ps in self.words[: self.get_index_word(phonem.word)]
+        )
 
 
 class Word(Sequencable):

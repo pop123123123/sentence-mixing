@@ -1,6 +1,7 @@
 import functools
 import itertools
 
+import logic.parameters
 import logic.text_parser as tp
 import model
 from model.abstract import Word
@@ -110,12 +111,12 @@ def get_sequence_dictionary_homophones(
     )
 
 
-def has_at_least_one_node(base_nodes, total, rating):
-    return base_nodes * rating >= total
+def has_at_least_one_node(base_nodes, total, rating, steps_left):
+    return (base_nodes - 1) * rating >= total * steps_left
 
 
 def compute_nodes_left(base_nodes, total, rating):
-    return base_nodes * rating / total
+    return (base_nodes - 1) * rating / total
 
 
 def association_sequence_from_words(words):
@@ -125,3 +126,31 @@ def association_sequence_from_words(words):
             *map(lambda w: zip(w[0].phonems, w[1].phonems), words)
         ),
     )
+
+
+def recompute_scores(asso_scores, nodes_left, steps_left):
+    sor = sorted(
+        [(t, t[0].get_total_score() + sum(t[1])) for t in asso_scores],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    chosen = []
+    total = 0
+    modif = logic.parameters.START_MODIF
+    for asso_score, computed_rate in sor:
+        computed_rate *= modif
+
+        # Not enough nodes left
+        if not has_at_least_one_node(
+            nodes_left, total + computed_rate, computed_rate, steps_left
+        ):
+            # not trivial
+            break
+
+        # After each association pick, highly decreasesa score modifier
+        modif /= logic.parameters.RATE_POWER
+        total += computed_rate
+        chosen.append((asso_score[0], asso_score[1], computed_rate))
+    # print(nodes_left, chosen)
+    return chosen, total
