@@ -37,22 +37,41 @@ def get_all_audio_phonems():
     return audio_phonems
 
 
-@functools.lru_cache(maxsize=None)
-def get_all_associations(target_phonem):
-    """Returns all possible associations for a given target_phonem"""
+@functools.lru_cache(maxsize=1)
+def get_transcription_dict_audio_phonem():
+    """
+    Builds a dictionary associating each possible phonem transcriptions with a list containing
+    every audio_phonem having this transcription.
+    """
 
-    audio_phonems = get_all_audio_phonems()
-    return [
-        association_builder(target_phonem, audio_phonem)
-        for audio_phonem in audio_phonems
-    ]
+    transcription_audio_phonem_dict = dict()
+
+    for phonem in get_all_audio_phonems():
+        if phonem.transcription not in transcription_audio_phonem_dict:
+            transcription_audio_phonem_dict[phonem.transcription] = [phonem]
+        else:
+            transcription_audio_phonem_dict[phonem.transcription].append(
+                phonem
+            )
+
+    return transcription_audio_phonem_dict
 
 
 @functools.lru_cache(maxsize=None)
 def get_candidates(target_phonem):
-    """Returns best association candidates for a given target_phonem"""
+    """
+    Returns a list of associations where target phonem's transcription and audio phonem's
+    transcription are the same.
+    This list is sorted by score.
+    """
 
-    associations = get_all_associations(target_phonem)
+    audio_phonems = get_transcription_dict_audio_phonem()[
+        target_phonem.transcription
+    ]
+    associations = [
+        association_builder(target_phonem, audio) for audio in audio_phonems
+    ]
+
     return sorted(
-        associations, key=lambda asso: asso.get_total_score(), reverse=True,
+        associations, key=lambda asso: asso.get_total_score(), reverse=True
     )
