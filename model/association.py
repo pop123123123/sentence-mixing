@@ -76,7 +76,7 @@ class Association(Scorable):
         score = 0
         if self.target_phonem.word.token == "<BLANK>":
             score = (
-                logic.audio_analysis.rate_silence(self.audio_phonem.get_wave())
+                logic.audio_analysis.rate_silence(self.audio_phonem)
                 * params.SCORE_SILENCE_AMPLITUDE
             )
             score += (

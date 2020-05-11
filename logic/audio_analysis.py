@@ -1,3 +1,5 @@
+import functools
+
 import numpy as np
 from scipy import signal
 
@@ -19,15 +21,33 @@ def resample_highest_rate(data):
     return data
 
 
-def rate_silence(data):
+@functools.lru_cache(maxsize=None)
+def get_normalized_rms(audio_phonem):
+    rate, data = audio_phonem.get_wave()
+    return np.average(
+        np.sqrt(np.average((data / (1 << 15)) ** 2, axis=-2)), axis=-1
+    )
+
+
+def rate_silence(audio_phonem):
     """
     Compute a silence indicator between 0 (silent) and 1 (saturated).
     """
-    rate, data = data
     average_amplitude = (
-        1 - (np.average(np.sqrt(np.average((data / (1 << 15)) ** 2, axis=0))))
-    ) ** 2
+        1 - get_normalized_rms(audio_phonem)
+    ) ** logic.parameters.SILENCE_POWER
     return average_amplitude
+
+
+def rate_amplitude_similarity(previous_audio_segs, audio_seg):
+    amplitudes = np.array([get_normalized_rms(w) for w in previous_audio_segs])
+    powers = np.arange(
+        1,
+        1
+        + min(logic.parameters.AMPLITUDE_STEPS_BACK, len(previous_audio_segs)),
+    )
+    current_amplitude = get_normalized_rms(audio_seg)
+    return float(np.sum(np.abs(amplitudes - current_amplitude) ** powers))
 
 
 def _soft_rectangle_function(x, a, b, alpha):
