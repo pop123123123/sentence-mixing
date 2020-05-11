@@ -55,7 +55,7 @@ def _dl_videos(urls):
             "writesubtitles": True,
             "writeautomaticsub": True,
             "subtitleslangs": ["fr"],
-            "outtmpl": ".downloads/%(title)s.%(ext)s",
+            "outtmpl": ".downloads/%(id)s.%(title)s.%(ext)s",
             "format": "bestaudio/best",
             "logger": Logger(),
             "postprocessors": [
@@ -211,19 +211,18 @@ def preprocess_and_align(video_urls):
 
     # Creates basic Video objects
     videos = _create_videos(video_urls)
-
-    # Enriches Video objects with SubtitleLine objects
-    _create_subs(videos)
+    # TODO maybe get all the data analyzed at once (waav resampling needed)
 
     # Prepares the aligner
     for video in videos:
+        # Enriches Video objects with SubtitleLine objects
+        _create_subs([video])
+
         _split_audio_in_files(video)
+        # Launches the aligner
+        out_dir = _align_phonems()
 
-    # Launches the aligner
-    out_dir = _align_phonems()
-
-    # Enriches Video objects with AudioWords and AudioPhonem objects
-    for video in videos:
+        # Enriches Video objects with AudioWords and AudioPhonem objects
         for i, subtitle in enumerate(video.subtitles):
             textgrid_path = os.path.join(
                 out_dir, video.get_hashed_basename() + str(i) + ".TextGrid"

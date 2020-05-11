@@ -23,7 +23,7 @@ class Logger(object):
 def dl_video(url):
     log = Logger()
     ydl_opts = {
-        "outtmpl": ".downloads/%(title)s.%(ext)s",
+        "outtmpl": ".downloads/%(id)s.%(title)s.%(ext)s",
         "logger": log,
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
