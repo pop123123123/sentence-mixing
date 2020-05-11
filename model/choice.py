@@ -196,48 +196,51 @@ class Choice(Scorable):
         return {**self.association.get_splited_score(), **step_3_scores}
 
     def compute_child_step_3_score(self, association):
-        associations = [association]
-        associations.extend(
+        """
+        Computes step 3 score for a given association.
+        This score depends on the previous chosen associations.
+
+        Assume that self has a parent.
+        """
+
+        previous_associations = []
+        previous_associations.extend(
             c.association for c in self.get_self_and_previous_choices()
         )
 
-        if len(associations) > 1:
-            rate = []
+        all_associations = [association] + previous_associations
 
-            if association.target_phonem.get_type() == "VOWEL":
-                rate.append(
-                    logic.analyze_step_3.step_3_audio_spectral_rating(
-                        logic.analyze_step_3.get_last_vowel(associations),
-                        association.audio_phonem,
-                    )
-                    * params.RATING_SPECTRAL_SIMILARITY
-                )
-            else:
-                rate.append(0)
+        rate = []
 
-            if association.target_phonem.transcription != "sp":
-                rate.append(
-                    logic.analyze_step_3.step_3_audio_amplitude_rating(
-                        (
-                            c.association
-                            for c in self.get_self_and_previous_choices()
-                        ),
-                        association,
-                    )
-                    * params.RATING_AMPLITUDE_DIFFERENCE
-                )
-            else:
-                rate.append(0)
-
+        if association.target_phonem.get_type() == "VOWEL":
             rate.append(
-                params.RATING_LENGTH_SAME_PHONEM
-                * logic.analyze_step_3.step_3_n_following_previous_phonems(
-                    associations
+                logic.analyze_step_3.step_3_audio_spectral_rating(
+                    logic.analyze_step_3.get_last_vowel(previous_associations),
+                    association.audio_phonem,
                 )
+                * params.RATING_SPECTRAL_SIMILARITY
             )
+        else:
+            rate.append(0)
 
-            return rate
-        return [0, 0]
+        if association.target_phonem.transcription != "sp":
+            rate.append(
+                logic.analyze_step_3.step_3_audio_amplitude_rating(
+                    (previous_associations), association,
+                )
+                * params.RATING_AMPLITUDE_DIFFERENCE
+            )
+        else:
+            rate.append(0)
+
+        rate.append(
+            params.RATING_LENGTH_SAME_PHONEM
+            * logic.analyze_step_3.step_3_n_following_previous_phonems(
+                all_associations
+            )
+        )
+
+        return rate
 
 
 class SkippedChoice(Choice):
