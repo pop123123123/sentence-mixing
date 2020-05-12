@@ -58,7 +58,7 @@ def combo_displayer(combo):
             [
                 (
                     ch.association.target_phonem.word,
-                    [ch.get_splited_score()[k] for k, _ in RATINGS[:-1]],
+                    [ch.get_split_score()[k] for k, _ in RATINGS[:-1]],
                 )
                 for ch in combo.get_choices()
             ],

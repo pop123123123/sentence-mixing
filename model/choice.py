@@ -187,13 +187,13 @@ class Choice(Scorable):
 
         return sum((child.get_combos() for child in self.children), [])
 
-    def _get_splited_score(self):
+    def _get_split_score(self):
         step_3_scores = {
             "step_3_audio_spectral": self._audio_spectral_score,
             "step_3_audio_amplitude": self._audio_amplitude_score,
             "step_3_same_word_previous_phonems": self._previous_score,
         }
-        return {**self.association.get_splited_score(), **step_3_scores}
+        return {**self.association.get_split_score(), **step_3_scores}
 
     def compute_child_step_3_score(self, association):
         """

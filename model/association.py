@@ -88,7 +88,7 @@ class Association(Scorable):
     def __repr__(self):
         return f"<Association {self.target_phonem, self.audio_phonem}>"
 
-    def _get_splited_score(self):
+    def _get_split_score(self):
 
         step_2_scores = {
             "step_2_audio_score": self._step_2_audio_score,
@@ -98,7 +98,7 @@ class Association(Scorable):
             "step_2_phonem_sequence": self._step_2_phonem_sequence_score,
             "step_2_phonem_sequence_backward": self._step_2_phonem_sequence_backward_score,
         }
-        return {**self.audio_phonem.get_splited_score(), **step_2_scores}
+        return {**self.audio_phonem.get_split_score(), **step_2_scores}
 
     def sequence_dictionary_homophones_phonems(self):
         """
