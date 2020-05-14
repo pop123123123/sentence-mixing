@@ -4,6 +4,7 @@ import numpy as np
 import scipy.optimize
 
 import parameter_tuning.parameter_tweaking
+import parameter_tuning.speech_to_text_dict as stt_dict
 
 
 def optimize(max_iter):
@@ -18,4 +19,5 @@ def optimize(max_iter):
 
 
 if __name__ == "__main__":
+    stt_dict.generate_compatible_dictionary()
     optimize(int(sys.argv[1]))
