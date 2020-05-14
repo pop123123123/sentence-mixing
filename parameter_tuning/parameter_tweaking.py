@@ -38,7 +38,29 @@ video_urls = [
     "https://www.youtube.com/watch?v=MEV6BHQaTnw",
 ]
 NB_COMBOS = 5
-FACTOR = 20
+FACTOR = 1000
+
+
+def get_parameters():
+    return (
+        np.array(
+            [
+                params.MAXIMAL_MINIMAL_PHONEM_LENGH_MALUS,
+                params.MAXIMAL_MAXIMAL_CONSONANT_LENGTH_MALUS,
+                params.MAXIMAL_MAXIMAL_VOWEL_LENGTH_MALUS,
+                params.RATING_LENGTH_SAME_PHONEM,
+                params.RATING_LENGTH_SAME_WORD,
+                params.SCORE_SAME_TRANSCRIPTION,
+                params.SCORE_SILENCE_AMPLITUDE,
+                params.SCORE_DURATION,
+                params.RATING_SPECTRAL_SIMILARITY,
+                params.RATING_AMPLITUDE_DIFFERENCE,
+                params.SCORE_SAME_AUDIO_WORD,
+                params.RANDOM_SPAN,
+            ]
+        )
+        / FACTOR
+    )
 
 
 def change_parameters(x):
@@ -72,8 +94,7 @@ def rate_sentence(videos, s):
         )
         audio = sr.AudioData(wave, rate, 2)
         recognized_sentence = r.recognize_sphinx(audio, language="fr-FR")
-        # rates.append(sentence_distance(s, recognized_sentence))
-        rates.append(recognized_sentence)
+        rates.append(sentence_distance(s, recognized_sentence))
 
     print(f"returning from {s}")
     return rates
@@ -83,12 +104,16 @@ def rate_parameters(x):
     videos = main.get_videos(video_urls)
     change_parameters(x)
 
+    rates = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures_rates = executor.map(
             rate_sentence, [videos] * NB_COMBOS, sentences
         )
-        rates = list(futures_rates)
-    return sum(rates) / len(rates)
+        for r in futures_rates:
+            rates.extend(r)
+    res = sum(rates) / len(rates)
+    print(x, res)
+    return res
 
 
 def translate(seq, dic):

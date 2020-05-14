@@ -228,7 +228,7 @@ class Choice(Scorable):
                 logic.analyze_step_3.step_3_audio_amplitude_rating(
                     (previous_associations), association,
                 )
-                * params.RATING_AMPLITUDE_DIFFERENCE
+                * -params.RATING_AMPLITUDE_DIFFERENCE
             )
         else:
             rate.append(0)
