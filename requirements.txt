@@ -29,3 +29,4 @@ virtualenv==20.0.18
 webvtt-py==0.4.5
 youtube-dl==2020.3.24
 pocketsphinx==0.1.12
+python-Levenshtein==0.12.0

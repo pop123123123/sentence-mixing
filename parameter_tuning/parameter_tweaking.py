@@ -1,6 +1,9 @@
+import concurrent.futures
 import tempfile
 from pathlib import Path
 
+import Levenshtein
+import numpy as np
 import speech_recognition as sr
 
 import logic.parameters as params
@@ -28,8 +31,12 @@ import video_creator.audio
 # score_same_audio_word_range = [80, 200, 500]
 # random_span_range = [0, 50, 100]
 
-sentences = []
-video_urls = []
+sentences = ["l'abeille ça pique", "le confinement me prend la tête"]
+video_urls = [
+    "https://www.youtube.com/watch?v=2tEBQhwCvY4",
+    "https://www.youtube.com/watch?v=bW7KR_ApuXQ",
+    "https://www.youtube.com/watch?v=MEV6BHQaTnw",
+]
 NB_COMBOS = 5
 FACTOR = 20
 
@@ -50,34 +57,55 @@ def change_parameters(x):
     params.RANDOM_SPAN = x[11]
 
 
-def rate_parameters(x):
-    videos = main.get_videos(video_urls)
-    data_folder = Path(tempfile.mkdtemp())
-    change_parameters(x)
+def rate_sentence(videos, s):
+    # TODO seed ?
+    print(f'generating combos for "{s}"')
+    combos = main.main(s, videos)
+    print(f'rating "{s}"')
     r = sr.Recognizer()
     rates = []
-    for s in sentences:
-        # TODO seed ?
-        combos = main.main(s, videos)
-        for i, c in enumerate(combos[:5]):
-            s += 1
-            file_path = data_folder / f"{i}.wav"
-            video_creator.audio.concat_wav(file_path, c.get_audio_phonems())
-            with sr.AudioFile(file_path) as source:
-                audio = r.record(source)
-            recognized_sentence = r.recognize_sphinx(audio, language="fr-FR")
-            rates.append(sentence_distance(s, recognized_sentence))
+
+    for c in combos[:NB_COMBOS]:
+        rate, wave = video_creator.audio.concat_segments(c.get_audio_phonems())
+        wave = (
+            np.sum(wave, axis=1).reshape((-1,)).astype("int16").copy(order="C")
+        )
+        audio = sr.AudioData(wave, rate, 2)
+        recognized_sentence = r.recognize_sphinx(audio, language="fr-FR")
+        # rates.append(sentence_distance(s, recognized_sentence))
+        rates.append(recognized_sentence)
+
+    print(f"returning from {s}")
+    return rates
+
+
+def rate_parameters(x):
+    videos = main.get_videos(video_urls)
+    change_parameters(x)
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures_rates = executor.map(
+            rate_sentence, [videos] * NB_COMBOS, sentences
+        )
+        rates = list(futures_rates)
     return sum(rates) / len(rates)
 
 
-def hamming(a, b):
-    raise NotImplementedError()
+def translate(seq, dic):
+    return "".join(dic[c] for c in seq)
+
+
+def levenshtein_distance(a, b):
+    phonems = set(a).union(b)
+    dic = {p: chr(i) for i, p in enumerate(phonems)}
+
+    return Levenshtein.distance(translate(a, dic), translate(b, dic))
 
 
 def sentence_distance(original, recognized):
     original_phonems = []
     recognized_phonems = []
 
-    d = hamming(original_phonems, recognized_phonems)
+    d = levenshtein_distance(original_phonems, recognized_phonems)
 
     return d
