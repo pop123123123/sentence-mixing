@@ -4,10 +4,11 @@ from pathlib import Path
 
 import Levenshtein
 import numpy as np
-import speech_recognition as sr
 
 import logic.parameters as params
 import main
+import parameter_tuning.speech_to_text_dict as stt_dict
+import speech_recognition as sr
 import video_creator.audio
 
 # minimal_phonem_range = [0, 0.03, 0.1]
@@ -128,8 +129,9 @@ def levenshtein_distance(a, b):
 
 
 def sentence_distance(original, recognized):
-    original_phonems = []
-    recognized_phonems = []
+    # Asume that generate_compatible_dictionary() has been called
+    original_phonems = stt_dict.sentence_to_phonem_list(original)
+    recognized_phonems = stt_dict.sentence_to_phonem_list(recognized)
 
     d = levenshtein_distance(original_phonems, recognized_phonems)
 
