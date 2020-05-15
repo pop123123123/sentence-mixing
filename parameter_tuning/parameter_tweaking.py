@@ -1,14 +1,18 @@
 import concurrent.futures
+import functools
+import os
 import tempfile
 from pathlib import Path
 
 import Levenshtein
 import numpy as np
+import pocketsphinx as ps
 
+import config
+import logic.audio_analysis
 import logic.parameters as params
 import main
 import parameter_tuning.speech_to_text_dict as stt_dict
-import speech_recognition as sr
 import video_creator.audio
 
 # minimal_phonem_range = [0, 0.03, 0.1]
@@ -33,13 +37,35 @@ import video_creator.audio
 # random_span_range = [0, 50, 100]
 
 sentences = ["l'abeille ça pique", "le confinement me prend la tête"]
-video_urls = [
-    "https://www.youtube.com/watch?v=2tEBQhwCvY4",
-    "https://www.youtube.com/watch?v=bW7KR_ApuXQ",
-    "https://www.youtube.com/watch?v=MEV6BHQaTnw",
-]
+video_urls = ["https://www.youtube.com/watch?v=-rTBodCtBAM"]
 NB_COMBOS = 5
 FACTOR = 1000
+
+
+@functools.lru_cache(maxsize=1)
+def get_decoder():
+    """Returns speech to text decoder, created with proper path to models, weights and dict"""
+
+    config.get_property("stt_model_path")
+
+    stt_config = ps.Decoder.default_config()
+    stt_config.set_string(
+        "-hmm",
+        os.path.join(config.get_property("stt_model_path"), "acoustic-model"),
+    )  # set the path of the hidden Markov model (HMM) parameter files
+    stt_config.set_string(
+        "-lm",
+        os.path.join(
+            config.get_property("stt_model_path"), "language-model.lm.bin"
+        ),
+    )
+    stt_config.set_string("-dict", config.get_property("stt_tmp_dict_path"))
+    stt_config.set_string(
+        "-logfn", os.devnull
+    )  # disable logging (logging causes unwanted output in terminal)
+    decoder = ps.Decoder(stt_config)
+
+    return decoder
 
 
 def get_parameters():
@@ -85,16 +111,28 @@ def rate_sentence(videos, s):
     print(f'generating combos for "{s}"')
     combos = main.main(s, videos)
     print(f'rating "{s}"')
-    r = sr.Recognizer()
     rates = []
 
     for c in combos[:NB_COMBOS]:
         rate, wave = video_creator.audio.concat_segments(c.get_audio_phonems())
         wave = (
-            np.sum(wave, axis=1).reshape((-1,)).astype("int16").copy(order="C")
+            logic.audio_analysis.resample(
+                np.sum(wave, axis=1).reshape((-1,)), rate, 16000
+            )
+            .astype("int16")
+            .copy(order="C")
         )
-        audio = sr.AudioData(wave, rate, 2)
-        recognized_sentence = r.recognize_sphinx(audio, language="fr-FR")
+
+        decoder = get_decoder()
+
+        decoder.start_utt()  # begin utterance processing
+        decoder.process_raw(
+            wave, False, True
+        )  # process audio data with recognition enabled (no_search = False), as a full utterance (full_utt = True)
+        decoder.end_utt()  # stop utterance processing
+
+        recognized_sentence = decoder.hyp().hypstr
+
         rates.append(sentence_distance(s, recognized_sentence))
 
     print(f"returning from {s}")
