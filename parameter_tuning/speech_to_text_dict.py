@@ -10,7 +10,7 @@ import logic.text_parser as tp
 def get_speech_to_text_dict():
     """Retrieves the dictionary and parses it to a python dict"""
 
-    dict_path = config.get_property("speech_to_text_dict_tmp")
+    dict_path = config.get_property("stt_tmp_dict_path")
 
     if not os.path.exists(dict_path):
         raise FileNotFoundError(
@@ -47,7 +47,7 @@ def generate_compatible_dictionary():
 
         return token in tp.get_dict()
 
-    stt_dict = open(config.get_property("speech_to_text_dict"))
+    stt_dict = open(config.get_property("stt_full_dict_path"))
 
     # Reads dictionary
     stt_dict = stt_dict.readlines()
@@ -55,7 +55,7 @@ def generate_compatible_dictionary():
     # Only keep words e can find in the original dictionary
     stt_dict = list(filter(filter_line, stt_dict))
 
-    tmp_dict_file = config.get_property("speech_to_text_dict_tmp")
+    tmp_dict_file = config.get_property("stt_tmp_dict_path")
     try:
         os.remove(tmp_dict_file)
     except FileNotFoundError:
