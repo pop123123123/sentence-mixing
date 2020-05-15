@@ -7,6 +7,9 @@ config_errmsg = {
     "trained_model": "the path to the trained model",
     "lang": "the lang of the subtitles (used to convert numbers into plain text)",
     "folder": "the folder where the sub chunks will be stored",
+    "stt_model_path": "path to speech to text model folder",
+    "stt_full_dict_path": "path to speech to text original dictionary",
+    "stt_tmp_dict_path": "path where the compatible dictionary should be generated",
 }
 
 config = None
