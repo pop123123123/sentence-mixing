@@ -1,5 +1,6 @@
 import functools
 import os
+import re
 
 import config
 import logic.text_parser as tp
@@ -67,6 +68,12 @@ def generate_compatible_dictionary():
 
 def sentence_to_phonem_list(sentence):
     sentence = sentence.lower()
+
+    # Removing punctuation symbols
+    sentence = re.sub(r"\s*([^\s\w'])\s*", "", sentence)
+
+    # Isolating apostrophes
+    sentence = re.sub(r"(\w')\s*", "\\1 ", sentence)
 
     stt_dict = get_speech_to_text_dict()
 
