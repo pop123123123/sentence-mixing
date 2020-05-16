@@ -36,8 +36,23 @@ import video_creator.audio
 # score_same_audio_word_range = [80, 200, 500]
 # random_span_range = [0, 50, 100]
 
-sentences = ["l'abeille ça pique", "le confinement me prend la tête"]
-video_urls = ["https://www.youtube.com/watch?v=-rTBodCtBAM"]
+sentences = [
+    "Salade. Tomates",
+    "Gloire au prophète",
+    "Ta mère le saucisson",
+    "Nique la république",
+    "Adieu les chômeurs",
+    "Tiens. Le boudin",
+    "J'ai faim. Je te mange",
+    "Prend ça. Dans ta gueule",
+    "Il faut multiplier par cinq le malheur.",
+]
+video_urls = [
+    "https://www.youtube.com/watch?v=2tEBQhwCvY4",
+    "https://www.youtube.com/watch?v=bW7KR_ApuXQ",
+    "https://www.youtube.com/watch?v=MEV6BHQaTnw",
+]
+
 NB_COMBOS = 5
 FACTOR = 1000
 
