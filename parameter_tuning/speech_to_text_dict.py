@@ -70,7 +70,7 @@ def sentence_to_phonem_list(sentence):
     sentence = sentence.lower()
 
     # Removing punctuation symbols
-    sentence = re.sub(r"\s*([^\s\w'])\s*", "", sentence)
+    sentence = re.sub(r"\s*([^\s\w'])\s*", " ", sentence)
 
     # Isolating apostrophes
     sentence = re.sub(r"(\w')\s*", "\\1 ", sentence)
