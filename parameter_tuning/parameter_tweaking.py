@@ -161,7 +161,7 @@ def rate_parameters(x):
     rates = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures_rates = executor.map(
-            rate_sentence, [videos] * NB_COMBOS, sentences
+            rate_sentence, [videos] * len(sentences), sentences
         )
         for r in futures_rates:
             rates.extend(r)
