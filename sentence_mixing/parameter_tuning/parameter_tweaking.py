@@ -8,12 +8,12 @@ import Levenshtein
 import numpy as np
 import pocketsphinx as ps
 
-import config
-import logic.audio_analysis
-import logic.parameters as params
-import main
-import parameter_tuning.speech_to_text_dict as stt_dict
-import video_creator.audio
+import sentence_mixing.config as config
+import sentence_mixing.logic.audio_analysis
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.parameter_tuning.speech_to_text_dict as stt_dict
+import sentence_mixing.sentence_mixer as sm
+import sentence_mixing.video_creator.audio
 
 # minimal_phonem_range = [0, 0.03, 0.1]
 # maximal_consonant_length_range = [0.10, 0.25, 0.5]
@@ -109,14 +109,16 @@ def change_parameters(x):
 def rate_sentence(videos, s):
     # TODO seed ?
     print(f'generating combos for "{s}"')
-    combos = main.main(s, videos)
+    combos = sm.process_sm(s, videos)
     print(f'rating "{s}"')
     rates = []
 
     for c in combos[:NB_COMBOS]:
-        rate, wave = video_creator.audio.concat_segments(c.get_audio_phonems())
+        rate, wave = sentence_mixing.video_creator.audio.concat_segments(
+            c.get_audio_phonems()
+        )
         wave = (
-            logic.audio_analysis.resample(
+            sentence_mixing.logic.audio_analysis.resample(
                 np.sum(wave, axis=1).reshape((-1,)), rate, 16000
             )
             .astype("int16")
@@ -140,7 +142,7 @@ def rate_sentence(videos, s):
 
 
 def rate_parameters(x):
-    videos = main.get_videos(video_urls)
+    videos = sm.get_videos(video_urls)
     change_parameters(x)
 
     rates = []

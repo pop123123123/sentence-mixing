@@ -1,9 +1,9 @@
 import functools
 import itertools
 
-import logic.text_parser as tp
-import model
-from model.abstract import Word
+import sentence_mixing.logic.text_parser as tp
+import sentence_mixing.model as model
+from sentence_mixing.model.abstract import Word
 
 
 def grouper(iterable, n, fillvalue=None):

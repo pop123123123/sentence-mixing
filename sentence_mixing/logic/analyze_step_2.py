@@ -1,5 +1,5 @@
-import logic.parameters as params
-import logic.randomizer as rnd
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.randomizer as rnd
 
 
 def rating_sequence_by_phonem_length(x):

@@ -1,6 +1,6 @@
 import random
 
-import logic.parameters as params
+import sentence_mixing.logic.parameters as params
 
 
 def noise_score(base_score, sigma=None):

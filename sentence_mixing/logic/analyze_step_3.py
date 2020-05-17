@@ -1,11 +1,11 @@
 import functools
 import itertools
 
-import logic.audio_analysis as audio_analysis
-import logic.parameters as params
-import logic.text_parser as tp
-import logic.utils as utils
-from model.abstract import Sentence, Word
+import sentence_mixing.logic.audio_analysis as audio_analysis
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.text_parser as tp
+import sentence_mixing.logic.utils as utils
+from sentence_mixing.model.abstract import Sentence, Word
 
 
 def get_last_phonem(audio):

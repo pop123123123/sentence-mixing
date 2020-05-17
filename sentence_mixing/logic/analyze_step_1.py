@@ -1,9 +1,9 @@
 import functools
 import math
 
-import logic.parameters as params
-import logic.randomizer as rnd
-import logic.text_parser as tp
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.randomizer as rnd
+import sentence_mixing.logic.text_parser as tp
 
 
 def get_malus(length, max_length, max_malus):

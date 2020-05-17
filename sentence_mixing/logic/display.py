@@ -1,6 +1,6 @@
 from itertools import groupby
 
-from model.abstract import Phonem
+from sentence_mixing.model.abstract import Phonem
 
 BORDERS = {
     (True, True, True, True): "┼",

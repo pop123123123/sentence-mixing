@@ -1,9 +1,10 @@
 import functools
 
-import logic.analyze_step_3
-import logic.global_audio_data
-import logic.parameters as params
-from model.scorable import Scorable
+import sentence_mixing.logic.analyze
+import sentence_mixing.logic.analyze_step_3 as step_3
+import sentence_mixing.logic.global_audio_data as global_audio_data
+import sentence_mixing.logic.parameters as params
+from sentence_mixing.model.scorable import Scorable
 
 
 class Choice(Scorable):
@@ -173,7 +174,7 @@ class Choice(Scorable):
 
         # Normal workflow
         target_phonem = self.association.target_phonem.next_in_seq()
-        return logic.analyze.compute_children(
+        return sentence_mixing.logic.analyze.compute_children(
             target_phonem, self.nodes_left, self
         )
 
@@ -214,8 +215,8 @@ class Choice(Scorable):
 
         if association.target_phonem.get_type() == "VOWEL":
             rate.append(
-                logic.analyze_step_3.step_3_audio_spectral_rating(
-                    logic.analyze_step_3.get_last_vowel(previous_associations),
+                step_3.step_3_audio_spectral_rating(
+                    step_3.get_last_vowel(previous_associations),
                     association.audio_phonem,
                 )
                 * params.RATING_SPECTRAL_SIMILARITY
@@ -225,7 +226,7 @@ class Choice(Scorable):
 
         if association.target_phonem.transcription != "sp":
             rate.append(
-                logic.analyze_step_3.step_3_audio_amplitude_rating(
+                step_3.step_3_audio_amplitude_rating(
                     (previous_associations), association,
                 )
                 * -params.RATING_AMPLITUDE_DIFFERENCE
@@ -235,9 +236,7 @@ class Choice(Scorable):
 
         rate.append(
             params.RATING_LENGTH_SAME_PHONEM
-            * logic.analyze_step_3.step_3_n_following_previous_phonems(
-                all_associations
-            )
+            * step_3.step_3_n_following_previous_phonems(all_associations)
         )
 
         return rate
