@@ -1,10 +1,10 @@
 import math
 
-import logic.global_audio_data
-import logic.parameters
-import logic.utils as utils
-from model.choice import Choice, Combo
-from model.exceptions import PhonemError
+import sentence_mixing.logic.global_audio_data as global_audio_data
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.utils as utils
+from sentence_mixing.model.choice import Choice, Combo
+from sentence_mixing.model.exceptions import PhonemError
 
 
 def compute_children(target_phonem, nodes_left, choice):
@@ -34,15 +34,13 @@ def compute_children(target_phonem, nodes_left, choice):
     chosen = []
 
     # Get all associations, sorted by decreasing scores
-    association_candidates = logic.global_audio_data.get_candidates(
-        target_phonem
-    )
+    association_candidates = global_audio_data.get_candidates(target_phonem)
 
     # This modif will be used to attenuate score
-    modif = logic.parameters.START_MODIF
+    modif = params.START_MODIF
 
     for group in utils.grouper(
-        association_candidates, logic.parameters.ANALYSE_CHUNK_SIZE
+        association_candidates, params.ANALYSE_CHUNK_SIZE
     ):
         candidates = None
         if choice is not None:
@@ -58,7 +56,7 @@ def compute_children(target_phonem, nodes_left, choice):
         else:
             candidates = zip(
                 filter(lambda x: x is not None, group),
-                [[0, 0, 0]] * logic.parameters.ANALYSE_CHUNK_SIZE,
+                [[0, 0, 0]] * params.ANALYSE_CHUNK_SIZE,
             )
 
         # Rating
@@ -76,7 +74,7 @@ def compute_children(target_phonem, nodes_left, choice):
                 break
 
             # After each association pick, highly decreasesa score modifier
-            modif /= logic.parameters.RATE_POWER
+            modif /= params.RATE_POWER
             total += computed_rate
             chosen.append((association, step_3_rate, computed_rate))
         else:
@@ -94,7 +92,7 @@ def compute_children(target_phonem, nodes_left, choice):
         Choice(
             choice,
             association,
-            logic.utils.compute_nodes_left(nodes_left, total, computed_rate,),
+            utils.compute_nodes_left(nodes_left, total, computed_rate,),
             *rate
         )
         for association, rate, computed_rate in chosen
@@ -119,11 +117,11 @@ def get_n_best_combos(sentence, videos, n=100):
     To counter this problem, we use a limited number of "nodes" Choices.
     """
 
-    logic.global_audio_data.set_videos(videos)
+    global_audio_data.set_videos(videos)
 
     target_phonems = utils.get_phonems(sentence.words)
 
-    roots = compute_children(target_phonems[0], logic.parameters.NODES, None)
+    roots = compute_children(target_phonems[0], params.NODES, None)
 
     combos = []
     for combo in roots:

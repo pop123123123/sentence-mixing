@@ -1,5 +1,7 @@
 """This module contains all the parameters used to compute the combos"""
 
+DEFAULT_SEED = 0
+
 # Step 1
 
 MINIMAL_PHONEM_LENGTH = 0.1

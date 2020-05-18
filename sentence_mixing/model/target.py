@@ -1,7 +1,7 @@
 import itertools
 
-import logic.text_parser as parser
-from model.abstract import Phonem, Sentence, Word
+import sentence_mixing.logic.text_parser as parser
+from sentence_mixing.model.abstract import Phonem, Sentence, Word
 
 
 class TargetSentence(Sentence):

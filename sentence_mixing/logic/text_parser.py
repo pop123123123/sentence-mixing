@@ -4,8 +4,8 @@ from itertools import groupby
 
 from num2words import num2words
 
-import config
-from model.exceptions import TokenAmbiguityError
+import sentence_mixing.config as config
+from sentence_mixing.model.exceptions import TokenAmbiguityError
 
 
 @functools.lru_cache(maxsize=None)

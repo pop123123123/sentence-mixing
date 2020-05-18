@@ -1,6 +1,6 @@
 import functools
 
-import logic.text_parser as tp
+import sentence_mixing.logic.text_parser as tp
 
 
 class Sequencable:

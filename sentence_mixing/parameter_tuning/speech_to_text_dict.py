@@ -3,7 +3,8 @@ import os
 import re
 
 import config
-import logic.text_parser as tp
+
+import sentence_mixing.logic.text_parser as tp
 
 
 @functools.lru_cache(maxsize=1)

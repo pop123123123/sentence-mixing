@@ -6,7 +6,7 @@ import webvtt
 from moviepy.editor import VideoFileClip
 from scipy.io import wavfile
 
-from model.audio import SubtitleLine
+from sentence_mixing.model.audio import SubtitleLine
 
 
 class Video:

@@ -9,10 +9,10 @@ import textgrid
 import youtube_dl
 from scipy.io import wavfile
 
-import config
-import logic.text_parser as tp
-import model.audio as audio
-from model.video import Video
+import sentence_mixing.config as config
+import sentence_mixing.logic.text_parser as tp
+import sentence_mixing.model.audio as audio
+from sentence_mixing.model.video import Video
 
 
 def _create_videos(video_urls):

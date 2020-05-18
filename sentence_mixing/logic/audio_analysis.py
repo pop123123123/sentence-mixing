@@ -3,7 +3,7 @@ import functools
 import numpy as np
 from scipy import signal
 
-import logic.parameters
+import sentence_mixing.logic.parameters as params
 
 
 def cross_power_spectral_density_sum(x, y, fs):
@@ -35,16 +35,14 @@ def rate_silence(audio_phonem):
     """
     average_amplitude = (
         1 - get_normalized_rms(audio_phonem)
-    ) ** logic.parameters.SILENCE_POWER
+    ) ** params.SILENCE_POWER
     return average_amplitude
 
 
 def rate_amplitude_similarity(previous_audio_segs, audio_seg):
     amplitudes = np.array([get_normalized_rms(w) for w in previous_audio_segs])
     powers = np.arange(
-        1,
-        1
-        + min(logic.parameters.AMPLITUDE_STEPS_BACK, len(previous_audio_segs)),
+        1, 1 + min(params.AMPLITUDE_STEPS_BACK, len(previous_audio_segs)),
     )
     current_amplitude = get_normalized_rms(audio_seg)
     return float(np.sum(np.abs(amplitudes - current_amplitude) ** powers))
@@ -57,7 +55,7 @@ def _soft_rectangle_function(x, a, b, alpha):
 def rate_duration(audio_seg, inf, sup):
     return (
         _soft_rectangle_function(
-            audio_seg.get_length(), inf, sup, logic.parameters.ALPHA
+            audio_seg.get_length(), inf, sup, params.ALPHA
         )
         * 2
         - 1

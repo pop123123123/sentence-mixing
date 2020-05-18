@@ -13,12 +13,25 @@ config_errmsg = {
 }
 
 config = None
+config_path = None
+
+
+def set_config_path(path):
+    global config_path
+    config_path = path
+
+
+def is_ready():
+    global config_path
+    return config_path is not None
 
 
 def _load_config():
     global config
+    global config_path
+
     try:
-        with open("config.json") as f:
+        with open(config_path) as f:
             config = json.load(f)
     except EnvironmentError:
         raise FileNotFoundError(

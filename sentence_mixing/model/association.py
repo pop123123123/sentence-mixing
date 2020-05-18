@@ -1,10 +1,11 @@
 import functools
 import itertools
 
-import logic.analyze_step_2
-import logic.parameters as params
-import logic.utils
-from model.scorable import Scorable
+import sentence_mixing.logic.analyze_step_2 as step_2
+import sentence_mixing.logic.audio_analysis as audio_analysis
+import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.utils as utils
+from sentence_mixing.model.scorable import Scorable
 
 
 @functools.lru_cache(maxsize=None)
@@ -29,7 +30,7 @@ class Association(Scorable):
         ) * params.SCORE_SAME_TRANSCRIPTION
 
         self._step_2_same_word_score = (
-            logic.utils.are_homophones(target_phonem.word, audio_phonem.word)
+            utils.are_homophones(target_phonem.word, audio_phonem.word)
             * params.SCORE_SAME_AUDIO_WORD
         )
 
@@ -41,7 +42,7 @@ class Association(Scorable):
             self.target_phonem.get_index_in_word()
             == self.audio_phonem.get_index_in_word()
         ):
-            return logic.analyze_step_2.rating_word_by_phonem_length(
+            return step_2.rating_word_by_phonem_length(
                 len(list(self.sequence_dictionary_homophones_phonems()))
             )
         return 0
@@ -50,7 +51,7 @@ class Association(Scorable):
     def _step_2_phonem_sequence_score(self):
         """Rates a common sequence of phonem between target and audio"""
 
-        return logic.analyze_step_2.rating_sequence_by_phonem_length(
+        return step_2.rating_sequence_by_phonem_length(
             max(len(list(self.sequence_same_phonems())) - 1, 0)
         )
 
@@ -62,7 +63,7 @@ class Association(Scorable):
         _step_2_phonem_sequence_score.
         """
 
-        return logic.analyze_step_2.rating_sequence_by_phonem_length(
+        return step_2.rating_sequence_by_phonem_length(
             max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0)
         )
 
@@ -76,11 +77,11 @@ class Association(Scorable):
         score = 0
         if self.target_phonem.word.token == "<BLANK>":
             score = (
-                logic.audio_analysis.rate_silence(self.audio_phonem)
+                audio_analysis.rate_silence(self.audio_phonem)
                 * params.SCORE_SILENCE_AMPLITUDE
             )
             score += (
-                logic.audio_analysis.rate_duration(self.audio_phonem, 0.1, 0.2)
+                audio_analysis.rate_duration(self.audio_phonem, 0.1, 0.2)
                 * params.SCORE_DURATION
             )
         return score
@@ -108,8 +109,8 @@ class Association(Scorable):
         only words.
         """
 
-        return logic.utils.association_sequence_from_words(
-            logic.utils.get_sequence_dictionary_homophones(
+        return utils.association_sequence_from_words(
+            utils.get_sequence_dictionary_homophones(
                 self.target_phonem, self.audio_phonem, True
             )
         )
@@ -121,8 +122,8 @@ class Association(Scorable):
         phonem decomposition of the word.
         """
 
-        return logic.utils.association_sequence_from_words(
-            logic.utils.get_sequence_aligner_homophones(
+        return utils.association_sequence_from_words(
+            utils.get_sequence_aligner_homophones(
                 self.target_phonem, self.audio_phonem
             )
         )
@@ -141,7 +142,7 @@ class Association(Scorable):
             itertools.takewhile(
                 lambda association: association.target_phonem.transcription
                 == association.audio_phonem.transcription,
-                logic.utils.sequence_association(self, reverse=reverse),
+                utils.sequence_association(self, reverse=reverse),
             )
         )
 

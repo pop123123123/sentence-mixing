@@ -1,7 +1,7 @@
-import logic.analyze_step_1
-import logic.randomizer
-from model.abstract import Phonem, Sentence, Word
-from model.scorable import Scorable
+import sentence_mixing.logic.analyze_step_1 as step_1
+import sentence_mixing.logic.randomizer as rnd
+from sentence_mixing.model.abstract import Phonem, Sentence, Word
+from sentence_mixing.model.scorable import Scorable
 
 
 class VideoSegment:
@@ -93,8 +93,8 @@ class AudioPhonem(Phonem, VideoSegment, Scorable):
         Phonem.__init__(self, AudioWord, word, transcription)
         VideoSegment.__init__(self, start, end)
 
-        self.random_default_score = logic.randomizer.random_basic_score()
-        self.length_score = logic.analyze_step_1.score_length(self)
+        self.random_default_score = rnd.random_basic_score()
+        self.length_score = step_1.score_length(self)
 
     def _get_original_wave(self):
         return self.word._get_original_wave()

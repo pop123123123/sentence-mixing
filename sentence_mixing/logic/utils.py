@@ -1,10 +1,10 @@
 import functools
 import itertools
 
-import logic.parameters
-import logic.text_parser as tp
-import model
-from model.abstract import Word
+import sentence_mixing.logic.parameters as parameters
+import sentence_mixing.logic.text_parser as tp
+import sentence_mixing.model as model
+from sentence_mixing.model.abstract import Word
 
 
 def grouper(iterable, n, fillvalue=None):
@@ -137,7 +137,7 @@ def recompute_scores(asso_scores, nodes_left, steps_left):
 
     chosen = []
     total = 0
-    modif = logic.parameters.START_MODIF
+    modif = parameters.START_MODIF
     for asso_score, computed_rate in sor:
         computed_rate *= modif
 
@@ -149,7 +149,7 @@ def recompute_scores(asso_scores, nodes_left, steps_left):
             break
 
         # After each association pick, highly decreasesa score modifier
-        modif /= logic.parameters.RATE_POWER
+        modif /= parameters.RATE_POWER
         total += computed_rate
         chosen.append((asso_score[0], asso_score[1], computed_rate))
     # print(nodes_left, chosen)

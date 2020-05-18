@@ -1,7 +1,7 @@
 import functools
 import random
 
-from model.association import association_builder
+from sentence_mixing.model.association import association_builder
 
 VIDEOS = None
 
