@@ -3,6 +3,6 @@ import os
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 
-def create_video_file(total_phonems, paths):
+def create_video_file(total_phonems, path):
     clips = [phonem.get_video_clip() for phonem in total_phonems]
-    concatenate_videoclips(clips).write_videofile("out.mp4")
+    concatenate_videoclips(clips).write_videofile(path)

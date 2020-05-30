@@ -27,6 +27,9 @@ def compute_children(target_phonem, nodes_left, choice):
     PhonemError - the best scored association has a score of 0. The phonem was not found in audio
     """
 
+    steps_left = target_phonem.word.sentence.get_phonem_size() - target_phonem.word.sentence.get_phonem_index(
+        target_phonem
+    )
     total = 0
     chosen = []
 
@@ -65,7 +68,7 @@ def compute_children(target_phonem, nodes_left, choice):
 
             # Not enough nodes left
             if not utils.has_at_least_one_node(
-                nodes_left, total, computed_rate
+                nodes_left, total + computed_rate, computed_rate, steps_left
             ):
                 # not trivial
                 break
@@ -83,13 +86,13 @@ def compute_children(target_phonem, nodes_left, choice):
     if total == 0:
         raise PhonemError(target_phonem)
 
+    chosen, total = utils.recompute_scores(chosen, nodes_left, steps_left)
+
     return [
         Choice(
             choice,
             association,
-            math.ceil(
-                utils.compute_nodes_left(nodes_left, total, computed_rate,)
-            ),
+            utils.compute_nodes_left(nodes_left, total, computed_rate,),
             *rate
         )
         for association, rate, computed_rate in chosen
