@@ -12,3 +12,11 @@ class TokenAmbiguityError(Exception):
 
     def __str__(self):
         return f'Word "{self.token}" has multiple readings. Please choose a different word.'
+
+
+class Interruption(Exception):
+    def __init__(self, callback):
+        self.callback = callback
+
+    def __str__(self):
+        return f' Callback "{self.callback.__name_}" returned True'

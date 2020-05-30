@@ -4,7 +4,7 @@ import sentence_mixing.logic.global_audio_data as global_audio_data
 import sentence_mixing.logic.parameters as params
 import sentence_mixing.logic.utils as utils
 from sentence_mixing.model.choice import Choice, Combo
-from sentence_mixing.model.exceptions import PhonemError
+from sentence_mixing.model.exceptions import Interruption, PhonemError
 
 
 def compute_children(target_phonem, nodes_left, choice):
@@ -96,7 +96,7 @@ def compute_children(target_phonem, nodes_left, choice):
     ]
 
 
-def get_n_best_combos(sentence, videos, n=100):
+def get_n_best_combos(sentence, videos, n=100, interrupt_callback=None):
     """
     Computes best n combos for a given sentence and set of videos
 
@@ -122,7 +122,12 @@ def get_n_best_combos(sentence, videos, n=100):
 
     combos = []
     for combo in roots:
+        if interrupt_callback is not None:
+            if interrupt_callback():
+                raise Interruption(interrupt_callback)
+
         combos.extend(combo.get_combos())
+
     combos.sort(key=lambda c: c.get_score(), reverse=True)
 
     return combos[:n]

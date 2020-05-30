@@ -36,7 +36,9 @@ def get_videos(video_urls):
 
 
 # assuming french for now
-def process_sm(sentence, videos, seed=params.DEFAULT_SEED):
+def process_sm(
+    sentence, videos, seed=params.DEFAULT_SEED, interrupt_callback=None
+):
     if not config.is_ready():
         raise Exception(
             "Please, set config file before launching process_sm by calling prepare_sm"
@@ -47,5 +49,7 @@ def process_sm(sentence, videos, seed=params.DEFAULT_SEED):
     # transcribe sentence to pseudo-phonetic string
     target_sentence = target.TargetSentence(sentence)
 
-    combos = analyze.get_n_best_combos(target_sentence, videos)
+    combos = analyze.get_n_best_combos(
+        target_sentence, videos, interrupt_callback=interrupt_callback
+    )
     return combos
