@@ -17,18 +17,8 @@ config_path = None
 
 
 def set_config_path(path):
-    global config_path
-    config_path = path
-
-
-def is_ready():
-    global config_path
-    return config_path is not None
-
-
-def _load_config():
     global config
-    global config_path
+    config_path = path
 
     try:
         with open(config_path) as f:
@@ -39,9 +29,16 @@ def _load_config():
         )
 
 
+def set_config_dict(config_dict):
+    global config
+    config = config_dict
+
+
+def is_ready():
+    return config is not None
+
+
 def get_property(name):
-    if config is None:
-        _load_config()
     try:
         return config[name]
     except KeyError:
@@ -51,9 +48,7 @@ def get_property(name):
 
 
 def set_temp_property(name, value):
-    if config is None:
-        _load_config()
-
+    global config
     if name in config:
         raise KeyError(f"Property {name} already exists")
 

@@ -14,14 +14,18 @@ import sentence_mixing.model.target as target
 from sentence_mixing.serialize import load, save
 
 
-def prepare_sm(config_path):
+def prepare_sm_config_file(config_path):
     config.set_config_path(config_path)
+
+
+def prepare_sm_config_dict(config_dict):
+    config.set_config_dict(config_dict)
 
 
 def get_videos(video_urls):
     if not config.is_ready():
         raise Exception(
-            "Please, set config file before launching get_videos by calling prepare_sm"
+            "Please, set config file before launching get_videos by calling prepare_sm_config_file or prepare_sm_config_dict"
         )
 
     (videos,) = load()
