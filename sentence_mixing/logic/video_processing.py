@@ -143,7 +143,7 @@ def _align_phonems():
     out_dir = tempfile.mkdtemp()
     temp_dir = tempfile.mkdtemp()
 
-    command = f'{align_exe} "{folder}" "{dict_path}" "{trained_model}" "{out_dir}" -t "{temp_dir}" -s {str(speakers)}'
+    command = f'{align_exe} "{folder}" "{dict_path}" "{trained_model}" "{out_dir}" -t "{temp_dir}" -s {str(speakers)} -q'
 
     ret = os.system(command)
     assert ret == 0
