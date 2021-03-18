@@ -1,3 +1,23 @@
+[project]
+name = "sentence-mixing"
+version = "1.0.0"
+description = "Sentence mixing libreary"
+authors = [
+    "Nicolas Busser, Louis Mouhat"
+    ]
+    license = "LICENCE"
+    readme = "README.md"
+    python = "^3.6"
+    homepage = "https://github.com/MartinThoma/infer_pyprojec://github.com/pop123123123/sentence-mixing"
+    repository = "https://github.com/MartinThoma/infer_pyprojec://github.com/pop123123123/sentence-mixing"
+    documentation = "https://github.com/MartinThoma/infer_pyprojec://github.com/pop123123123/sentence-mixing"
+
+    keywords = ["nlp", "audio processing", "automatism", "sentence-mixing", "youtube", "poop"]
+
+    classifiers = [
+        "Topic :: Entertainment"
+    ]
+
 [tool.black]
 line-length = 79
 include = '\.pyi?$'
