@@ -24,7 +24,7 @@ Otherwise, we prepared a tutorial to build it from source:
 4. Install [kaldi](https://github.com/kaldi-asr/kaldi) (available in pacman's repo Arch4edu)
 5. In folder ```Montreal-Forced-Aligner/freezing```, run ```freeze.sh```
 6. In folder ```Montreal-Forced-Aligner/thirdparty```, run the following command: ```python kaldibinaries.py /opt/kaldi```
-7. Copy every files from ```/opt/kaldi/src/featbin``` to ```Montreal-Forced-Aligner/thirdparty/bin```
+7. Copy every file from ```/opt/kaldi/src/featbin``` to ```Montreal-Forced-Aligner/thirdparty/bin```
 8. Move ```align.py``` from ```Montreal-Forced-Aligner/aligner/command_line``` to ```Montreal-Forced-Aligner/```
 
 ## JSON config file
