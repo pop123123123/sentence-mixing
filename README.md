@@ -4,7 +4,7 @@ This library is used to analyze and smartly reorder phonems of an audio sequence
 The goal of this library is to generate Sentence Mixing Youtube poops ([example](https://www.youtube.com/watch?v=ZGCoKsPXgkw)).  
 
 Entry file is ```sentence_mixer.py```.  
-Here is are examples of applications based on the library:
+Here are examples of applications based on the library:
 - [CLI application](https://github.com/pop123123123/CLI_sentence_mixing)
 - [GUI application (unstable)](https://github.com/pop123123123/SentenceMixingMaker)
 
