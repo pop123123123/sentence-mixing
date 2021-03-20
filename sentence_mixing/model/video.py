@@ -3,7 +3,7 @@ from functools import lru_cache
 
 import numpy as np
 import webvtt
-from moviepy.editor import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from scipy.io import wavfile
 
 from sentence_mixing.model.audio import SubtitleLine

@@ -1,6 +1,7 @@
 import os
 
-from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from moviepy.video.compositing.concatenate import concatenate_videoclips
 
 
 def create_video_file(total_phonems, path, logger="bar"):
