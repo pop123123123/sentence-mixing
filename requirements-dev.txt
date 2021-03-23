@@ -1,2 +1,4 @@
 -r requirements.txt
 pre-commit==2.3.0
+pocketsphinx==0.1.12
+python_Levenshtein==0.12.2

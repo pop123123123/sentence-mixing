@@ -26,8 +26,6 @@ setuptools.setup(
         "scipy",
         "webvtt-py",
         "moviepy",
-        "python-Levenshtein",
-        "pocketsphinx",
     ],
     python_requires=">=3.6",
 )
