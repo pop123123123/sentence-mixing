@@ -14,9 +14,8 @@ SM library is using [Montreal Forced Aligner](https://github.com/MontrealCorpusT
 
 ### Installing MFA
 
-1. Download [release source code 1.1.0 Beta 2](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/tag/v1.1.0-beta.2)
+1. Download [release executable version 1.1.0 Beta 2](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/tag/v1.1.0-beta.2)
 2. Extract it as ```Montreal-Forced-Aligner```
-3. Install all python modules listed in ```requirements.txt```
 
 ## JSON config file
 
@@ -35,7 +34,7 @@ This config file should be passed through the function ```prepare_sm_config_file
 ### Recommended config.json
 
 - ```dict_path```: For french users, use ```fr.dict``` from [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries) repo
-- ```align_exe```: ```Montreal-Forced-Aligner/bin/mfa_align $@```
+- ```align_exe```: ```Montreal-Forced-Aligner/bin/mfa_align```
 - ```trained_model```: Choose one of the [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html). For french users, use [prosodylab version](https://github.com/MontrealCorpusTools/mfa-models/raw/master/acoustic/french_prosodylab.zip).
 - ```dict_consonant_vowel_path```: For french users, use ```fr_consonant_vowel.dict``` from [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries) repo
 
