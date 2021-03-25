@@ -21,7 +21,7 @@ def set_config_path(path):
     config_path = path
 
     try:
-        with open(config_path) as f:
+        with open(config_path, encoding="utf-8") as f:
             config = json.load(f)
     except EnvironmentError:
         raise FileNotFoundError(

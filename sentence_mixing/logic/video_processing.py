@@ -123,7 +123,7 @@ def _split_audio_in_files(video):
         sub_audio_data = data[start_frame:end_frame]
         wavfile.write(sub_base_name + ".wav", rate, sub_audio_data)
 
-        with open(sub_base_name + ".lab", "w") as subfile:
+        with open(sub_base_name + ".lab", "w", encoding="utf-8") as subfile:
             subfile.write(sub.original_text)
 
 

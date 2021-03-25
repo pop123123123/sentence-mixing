@@ -15,7 +15,7 @@ def get_dict():
     dict_path = config.get_property("dict_path")
 
     # Opens the dictionary file and puts it in a dict
-    with open(dict_path) as f:
+    with open(dict_path, encoding="utf-8") as f:
         phonem_dict = dict()
         previous = None
         for line in f:
@@ -57,7 +57,7 @@ def get_consonant_vowel_dict():
 
     dict_path = config.get_property("dict_consonant_vowel_path")
 
-    with open(dict_path) as f:
+    with open(dict_path, encoding="utf-8") as f:
         consonant_vowel_dict = dict(
             [
                 [elem, line.split()[0]]
@@ -88,7 +88,9 @@ def are_token_homophones(token0, token1):
 def get_all_phonems():
     """Retrieves a list of all phonems relying on the consonant-vowel dictionary"""
 
-    with open(config.get_property("dict_consonant_vowel_path")) as f:
+    with open(
+        config.get_property("dict_consonant_vowel_path"), encoding="utf-8"
+    ) as f:
         return [phonem for line in f for phonem in line.split()[1:]]
 
 
