@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sentence_mixing",
-    version="1.1.4",
+    version="1.1.5",
     author="Nicolas BUSSER, Louis MOUHAT",
     author_email="nicolas.busser67@gmail.com",
     description="Sentence mixing",

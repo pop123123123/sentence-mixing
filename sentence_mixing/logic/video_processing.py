@@ -54,7 +54,7 @@ def _dl_videos(urls):
         ydl_opts = {
             "writesubtitles": True,
             "writeautomaticsub": True,
-            "subtitleslangs": ["fr"],
+            "subtitleslangs": [config.get_property("lang")],
             "outtmpl": ".downloads/%(id)s.%(title)s.%(ext)s",
             "format": "bestaudio/best",
             "logger": Logger(),
@@ -71,7 +71,8 @@ def _dl_videos(urls):
             ydl.download([url])
             base_path = os.path.splitext(filename)[0]
             # TODO: rendre le .fr.vtt dynamique en fonction de la langue des sous-titres
-            paths.append((base_path, ".fr.vtt"))
+            extension = ".{}.vtt".format(config.get_property("lang"))
+            paths.append((base_path, extension))
     return paths
 
 
