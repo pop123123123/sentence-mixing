@@ -25,7 +25,7 @@ Here are all the fields to add into it:
 - ```dict_path```: Path to dictionnary file. This dictionnary associates every words of a language to associated phonems
 - ```align_exe```: MFA executable file
 - ```trained_model```: pre-trained model MFA will use. Should be a ZIP file
-- ```lang```: language. Only 'fr' is supported now
+- ```lang```: language. Three languages are supported: ```fr```, ```en``` and ```de```
 - ```dict_consonant_vowel_path```: Path to dictionary declaring the consonant and vowel phonems
 - ```folder```: Folder where the Youtube subtitles will be stored
 
@@ -38,3 +38,10 @@ This config file should be passed through the function ```prepare_sm_config_file
 - ```trained_model```: Choose one of the [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html). For french users, use [prosodylab version](https://github.com/MontrealCorpusTools/mfa-models/raw/master/acoustic/french_prosodylab.zip).
 - ```dict_consonant_vowel_path```: For french users, use ```fr_consonant_vowel.dict``` from [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries) repo
 
+## Unsupported language
+
+If you want to use a language that is supported by an [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html) but present in [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries), you can follow this procedure:
+1. Find a matching dictionary giving for each word of the language its decomposition to phones. Please refer to [this section](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html#available-pronunciation-dictionaries) for more information about dictionaries availability.
+2. Create a consonant-vowel dict where you specifie which phones are consonants and which phones are vowels. You should inspire from supported languages [consonant-vowel dicts](https://github.com/nbusser/SM-Dictionaries/blob/master/fr/fr_consonant_vowel.dict). Do not forget to add the line ```SPACE sp```.
+
+Feel free to pull request your work !
