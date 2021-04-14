@@ -46,4 +46,6 @@ If you want to use a language that is supported by an [MFA pretrained model](htt
 1. Find a matching dictionary giving for each word of the language its decomposition to phonemes. Please refer to [this section](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html#available-pronunciation-dictionaries) for more information about dictionary availability.
 2. Create a consonant-vowel dict where you specify which phonemes are consonants and which phonemes are vowels. You should take example on [consonant-vowel dicts for supported languages](https://github.com/nbusser/SM-Dictionaries/blob/master/fr/fr_consonant_vowel.dict). Do not forget to add the line ```SPACE sp```.
 
+I would recommend you to read this [issue thread](https://github.com/pop123123123/sentence-mixing/issues/1) as well to get a practical example.
+
 *Feel free to pull request your work !*
