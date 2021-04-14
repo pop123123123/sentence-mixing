@@ -54,7 +54,7 @@ What you can do is to find another dictionary, using another set of phoneme symb
 You will then have to change this new set of phonemes to match the phonemes of the MFA pretrained model.
 
 MFA's [g2p application](https://github.com/nbusser/SM-Dictionaries/commit/93f7326af0142c93358d59c087e85b76740e8d82) can help. It gives, for each labeled word of an audio file, its decomposition to model phonemes.  
-So, if you have a doubt when replacing a dictionary phonem symbol by a model symbol, you can use this tool to see the role of model phonem symbols.
+So, if you have a doubt when replacing a dictionary phonem symbol by a model symbol, you can use this tool to guess how a model phonem symbol sounds.
 
 I would recommend you to read this [issue thread](https://github.com/pop123123123/sentence-mixing/issues/1) as well to get a practical example of this problem.
 
