@@ -42,10 +42,20 @@ Example for French language:
 
 ## Add an unsupported language
 
-If you want to use a language that is supported by an [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html) but present in [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries), you can follow this procedure:
+If you want to use a language that is supported by an [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html) but not present in [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries), you can follow this procedure:
 1. Find a matching dictionary giving for each word of the language its decomposition to phonemes. Please refer to [this section](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html#available-pronunciation-dictionaries) for more information about dictionary availability.
 2. Create a consonant-vowel dict where you specify which phonemes are consonants and which phonemes are vowels. You should take example on [consonant-vowel dicts for supported languages](https://github.com/nbusser/SM-Dictionaries/blob/master/fr/fr_consonant_vowel.dict). Do not forget to add the line ```SPACE sp```.
 
-I would recommend you to read this [issue thread](https://github.com/pop123123123/sentence-mixing/issues/1) as well to get a practical example.
+### I cannot find any pre-made dictionary
+
+If there is no premade dictionary, you will have to generate a new one.
+
+What you can do is to find another dictionary, using another set of phoneme symbols.  
+You will then have to change this new set of phonemes to match the phonemes of the MFA pretrained model.
+
+MFA's [g2p application](https://github.com/nbusser/SM-Dictionaries/commit/93f7326af0142c93358d59c087e85b76740e8d82) can help. It gives, for each labeled word of an audio file, its decomposition to model phonemes.  
+So, if you have a doubt when replacing a dictionary phonem symbol by a model symbol, you can use this tool to see the role of model phonem symbols.
+
+I would recommend you to read this [issue thread](https://github.com/pop123123123/sentence-mixing/issues/1) as well to get a practical example of this problem.
 
 *Feel free to pull request your work !*
