@@ -6,6 +6,8 @@ import sentence_mixing.logic.utils as utils
 from sentence_mixing.model.choice import Choice, Combo
 from sentence_mixing.model.exceptions import Interruption, PhonemError
 
+audio_data = None
+
 
 def compute_children(target_phonem, nodes_left, choice):
     """
@@ -34,7 +36,7 @@ def compute_children(target_phonem, nodes_left, choice):
     chosen = []
 
     # Get all associations, sorted by decreasing scores
-    association_candidates = global_audio_data.get_candidates(target_phonem)
+    association_candidates = audio_data.get_candidates(target_phonem)
 
     # This modif will be used to attenuate score
     modif = params.START_MODIF
@@ -116,8 +118,9 @@ def get_n_best_combos(sentence, videos, n=100, interrupt_callback=None):
 
     To counter this problem, we use a limited number of "nodes" Choices.
     """
+    global audio_data
 
-    global_audio_data.set_videos(videos)
+    audio_data = global_audio_data.audioDataFactory(videos)
 
     target_phonems = utils.get_phonems(sentence.words)
 
@@ -132,5 +135,7 @@ def get_n_best_combos(sentence, videos, n=100, interrupt_callback=None):
         combos.extend(combo.get_combos())
 
     combos.sort(key=lambda c: c.get_score(), reverse=True)
+
+    audio_data = None
 
     return combos[:n]

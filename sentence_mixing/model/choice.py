@@ -2,7 +2,6 @@ import functools
 
 import sentence_mixing.logic.analyze
 import sentence_mixing.logic.analyze_step_3 as step_3
-import sentence_mixing.logic.global_audio_data as global_audio_data
 import sentence_mixing.logic.parameters as params
 from sentence_mixing.model.scorable import Scorable
 
