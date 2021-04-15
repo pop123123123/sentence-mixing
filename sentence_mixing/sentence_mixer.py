@@ -9,9 +9,10 @@ import youtube_dl
 import sentence_mixing.config as config
 import sentence_mixing.logic.analyze as analyze
 import sentence_mixing.logic.parameters as params
+import sentence_mixing.logic.randomizer
 import sentence_mixing.logic.video_processing as video_processing
 import sentence_mixing.model.target as target
-import sentence_mixing.logic.randomizer
+from sentence_mixing.logic.global_audio_data import audioDataFactory
 from sentence_mixing.serialize import load, save
 
 
@@ -24,9 +25,24 @@ def prepare_sm_config_dict(config_dict):
     """Set the global config dict with the dict config_dict"""
     config.set_config_dict(config_dict)
 
+
+SEED = None
 # Random snapshot
 # Initialized during get_videos(), then used as reference by process_sm()
-GET_VIDEO_RANDOM = None
+GET_VIDEO_RANDOM = {}
+
+
+def get_global_randomizer(video_urls):
+    hash_ = sum(hash(v) for v in video_urls)
+    if hash_ not in GET_VIDEO_RANDOM:
+        GET_VIDEO_RANDOM[hash_] = random.Random(SEED)
+    return GET_VIDEO_RANDOM[hash_]
+
+
+def get_global_randomizer_from_videos(videos):
+    video_urls = [v.url for v in videos]
+    return get_global_randomizer(video_urls)
+
 
 def get_videos(video_urls, seed):
     """
@@ -37,15 +53,18 @@ def get_videos(video_urls, seed):
     Arguments:
     video_urls -- List[string]: youtube links of the input videos
     seed -- int: initialization seed for random number generation
+    WARNING! THE SEED MUST BE THE SAME FOR ALL SUBEXECUTIONS
 
     Returns:
     A list of Video objects containing the full SM model.
     """
 
     # Initializing random generation snapshot
-    global GET_VIDEO_RANDOM
-    GET_VIDEO_RANDOM = random.Random(seed)
-    rand = sentence_mixing.logic.randomizer.Randomizer(GET_VIDEO_RANDOM)
+    global SEED
+    SEED = seed
+    rand = sentence_mixing.logic.randomizer.Randomizer(
+        get_global_randomizer(video_urls)
+    )
 
     if not config.is_ready():
         raise Exception(
@@ -60,13 +79,14 @@ def get_videos(video_urls, seed):
     ):
         videos = video_processing.preprocess_and_align(video_urls, rand)
         save(videos)
+    # IMPORTANT: Used to advance the randomizer to next state before the
+    # calls to process_sm
+    audioDataFactory(videos).get_transcription_dict_audio_phonem()
     return videos
 
 
 # assuming french for now
-def process_sm(
-    sentence, videos, seed=params.DEFAULT_SEED, interrupt_callback=None
-):
+def process_sm(sentence, videos, interrupt_callback=None):
     """
     Reorders the phonems contained in videos model to sound like sentence
 
@@ -90,13 +110,17 @@ def process_sm(
 
     # This object is used to start random generation from GET_VIDEO_RANDOM
     # snapshot
-    randomizer = sentence_mixing.logic.randomizer.Randomizer()
+    randomizer = sentence_mixing.logic.randomizer.Randomizer(
+        get_global_randomizer_from_videos(videos)
+    )
 
     # transcribe sentence to pseudo-phonetic string
     target_sentence = target.TargetSentence(sentence)
 
     combos = analyze.get_n_best_combos(
-        target_sentence, videos, randomizer,
-        interrupt_callback=interrupt_callback
+        target_sentence,
+        videos,
+        randomizer,
+        interrupt_callback=interrupt_callback,
     )
     return combos

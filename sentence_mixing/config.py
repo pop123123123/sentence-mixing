@@ -2,6 +2,7 @@ import json
 
 config_errmsg = {
     "align_exe": "the path to the Montreal align executable",
+    "g2p_exe": "the path to the Montreal g2p executable",
     "dict_path": "the path to the phonem dictionary",
     "dict_consonant_vowel_path": "the path to the consonant-voyel phonem classifier dict",
     "trained_model": "the path to the trained model",

@@ -143,6 +143,4 @@ def get_n_best_combos(
 
     combos.sort(key=lambda c: c.get_score(), reverse=True)
 
-    audio_data = None
-
     return combos[:n]

@@ -3,10 +3,14 @@ import random
 
 from sentence_mixing.model.association import association_builder
 
+DATA = {}
 
-@functools.lru_cache(maxsize=3)
+
 def audioDataFactory(videos):
-    return AudioData(videos)
+    hash_ = sum(hash(v) for v in videos)
+    if hash_ not in DATA:
+        DATA[hash_] = AudioData(videos)
+    return DATA[hash_]
 
 
 class AudioData:
@@ -14,7 +18,7 @@ class AudioData:
         self.videos = videos
 
     @functools.lru_cache(maxsize=1)
-    def get_all_audio_phonems(self, randomizer):
+    def get_all_audio_phonems(self):
         """
         Retrieve all the audio phonems from the video corpus
         Rases exception if video was not set before
@@ -27,11 +31,15 @@ class AudioData:
             for w in s.words
             for p in w.phonems
         ]
-        randomizer.rand.shuffle(audio_phonems)
+        from sentence_mixing.sentence_mixer import (
+            get_global_randomizer_from_videos,
+        )
+
+        get_global_randomizer_from_videos(self.videos).shuffle(audio_phonems)
         return audio_phonems
 
     @functools.lru_cache(maxsize=1)
-    def get_transcription_dict_audio_phonem(self, randomizer):
+    def get_transcription_dict_audio_phonem(self):
         """
         Builds a dictionary associating each possible phonem transcriptions with a list containing
         every audio_phonem having this transcription.
@@ -39,7 +47,7 @@ class AudioData:
 
         transcription_audio_phonem_dict = dict()
 
-        for phonem in self.get_all_audio_phonems(randomizer):
+        for phonem in self.get_all_audio_phonems():
             if phonem.transcription not in transcription_audio_phonem_dict:
                 transcription_audio_phonem_dict[phonem.transcription] = [
                     phonem
@@ -59,7 +67,7 @@ class AudioData:
         This list is sorted by score.
         """
 
-        audio_phonems = self.get_transcription_dict_audio_phonem(randomizer)[
+        audio_phonems = self.get_transcription_dict_audio_phonem()[
             target_phonem.transcription
         ]
         associations = [

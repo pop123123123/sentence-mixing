@@ -1,11 +1,29 @@
 import functools
+import os
 import re
+import sys
+import tempfile
 from itertools import groupby
 
 from num2words import num2words
 
 import sentence_mixing.config as config
 from sentence_mixing.model.exceptions import TokenAmbiguityError
+
+
+def parse_dict(dict_path):
+    with open(dict_path, encoding="utf-8") as f:
+        phonem_dict = dict()
+        previous = None
+        for line in f:
+            split = line.split(maxsplit=1)
+            k, v = split[0].upper(), split[1]
+            if k == previous:
+                phonem_dict[k] = None
+            else:
+                phonem_dict[k] = v
+            previous = k
+    return phonem_dict
 
 
 @functools.lru_cache(maxsize=None)
@@ -15,19 +33,7 @@ def get_dict():
     dict_path = config.get_property("dict_path")
 
     # Opens the dictionary file and puts it in a dict
-    with open(dict_path, encoding="utf-8") as f:
-        phonem_dict = dict()
-        previous = None
-        for line in f:
-            split = line.split(maxsplit=1)
-            k, v = split[0], split[1]
-            if k == previous:
-                phonem_dict[k] = None
-            else:
-                phonem_dict[k] = v
-            previous = k
-
-    return phonem_dict
+    return parse_dict(dict_path)
 
 
 def get_dict_entry(token):
@@ -39,7 +45,14 @@ def get_dict_entry(token):
         If the token has multiple pronunciations.
     """
 
-    w = get_dict()[token]
+    w = None
+    if token in get_dict():
+        w = get_dict()[token]
+    else:
+        try:
+            w = infer_phonems(token)
+        except KeyError:
+            get_dict()[token]
     if w is None:
         raise TokenAmbiguityError(token)
 
@@ -138,6 +151,22 @@ def from_word_to_token(word):
         return "<TRASH>"
 
     return word.upper()
+
+
+@functools.lru_cache(maxsize=None)
+def infer_phonems(token):
+    with tempfile.TemporaryDirectory() as path:
+        file_path = os.path.join(path, "a.lab")
+        out_path = os.path.join(path, "out")
+        with open(file_path, "w") as f:
+            f.writelines([token])
+
+        exe_path = config.get_property("g2p_exe")
+        model_path = config.get_property("g2p_model")
+        command = f'{exe_path} "{model_path}" "{path}" "{out_path}"'
+        os.system(command)
+        dictionnary = parse_dict(out_path)
+    return dictionnary[token]
 
 
 def from_token_to_phonem(token):
