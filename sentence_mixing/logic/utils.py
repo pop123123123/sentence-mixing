@@ -27,9 +27,9 @@ def get_phonems(words_or_phonems):
     )
 
 
-def sequence_association(start_association, reverse=False):
+def sequence_association(start_association, randomizer, reverse=False):
     return map(
-        lambda phs: model.association.association_builder(*phs),
+        lambda phs: model.association.association_builder(*phs, randomizer),
         zip(
             sequence_phonem(start_association.target_phonem, reverse=reverse),
             sequence_phonem(start_association.audio_phonem, reverse=reverse),
@@ -119,9 +119,9 @@ def compute_nodes_left(base_nodes, total, rating):
     return (base_nodes - 1) * rating / total
 
 
-def association_sequence_from_words(words):
+def association_sequence_from_words(words, randomizer):
     return map(
-        lambda x: model.association.association_builder(*x),
+        lambda x: model.association.association_builder(*x, randomizer),
         itertools.chain(
             *map(lambda w: zip(w[0].phonems, w[1].phonems), words)
         ),

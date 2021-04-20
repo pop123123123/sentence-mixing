@@ -7,7 +7,7 @@ from sentence_mixing.model.choice import Choice, Combo
 from sentence_mixing.model.exceptions import Interruption, PhonemError
 
 
-def compute_children(target_phonem, nodes_left, choice):
+def compute_children(target_phonem, nodes_left, choice, randomizer):
     """
     This function choses several audio_phonems for a given target_phonem.
     Sequentially choses an association, then decreasing a score modifier.
@@ -19,6 +19,8 @@ def compute_children(target_phonem, nodes_left, choice):
                  When this number of resources is too low, stop exploring the children
     choice - choice that called this function
              None when selecting the root choices
+
+    randomizer - object used to guarantee determinism
 
     Returns:
     a list of children Choice corresponding to the selected associations
@@ -34,7 +36,7 @@ def compute_children(target_phonem, nodes_left, choice):
     chosen = []
 
     # Get all associations, sorted by decreasing scores
-    association_candidates = global_audio_data.get_candidates(target_phonem)
+    association_candidates = global_audio_data.get_candidates(target_phonem, randomizer)
 
     # This modif will be used to attenuate score
     modif = params.START_MODIF
@@ -93,13 +95,14 @@ def compute_children(target_phonem, nodes_left, choice):
             choice,
             association,
             utils.compute_nodes_left(nodes_left, total, computed_rate,),
-            *rate
+            *rate,
+            randomizer,
         )
         for association, rate, computed_rate in chosen
     ]
 
 
-def get_n_best_combos(sentence, videos, n=100, interrupt_callback=None):
+def get_n_best_combos(sentence, videos, randomizer, n=100, interrupt_callback=None):
     """
     Computes best n combos for a given sentence and set of videos
 
@@ -121,7 +124,7 @@ def get_n_best_combos(sentence, videos, n=100, interrupt_callback=None):
 
     target_phonems = utils.get_phonems(sentence.words)
 
-    roots = compute_children(target_phonems[0], params.NODES, None)
+    roots = compute_children(target_phonems[0], params.NODES, None, randomizer)
 
     combos = []
     for combo in roots:

@@ -89,11 +89,11 @@ class AudioPhonem(Phonem, VideoSegment, Scorable):
     An AudioPhonem has a step 1 phonem score.
     """
 
-    def __init__(self, word, transcription, start, end):
+    def __init__(self, word, transcription, start, end, randomizer):
         Phonem.__init__(self, AudioWord, word, transcription)
         VideoSegment.__init__(self, start, end)
 
-        self.random_default_score = rnd.random_basic_score()
+        self.random_default_score = randomizer.random_basic_score()
         self.length_score = step_1.score_length(self)
 
     def _get_original_wave(self):

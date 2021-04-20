@@ -152,7 +152,7 @@ def _align_phonems():
     return out_dir
 
 
-def _parse_align_result(textgrid_path, subtitle):
+def _parse_align_result(textgrid_path, subtitle, randomizer):
     """
     Retrieves and parses the result of the aligner and enriches given subtitle objet by creating
     associated AudioWords and AudioPhonem
@@ -193,13 +193,14 @@ def _parse_align_result(textgrid_path, subtitle):
                 if transcription in tp.get_all_phonems():
                     audio_word.add_phonem(
                         audio.AudioPhonem(
-                            audio_word, transcription, start_phon, end_phon
+                            audio_word, transcription, start_phon, end_phon,
+                            randomizer
                         )
                     )
             i_phonems += 1
 
 
-def preprocess_and_align(video_urls):
+def preprocess_and_align(video_urls, randomizer):
     """
     Build all the model objects for several video urls by downloading videos and analysing the
     videos using Montreal aligner.
@@ -228,6 +229,6 @@ def preprocess_and_align(video_urls):
             textgrid_path = os.path.join(
                 out_dir, video.get_hashed_basename() + str(i) + ".TextGrid"
             )
-            _parse_align_result(textgrid_path, subtitle)
+            _parse_align_result(textgrid_path, subtitle, randomizer)
 
     return videos

@@ -2,7 +2,11 @@ import functools
 
 
 class Scorable:
-    """Interface implemented by all the objects that carry a score"""
+    """
+    Interface implemented by all the objects that carry a score.
+    Every scorable has a reference to a Randomizer object. This object is used
+    to handle every random operation occuring during score calculation.
+    """
 
     @functools.lru_cache(maxsize=None)
     def get_total_score(self):
