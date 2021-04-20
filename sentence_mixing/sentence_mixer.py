@@ -11,6 +11,7 @@ import sentence_mixing.logic.analyze as analyze
 import sentence_mixing.logic.parameters as params
 import sentence_mixing.logic.video_processing as video_processing
 import sentence_mixing.model.target as target
+import sentence_mixing.logic.randomizer
 from sentence_mixing.serialize import load, save
 
 
@@ -23,8 +24,11 @@ def prepare_sm_config_dict(config_dict):
     """Set the global config dict with the dict config_dict"""
     config.set_config_dict(config_dict)
 
+# Random snapshot
+# Initialized during get_videos(), then used as reference by process_sm()
+GET_VIDEO_RANDOM = None
 
-def get_videos(video_urls):
+def get_videos(video_urls, seed):
     """
     Builds full SM model from youtube video links.
     The associated youtube videos must have subtitles. Automatic subtitles
@@ -32,10 +36,16 @@ def get_videos(video_urls):
 
     Arguments:
     video_urls -- List[string]: youtube links of the input videos
+    seed -- int: initialization seed for random number generation
 
     Returns:
     A list of Video objects containing the full SM model.
     """
+
+    # Initializing random generation snapshot
+    global GET_VIDEO_RANDOM
+    GET_VIDEO_RANDOM = random.Random(seed)
+    rand = sentence_mixing.logic.randomizer.Randomizer(GET_VIDEO_RANDOM)
 
     if not config.is_ready():
         raise Exception(
@@ -48,7 +58,7 @@ def get_videos(video_urls):
         or len(videos) != len(video_urls)
         or any(map(lambda t: t[0].url != t[1], zip(videos, video_urls)))
     ):
-        videos = video_processing.preprocess_and_align(video_urls)
+        videos = video_processing.preprocess_and_align(video_urls, rand)
         save(videos)
     return videos
 
@@ -78,12 +88,15 @@ def process_sm(
             "Please, set config file before launching process_sm by calling prepare_sm"
         )
 
-    random.seed(seed)
+    # This object is used to start random generation from GET_VIDEO_RANDOM
+    # snapshot
+    randomizer = sentence_mixing.logic.randomizer.Randomizer()
 
     # transcribe sentence to pseudo-phonetic string
     target_sentence = target.TargetSentence(sentence)
 
     combos = analyze.get_n_best_combos(
-        target_sentence, videos, interrupt_callback=interrupt_callback
+        target_sentence, videos, randomizer,
+        interrupt_callback=interrupt_callback
     )
     return combos

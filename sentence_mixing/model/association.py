@@ -9,10 +9,10 @@ from sentence_mixing.model.scorable import Scorable
 
 
 @functools.lru_cache(maxsize=None)
-def association_builder(target_phonem, audio_phonem):
+def association_builder(target_phonem, audio_phonem, randomizer):
     """Cached association constructor"""
 
-    return Association(target_phonem, audio_phonem)
+    return Association(target_phonem, audio_phonem, randomizer)
 
 
 class Association(Scorable):
@@ -21,9 +21,10 @@ class Association(Scorable):
     It also constains a step 2 score, rating the association of phonems.
     """
 
-    def __init__(self, target_phonem, audio_phonem):
+    def __init__(self, target_phonem, audio_phonem, randomizer):
         self.target_phonem = target_phonem
         self.audio_phonem = audio_phonem
+        self.randomizer = randomizer
 
         self._step_2_same_phonem_score = (
             target_phonem.transcription == audio_phonem.transcription
@@ -43,7 +44,8 @@ class Association(Scorable):
             == self.audio_phonem.get_index_in_word()
         ):
             return step_2.rating_word_by_phonem_length(
-                len(list(self.sequence_dictionary_homophones_phonems()))
+                len(list(self.sequence_dictionary_homophones_phonems())),
+                self.randomizer
             )
         return 0
 
@@ -52,7 +54,8 @@ class Association(Scorable):
         """Rates a common sequence of phonem between target and audio"""
 
         return step_2.rating_sequence_by_phonem_length(
-            max(len(list(self.sequence_same_phonems())) - 1, 0)
+            max(len(list(self.sequence_same_phonems())) - 1, 0),
+            self.randomizer
         )
 
     @property
@@ -64,7 +67,8 @@ class Association(Scorable):
         """
 
         return step_2.rating_sequence_by_phonem_length(
-            max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0)
+            max(len(list(self.sequence_same_phonems(reverse=True))) - 1, 0),
+            self.randomizer
         )
 
     @property
@@ -112,7 +116,7 @@ class Association(Scorable):
         return utils.association_sequence_from_words(
             utils.get_sequence_dictionary_homophones(
                 self.target_phonem, self.audio_phonem, True
-            )
+            ), self.randomizer
         )
 
     def sequence_aligner_homophones_phonems(self):
@@ -125,7 +129,7 @@ class Association(Scorable):
         return utils.association_sequence_from_words(
             utils.get_sequence_aligner_homophones(
                 self.target_phonem, self.audio_phonem
-            )
+            ), self.randomizer
         )
 
     @functools.lru_cache(maxsize=None)
@@ -142,7 +146,7 @@ class Association(Scorable):
             itertools.takewhile(
                 lambda association: association.target_phonem.transcription
                 == association.audio_phonem.transcription,
-                utils.sequence_association(self, reverse=reverse),
+                utils.sequence_association(self, self.randomizer, reverse=reverse),
             )
         )
 

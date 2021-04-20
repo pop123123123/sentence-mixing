@@ -28,6 +28,7 @@ class Choice(Scorable):
         audio_spectral_score,
         audio_amplitude_score,
         previous_score,
+        randomizer,
     ):
         self.parent = parent
         self.nodes_left = nodes_left
@@ -38,6 +39,8 @@ class Choice(Scorable):
         self._audio_spectral_score = audio_spectral_score
         self._audio_amplitude_score = audio_amplitude_score
         self._previous_score = previous_score
+
+        self.randomizer = randomizer
 
     def get_self_and_previous_choices(self):
         """This is a generator used to retrieve the current Choice and all its parents"""
@@ -124,7 +127,13 @@ class Choice(Scorable):
 
             # If at least a one-word-length sequence has be found
             if len(dictionary_homophones_phonems) > 2:
-                return [SkippedChoice(self, dictionary_homophones_phonems[1:])]
+                return [
+                    SkippedChoice(
+                        self,
+                        dictionary_homophones_phonems[1:],
+                        self.randomizer,
+                    )
+                ]
             # If the word sequence contains a word of only two phonem
             elif len(dictionary_homophones_phonems) == 2:
                 return [
@@ -135,12 +144,17 @@ class Choice(Scorable):
                         *self.compute_child_step_3_score(
                             dictionary_homophones_phonems[1]
                         ),
+                        self.randomizer,
                     )
                 ]
 
             # If at least a one-word-length sequence has be found
             elif len(aligner_homophones_phonems) > 2:
-                return [SkippedChoice(self, aligner_homophones_phonems[1:])]
+                return [
+                    SkippedChoice(
+                        self, aligner_homophones_phonems[1:], self.randomizer
+                    )
+                ]
             # If the word sequence contains a word of only two phonem
             elif len(aligner_homophones_phonems) == 2:
                 return [
@@ -151,6 +165,7 @@ class Choice(Scorable):
                         *self.compute_child_step_3_score(
                             aligner_homophones_phonems[1]
                         ),
+                        self.randomizer,
                     )
                 ]
 
@@ -160,7 +175,7 @@ class Choice(Scorable):
         )
         # A common phonem sequence has been found
         if len(same_phonems) > 2:
-            return [SkippedChoice(self, same_phonems[1:])]
+            return [SkippedChoice(self, same_phonems[1:], self.randomizer)]
         elif len(same_phonems) == 2:
             return [
                 Choice(
@@ -168,13 +183,14 @@ class Choice(Scorable):
                     same_phonems[1],
                     self.nodes_left,
                     *self.compute_child_step_3_score(same_phonems[1]),
+                    self.randomizer,
                 )
             ]
 
         # Normal workflow
         target_phonem = self.association.target_phonem.next_in_seq()
         return sentence_mixing.logic.analyze.compute_children(
-            target_phonem, self.nodes_left, self
+            target_phonem, self.nodes_left, self, self.randomizer
         )
 
     def get_combos(self):
@@ -255,13 +271,14 @@ class SkippedChoice(Choice):
                          of 'r', 'i', 'k', second will have 'i', 'k'...
     """
 
-    def __init__(self, parent, associations_list):
+    def __init__(self, parent, associations_list, randomizer):
         Choice.__init__(
             self,
             parent,
             associations_list[0],
             parent.nodes_left,
             *parent.compute_child_step_3_score(associations_list[0]),
+            randomizer,
         )
         self._associations_list = associations_list[1:]
 
@@ -275,12 +292,18 @@ class SkippedChoice(Choice):
         """
 
         if len(self._associations_list) > 1:
-            return [SkippedChoice(self, self._associations_list)]
+            return [
+                SkippedChoice(self, self._associations_list, self.randomizer)
+            ]
         else:
             score = self.compute_child_step_3_score(self._associations_list[0])
             return [
                 Choice(
-                    self, self._associations_list[0], self.nodes_left, *score
+                    self,
+                    self._associations_list[0],
+                    self.nodes_left,
+                    *score,
+                    self.randomizer,
                 )
             ]
 
