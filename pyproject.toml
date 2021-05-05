@@ -1,6 +1,6 @@
 [project]
 name = "sentence-mixing"
-version = "1.3.0"
+version = "1.3.1"
 description = "Sentence mixing library"
 authors = [
     "Nicolas Busser, Louis Mouhat"

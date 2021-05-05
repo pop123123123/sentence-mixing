@@ -163,7 +163,9 @@ def infer_phonems(token):
 
         exe_path = config.get_property("g2p_exe")
         model_path = config.get_property("g2p_model")
-        command = f'{exe_path} "{model_path}" "{path}" "{out_path}"'
+        command = (
+            f'{exe_path} -t "{path}" "{model_path}" "{path}" "{out_path}"'
+        )
         os.system(command)
         dictionnary = parse_dict(out_path)
     return dictionnary[token]
