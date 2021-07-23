@@ -36,7 +36,7 @@ This config file should be passed through the function ```prepare_sm_config_file
 Example for French language:
 - ```dict_path```: choose ```fr/fr.dict``` dictionary in [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries) repo
 - ```align_exe```: ```Montreal-Forced-Aligner/bin/mfa_align```
-- ```trained_model```: choose [french prosodylab model](https://github.com/MontrealCorpusTools/mfa-models/raw/master/acoustic/french_prosodylab.zip) among [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html)
+- ```trained_model```: choose [french prosodylab model](https://github.com/MontrealCorpusTools/mfa-models/raw/main/acoustic/french_prosodylab.zip) among [MFA pretrained model](https://montreal-forced-aligner.readthedocs.io/en/latest/pretrained_models.html)
 - ```lang```: ```fr```
 - ```dict_consonant_vowel_path```: choose ```fr/fr_consonant_vowel.dict``` consonant vowel dict in [SM-Dictionaries](https://github.com/nbusser/SM-Dictionaries) repo
 
