@@ -1,7 +1,7 @@
 import os
 import re
 
-import youtube_dl
+import yt_dlp
 
 
 # workaround for youtube-dl issue #5710
@@ -26,7 +26,7 @@ def dl_video(url):
         "outtmpl": ".downloads/%(id)s.%(title)s.%(ext)s",
         "logger": log,
     }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         filename = ydl.prepare_filename(ydl.extract_info(url))
         if not os.path.exists(filename):
             ydl.download([url])

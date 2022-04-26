@@ -6,7 +6,7 @@ from itertools import groupby
 from pathlib import Path
 
 import textgrid
-import youtube_dl
+import yt_dlp
 from scipy.io import wavfile
 
 import sentence_mixing.config as config
@@ -66,7 +66,7 @@ def _dl_videos(urls):
                 }
             ],
         }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             filename = ydl.prepare_filename(ydl.extract_info(url))
             ydl.download([url])
             base_path = os.path.splitext(filename)[0]

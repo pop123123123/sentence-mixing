@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sentence_mixing",
-    version="1.3.1",
+    version="1.3.2",
     author="Nicolas BUSSER, Louis MOUHAT",
     author_email="nicolas.busser67@gmail.com",
     description="Sentence mixing",
@@ -26,7 +26,7 @@ setuptools.setup(
     ],
     install_requires=[
         "textgrid",
-        "youtube_dl",
+        "yt_dlp",
         "num2words",
         "numpy",
         "scipy",

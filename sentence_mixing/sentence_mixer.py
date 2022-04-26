@@ -4,7 +4,6 @@ import random
 from sys import argv
 
 import textgrid
-import youtube_dl
 
 import sentence_mixing.config as config
 import sentence_mixing.logic.analyze as analyze
