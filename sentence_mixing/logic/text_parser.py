@@ -18,7 +18,7 @@ def parse_dict(dict_path):
         for line in f:
             split = line.split()
             split = list(filter(lambda c: not c.replace('.', '').isnumeric(), split))
-            k, v = split[0], ' '.join(split[1:])
+            k, v = split[0].upper(), ' '.join(split[1:])
 
             if k == previous:
                 phonem_dict[k] = None
