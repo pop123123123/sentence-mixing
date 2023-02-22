@@ -144,7 +144,9 @@ def _align_phonems():
     out_dir = tempfile.mkdtemp()
     temp_dir = tempfile.mkdtemp()
 
-    command = f'{align_exe} "{folder}" "{dict_path}" "{trained_model}" "{out_dir}"  -s {str(speakers)}'
+    quiet = '' if 'MFA_NO_QUIET' in os.environ else '--quiet'
+
+    command = f'{align_exe} "{folder}" "{dict_path}" "{trained_model}" "{out_dir}"  -s {str(speakers)} {quiet}'
 
     ret = os.system(command)
 

@@ -165,8 +165,11 @@ def infer_phonems(token):
 
         exe_path = config.get_property("g2p_exe")
         model_path = config.get_property("g2p_model")
+
+        quiet = '' if 'MFA_NO_QUIET' in os.environ else '--quiet'
+
         command = (
-            f'{exe_path} "{path}" "{model_path}" "{out_path}" --num_pronunciations 1'
+            f'{exe_path} "{path}" "{model_path}" "{out_path}" {quiet} --num_pronunciations 1'
         )
         os.system(command)
         dictionnary = parse_dict(out_path)
