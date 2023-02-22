@@ -1,6 +1,6 @@
 [project]
 name = "sentence-mixing"
-version = "1.4.0"
+version = "2.0.0"
 description = "Sentence mixing library"
 [[authors]]
 name = "Nicolas Busser"
