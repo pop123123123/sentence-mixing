@@ -183,10 +183,10 @@ def from_token_to_phonem(token):
     """
 
     if token == "SP":
-        return ["sp"]
+        return [""]
 
     if token == "<BLANK>":
-        return ["sp"]
+        return [""]
 
     if token == "<TRASH>":
         return None
