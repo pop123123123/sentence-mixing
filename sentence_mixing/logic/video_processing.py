@@ -190,8 +190,15 @@ def _parse_align_result(textgrid_path, subtitle, randomizer):
                 start_phon = phonems[i_phonems].bounds()[0] + subtitle.start
                 end_phon = phonems[i_phonems].bounds()[1] + subtitle.start
 
+                # On some acocustic models, blanks are represented by '' transcript
+                # This is annoying to manipulate empty string. Thus, we convert it to "sp" transcript
+                # NB: this would somewhat break prosodylab model, since it uses '' transcript for another
+                # usage than blank sound
+                if transcription == '':
+                    transcription = 'sp'
+
                 # Only creates phonem if it is exploitable
-                # Excludes phonems whose transcription like 'sil', 'spn', ''
+                # Excludes phonems whose transcription like 'sil', 'spn'
                 if transcription in tp.get_all_phonems():
                     audio_word.add_phonem(
                         audio.AudioPhonem(
