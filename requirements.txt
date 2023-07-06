@@ -4,4 +4,4 @@ yt-dlp==2022.4.8
 TextGrid==1.5
 num2words==0.5.10
 numpy==1.22.3
-scipy==1.8.0
+scipy==1.10.0
