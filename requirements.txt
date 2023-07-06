@@ -1,6 +1,6 @@
 webvtt_py==0.4.5
 moviepy==1.0.3
-yt-dlp==2022.4.8
+yt-dlp==2023.7.6
 TextGrid==1.5
 num2words==0.5.10
 numpy==1.22.3
